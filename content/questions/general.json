@@ -1,0 +1,61 @@
+{
+  "graphId": "general",
+  "nodes": [
+    {
+      "id": "general_allergies",
+      "type": "question",
+      "slotId": "allergies",
+      "text": "Do you have any known allergies (medicines, food, or other)?",
+      "inputType": "text_or_none",
+      "placeholder": "e.g. Penicillin, peanuts",
+      "noneLabel": "No known allergies",
+      "next": "general_medicines"
+    },
+    {
+      "id": "general_medicines",
+      "type": "question",
+      "slotId": "current_medicines",
+      "text": "Are you currently taking any medicines?",
+      "inputType": "text_or_none",
+      "placeholder": "e.g. Metformin 500mg, Aspirin",
+      "noneLabel": "No current medicines",
+      "next": "general_past_history"
+    },
+    {
+      "id": "general_past_history",
+      "type": "question",
+      "slotId": "past_medical_history",
+      "text": "Do you have any past medical conditions?",
+      "inputType": "multiselect",
+      "options": [
+        { "value": "diabetes", "label": "Diabetes" },
+        { "value": "hypertension", "label": "High blood pressure" },
+        { "value": "heart_disease", "label": "Heart disease" },
+        { "value": "asthma", "label": "Asthma" },
+        { "value": "thyroid", "label": "Thyroid disorder" },
+        { "value": "none", "label": "None" }
+      ],
+      "next": "general_surgical"
+    },
+    {
+      "id": "general_surgical",
+      "type": "question",
+      "slotId": "surgical_history",
+      "text": "Have you had any surgeries in the past?",
+      "inputType": "text_or_none",
+      "placeholder": "e.g. Appendectomy 2019",
+      "noneLabel": "No surgeries",
+      "next": "general_family"
+    },
+    {
+      "id": "general_family",
+      "type": "question",
+      "slotId": "family_history",
+      "text": "Any significant medical conditions in your immediate family?",
+      "inputType": "text_or_none",
+      "placeholder": "e.g. Father - diabetes",
+      "noneLabel": "None known",
+      "next": "END"
+    }
+  ]
+}

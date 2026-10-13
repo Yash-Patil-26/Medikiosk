@@ -1,0 +1,26 @@
+[
+  {
+    "drug1": "warfarin",
+    "drug2": "aspirin",
+    "severity": "major",
+    "note": "Medication interaction flag — priority for clinician review."
+  },
+  {
+    "drug1": "metformin",
+    "drug2": "alcohol",
+    "severity": "moderate",
+    "note": "Medication interaction flag — priority for clinician review."
+  },
+  {
+    "drug1": "lisinopril",
+    "drug2": "potassium",
+    "severity": "moderate",
+    "note": "Medication interaction flag — priority for clinician review."
+  },
+  {
+    "drug1": "simvastatin",
+    "drug2": "amiodarone",
+    "severity": "major",
+    "note": "Medication interaction flag — priority for clinician review."
+  }
+]

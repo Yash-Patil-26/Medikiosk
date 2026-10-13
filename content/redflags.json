@@ -1,0 +1,68 @@
+[
+  {
+    "ruleId": "RF001",
+    "level": "critical",
+    "description": "Chest discomfort with severe breathing difficulty",
+    "conditions": {
+      "operator": "AND",
+      "slots": [
+        { "slotId": "complaint", "value": "chest_discomfort" },
+        { "slotId": "breathing_difficulty", "value": "severe" }
+      ]
+    },
+    "reason": "Priority for staff review."
+  },
+  {
+    "ruleId": "RF002",
+    "level": "critical",
+    "description": "Chest discomfort with radiation to arm or jaw",
+    "conditions": {
+      "operator": "AND",
+      "slots": [
+        { "slotId": "complaint", "value": "chest_discomfort" },
+        { "slotId": "radiation", "value": "arm_or_jaw" }
+      ]
+    },
+    "reason": "Priority for staff review."
+  },
+  {
+    "ruleId": "RF003",
+    "level": "critical",
+    "description": "Severe headache with sudden onset",
+    "conditions": {
+      "operator": "AND",
+      "slots": [
+        { "slotId": "complaint", "value": "headache" },
+        { "slotId": "onset_type", "value": "sudden" },
+        { "slotId": "severity", "value": "severe" }
+      ]
+    },
+    "reason": "Priority for staff review."
+  },
+  {
+    "ruleId": "RF004",
+    "level": "warning",
+    "description": "High fever with altered consciousness",
+    "conditions": {
+      "operator": "AND",
+      "slots": [
+        { "slotId": "complaint", "value": "fever" },
+        { "slotId": "altered_consciousness", "value": "yes" }
+      ]
+    },
+    "reason": "Priority for staff review."
+  },
+  {
+    "ruleId": "RF005",
+    "level": "warning",
+    "description": "Abdominal pain with severity 8 or above",
+    "conditions": {
+      "operator": "AND",
+      "slots": [
+        { "slotId": "complaint", "value": "abdominal_pain" },
+        { "slotId": "severity_score", "operator": "gte", "value": "8" }
+      ]
+    },
+    "reason": "Priority for staff review."
+  }
+]

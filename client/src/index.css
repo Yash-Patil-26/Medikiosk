@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { @apply bg-white text-gray-900 font-sans; }
+  .high-contrast body { @apply bg-black text-white; }
+}
+
+@layer utilities {
+  .touch-target { min-height: 48px; min-width: 48px; }
+  .touch-target-lg { min-height: 96px; }
+}

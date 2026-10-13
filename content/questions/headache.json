@@ -1,0 +1,46 @@
+{
+  "graphId": "headache",
+  "complaint": "headache",
+  "nodes": [
+    {
+      "id": "ha_site",
+      "type": "question",
+      "slotId": "headache_site",
+      "text": "Where is the headache located?",
+      "inputType": "choice",
+      "options": [
+        { "value": "forehead", "label": "Forehead" },
+        { "value": "temples", "label": "Temples" },
+        { "value": "back_of_head", "label": "Back of head" },
+        { "value": "one_side", "label": "One side" },
+        { "value": "whole_head", "label": "Whole head" }
+      ],
+      "next": "ha_onset"
+    },
+    {
+      "id": "ha_onset",
+      "type": "question",
+      "slotId": "onset_type",
+      "text": "How did the headache start?",
+      "inputType": "choice",
+      "options": [
+        { "value": "sudden", "label": "Suddenly (worst headache of life)" },
+        { "value": "gradual", "label": "Gradually" }
+      ],
+      "next": "ha_severity"
+    },
+    {
+      "id": "ha_severity",
+      "type": "question",
+      "slotId": "severity",
+      "text": "How severe is the headache?",
+      "inputType": "choice",
+      "options": [
+        { "value": "mild", "label": "Mild" },
+        { "value": "moderate", "label": "Moderate" },
+        { "value": "severe", "label": "Severe" }
+      ],
+      "next": "general_allergies"
+    }
+  ]
+}

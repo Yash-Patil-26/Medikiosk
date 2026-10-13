@@ -1,0 +1,58 @@
+{
+  "graphId": "fever",
+  "complaint": "fever",
+  "nodes": [
+    {
+      "id": "fever_onset",
+      "type": "question",
+      "slotId": "onset_type",
+      "text": "When did the fever start?",
+      "inputType": "choice",
+      "options": [
+        { "value": "today", "label": "Today" },
+        { "value": "yesterday", "label": "Yesterday" },
+        { "value": "2_3_days", "label": "2-3 days ago" },
+        { "value": "week_plus", "label": "More than a week" }
+      ],
+      "next": "fever_temp"
+    },
+    {
+      "id": "fever_temp",
+      "type": "question",
+      "slotId": "temperature",
+      "text": "Do you know your temperature reading?",
+      "inputType": "choice",
+      "options": [
+        { "value": "low_grade", "label": "Low grade (99-100°F)" },
+        { "value": "moderate", "label": "Moderate (100-102°F)" },
+        { "value": "high", "label": "High (above 102°F)" },
+        { "value": "unknown", "label": "I don't know" }
+      ],
+      "next": "fever_chills"
+    },
+    {
+      "id": "fever_chills",
+      "type": "question",
+      "slotId": "chills",
+      "text": "Do you have chills or shivering?",
+      "inputType": "choice",
+      "options": [
+        { "value": "yes", "label": "Yes" },
+        { "value": "no", "label": "No" }
+      ],
+      "next": "fever_consciousness"
+    },
+    {
+      "id": "fever_consciousness",
+      "type": "question",
+      "slotId": "altered_consciousness",
+      "text": "Have you felt confused or had any change in awareness?",
+      "inputType": "choice",
+      "options": [
+        { "value": "yes", "label": "Yes" },
+        { "value": "no", "label": "No" }
+      ],
+      "next": "general_allergies"
+    }
+  ]
+}

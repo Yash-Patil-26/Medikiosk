@@ -1,0 +1,42 @@
+{
+  "disclaimer": "AYUSH fields are patient-reported and require physician review. Clinical content may be unreviewed.",
+  "sections": [
+    {
+      "id": "prakriti",
+      "label": "Prakriti (Patient Reported)",
+      "fields": [
+        { "id": "prakriti_type", "label": "Prakriti Type", "type": "select", "options": ["Vata", "Pitta", "Kapha", "Vata-Pitta", "Pitta-Kapha", "Vata-Kapha", "Tridosha", "Unknown"] }
+      ]
+    },
+    {
+      "id": "vikriti",
+      "label": "Vikriti (Current Imbalance - Patient Reported)",
+      "fields": [
+        { "id": "vikriti_description", "label": "Describe current imbalance", "type": "text" }
+      ]
+    },
+    {
+      "id": "agni",
+      "label": "Agni (Digestive Fire - Patient Reported)",
+      "fields": [
+        { "id": "agni_type", "label": "Digestive pattern", "type": "select", "options": ["Regular", "Irregular", "Slow", "Hyperactive", "Unknown"] }
+      ]
+    },
+    {
+      "id": "ahara",
+      "label": "Ahara (Diet)",
+      "fields": [
+        { "id": "diet_type", "label": "Diet type", "type": "select", "options": ["Vegetarian", "Non-vegetarian", "Vegan", "Mixed"] },
+        { "id": "meal_frequency", "label": "Meals per day", "type": "number" }
+      ]
+    },
+    {
+      "id": "vihara",
+      "label": "Vihara (Lifestyle)",
+      "fields": [
+        { "id": "sleep_hours", "label": "Sleep hours per night", "type": "number" },
+        { "id": "exercise", "label": "Exercise frequency", "type": "select", "options": ["Daily", "3-4 times/week", "Rarely", "Never"] }
+      ]
+    }
+  ]
+}
