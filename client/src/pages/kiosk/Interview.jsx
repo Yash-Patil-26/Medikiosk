@@ -19,11 +19,11 @@ export default function Interview() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [voiceResult, setVoiceResult] = useState(null);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState([]);
   const [textInput, setTextInput] = useState('');
 
   const fetchNext = useCallback(async () => {
-    setLoading(true); setVoiceResult(null); setSelected(null); setTextInput('');
+    setLoading(true); setVoiceResult(null); setSelected([]); setTextInput('');
     try {
       const r = await api.get(`/dialogue/${kiosk.sessionId}/next`);
       setNode(r.data);
@@ -71,12 +71,12 @@ export default function Interview() {
     return (
       <KioskShell step="Interview">
         <div className="flex flex-col items-center gap-6 mt-10 text-center">
-          <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center text-3xl">✓</div>
+          <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center text-3xl">âœ“</div>
           <h2 className="text-2xl font-bold text-gray-800">Interview Complete</h2>
           <p className="text-gray-500">Thank you for answering all questions.</p>
           <button onClick={() => navigate('/kiosk/documents')}
             className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700">
-            Continue →
+            Continue â†’
           </button>
         </div>
       </KioskShell>
@@ -105,12 +105,29 @@ export default function Interview() {
               <div className="grid grid-cols-2 gap-3">
                 {node.options.map(opt => (
                   <button key={opt.value}
-                    onClick={() => node.inputType === 'multiselect'
-                      ? setSelected(p => p === opt.value ? null : opt.value)
-                      : saveAnswer(opt.value, 'touch', opt.label, 'touch')}
+                    onClick={() => {
+                      if (node.inputType !== 'multiselect') {
+                        saveAnswer(opt.value, 'touch', opt.label, 'touch');
+                        return;
+                      }
+
+                      setSelected(current => {
+                        if (opt.value === 'none') {
+                          return current.length === 1 && current[0] === 'none'
+                            ? []
+                            : ['none'];
+                        }
+
+                        const withoutNone = current.filter(item => item !== 'none');
+
+                        return withoutNone.includes(opt.value)
+                          ? withoutNone.filter(item => item !== opt.value)
+                          : [...withoutNone, opt.value];
+                      });
+                    }}
                     disabled={saving}
                     className={`p-4 rounded-xl border-2 text-left font-medium transition touch-target
-                      ${selected === opt.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}>
+                      ${(node.inputType === 'multiselect' && selected.includes(opt.value)) ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}>
                     {opt.label}
                   </button>
                 ))}
@@ -155,8 +172,8 @@ export default function Interview() {
               </div>
             )}
 
-            {node.inputType === 'multiselect' && selected && (
-              <button onClick={() => saveAnswer(selected, 'touch', selected, 'touch')} disabled={saving}
+            {node.inputType === 'multiselect' && selected.length > 0 && (
+              <button onClick={() => saveAnswer(selected, 'touch', selected.join(', '), 'touch')} disabled={saving}
                 className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">
                 {saving ? 'Saving...' : 'Confirm Selection'}
               </button>

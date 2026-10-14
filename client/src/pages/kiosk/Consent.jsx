@@ -32,37 +32,50 @@ export default function Consent() {
 
   const proceed = async () => {
     setLoading(true);
+    let createdSessionId = null;
+
     try {
       const r = await api.post('/sessions', {
         patient_id: kiosk.patientId,
         language: kiosk.language,
         ayush_mode: kiosk.ayushMode
       });
-      update({
-        sessionId: r.data.id,
-        consents,
-        voice_consent: consents.voice,
-        document_consent: consents.document
-      });
-      // Record consents
+
+      createdSessionId = r.data.id;
+
       for (const [key, granted] of Object.entries(consents)) {
         await api.post('/consents', {
           patient_id: kiosk.patientId,
-          session_id: r.data.id,
+          session_id: createdSessionId,
           purpose_key: key,
           granted,
           language: kiosk.language
         });
       }
-      await api.patch(`/sessions/${r.data.id}`, {
-        voice_consent: consents.voice ? 1 : 0,
-        document_consent: consents.document ? 1 : 0,
-        share_his_consent: consents.his ? 1 : 0,
-        save_dashboard_consent: consents.dashboard ? 1 : 0
+
+      update({
+        sessionId: createdSessionId,
+        consents,
+        voice_consent: consents.voice,
+        document_consent: consents.document,
+        share_his_consent: consents.his,
+        save_dashboard_consent: consents.dashboard
       });
+
       navigate('/kiosk/complaint');
-    } catch { alert('Error saving consent'); }
-    finally { setLoading(false); }
+    } catch {
+      if (createdSessionId) {
+        try {
+          await api.delete(`/sessions/${createdSessionId}`);
+        } catch {
+          console.error('Consent setup cleanup failed.');
+        }
+      }
+
+      alert('Error saving consent. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -99,7 +112,7 @@ export default function Consent() {
 
         <button onClick={proceed} disabled={!understood || loading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg disabled:opacity-40 transition">
-          {loading ? t('saving') : t('next') + ' →'}
+          {loading ? t('saving') : t('next') + '→'}
         </button>
       </div>
     </KioskShell>

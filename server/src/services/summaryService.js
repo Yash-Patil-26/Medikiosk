@@ -1,7 +1,48 @@
+﻿function parseJsonColumn(value, fallback = []) {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === 'object') return value;
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
+const MEDICAL_HISTORY_LABELS = {
+  diabetes: 'Diabetes',
+  hypertension: 'High blood pressure',
+  heart_disease: 'Heart disease',
+  asthma: 'Asthma',
+  thyroid: 'Thyroid disorder',
+  none: 'None'
+};
+
+export function formatMedicalHistory(value) {
+  if (value === null || value === undefined) return value;
+
+  let selections = value;
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) selections = parsed;
+    } catch {
+      return value;
+    }
+  }
+
+  if (!Array.isArray(selections)) return value;
+
+  return selections
+    .map(item => MEDICAL_HISTORY_LABELS[item] || item)
+    .join(', ');
+}
+
 export function buildSummary(slotMap, docs = []) {
-  const get = (key) => slotMap[key] || null;
-  const val = (key) => get(key)?.value || null;
-  const src = (key) => get(key)?.source || 'touch';
+  const get = key => slotMap[key] || null;
+  const val = key => get(key)?.value || null;
+  const src = key => get(key)?.source || 'touch';
 
   return {
     chiefComplaint: {
@@ -20,7 +61,7 @@ export function buildSummary(slotMap, docs = []) {
       source: 'patient_interview'
     },
     pastMedicalHistory: {
-      text: val('past_medical_history'),
+      text: formatMedicalHistory(val('past_medical_history')),
       source: src('past_medical_history'),
       confirmedBy: get('past_medical_history')?.confirmed_by || null
     },
@@ -44,14 +85,14 @@ export function buildSummary(slotMap, docs = []) {
       source: src('family_history'),
       confirmedBy: get('family_history')?.confirmed_by || null
     },
-    documentFindings: docs.map(d => ({
-      docType: d.doc_type,
-      date: d.doc_date,
-      provider: d.provider,
-      labs: d.labs_json ? JSON.parse(d.labs_json) : [],
-      medications: d.medications_json ? JSON.parse(d.medications_json) : [],
-      diagnoses: d.diagnoses_json ? JSON.parse(d.diagnoses_json) : [],
-      verifiedByPatient: !!d.verified_by_patient,
+    documentFindings: docs.map(doc => ({
+      docType: doc.doc_type,
+      date: doc.doc_date,
+      provider: doc.provider,
+      labs: parseJsonColumn(doc.labs_json),
+      medications: parseJsonColumn(doc.medications_json),
+      diagnoses: parseJsonColumn(doc.diagnoses_json),
+      verifiedByPatient: Boolean(doc.verified_by_patient),
       source: 'uploaded_document'
     }))
   };

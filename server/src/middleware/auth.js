@@ -1,13 +1,27 @@
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../config/jwt.js';
 
 export function authenticate(req, res, next) {
-  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  const token =
+    req.cookies?.token || req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  let secret;
+
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || 'change_this_secret');
-    next();
+    secret = getJwtSecret();
+  } catch (err) {
+    return next(err);
+  }
+
+  try {
+    req.user = jwt.verify(token, secret);
+    return next();
   } catch {
-    res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({ error: 'Invalid token' });
   }
 }
 
@@ -16,6 +30,7 @@ export function requireRole(...roles) {
     if (!roles.includes(req.user?.role)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    next();
+
+    return next();
   };
 }

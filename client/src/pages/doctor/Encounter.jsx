@@ -9,7 +9,9 @@ import api from '../../services/api.js';
 
 function SummarySection({ title, data, onEdit }) {
   const [editing, setEditing] = useState(false);
-  const [val, setVal] = useState(typeof data === 'object' ? data?.text || JSON.stringify(data) : data || '');
+  const [val, setVal] = useState(
+    typeof data === 'object' ? data?.text || JSON.stringify(data) : data || ''
+  );
 
   return (
     <div className="border rounded-xl p-4 bg-white">
@@ -39,6 +41,97 @@ function SummarySection({ title, data, onEdit }) {
   );
 }
 
+const HPI_FIELDS = [
+  { key: 'site', label: 'Location' },
+  { key: 'onset', label: 'Onset' },
+  { key: 'character', label: 'Character' },
+  { key: 'radiation', label: 'Radiation' },
+  { key: 'severity', label: 'Severity' },
+  { key: 'duration', label: 'Duration' },
+  { key: 'breathingDifficulty', label: 'Breathing difficulty' }
+];
+
+function HistoryPresentIllnessSection({ data, onSave, editable }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ ...data });
+
+  const startEditing = () => {
+    setDraft({ ...data });
+    setEditing(true);
+  };
+
+  const saveChanges = () => {
+    onSave({
+      ...draft,
+      source: data.source || 'patient_interview'
+    });
+    setEditing(false);
+  };
+
+  return (
+    <div className="border rounded-xl p-4 bg-white">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
+          History of Present Illness
+        </h3>
+        {editable && !editing && (
+          <button onClick={startEditing}
+            className="text-blue-500 hover:text-blue-700 p-1"
+            aria-label="Edit history of present illness">
+            <PenLine size={15} />
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {HPI_FIELDS.map(field => (
+              <label key={field.key} className="flex flex-col gap-1 text-sm text-gray-600">
+                <span>{field.label}</span>
+                <input
+                  value={draft[field.key] ?? ''}
+                  onChange={event => setDraft(current => ({
+                    ...current,
+                    [field.key]: event.target.value || null
+                  }))}
+                  className="border rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                />
+              </label>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button onClick={saveChanges}
+              className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium">
+              Save
+            </button>
+            <button onClick={() => {
+              setDraft({ ...data });
+              setEditing(false);
+            }}
+              className="px-3 py-1.5 bg-gray-100 rounded-lg text-xs">
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {HPI_FIELDS.map(field => (
+            <div key={field.key} className="text-sm">
+              <p className="text-gray-500">{field.label}</p>
+              <p className="text-gray-800">
+                {data[field.key] || <span className="text-gray-400 italic">Not recorded</span>}
+              </p>
+            </div>
+          ))}
+          <div className="sm:col-span-2">
+            <ProvenanceChip source={data.source || 'patient_interview'} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 export default function DoctorEncounter() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -66,9 +159,29 @@ export default function DoctorEncounter() {
   };
 
   const editSection = (key, subKey) => (val) => {
-    setSummary(p => ({ ...p, [key]: subKey ? { ...p[key], [subKey]: val } : { ...p[key], text: val } }));
-  };
+    setSummary(currentSummary => {
+      const current = currentSummary?.[key] || {};
+      let updated;
 
+      if (subKey) {
+        updated = { ...current, [subKey]: val };
+      } else if (
+        key === 'historyOfPresentIllness' &&
+        val &&
+        typeof val === 'object' &&
+        !Array.isArray(val)
+      ) {
+        updated = {
+          ...val,
+          source: current.source || 'patient_interview'
+        };
+      } else {
+        updated = { ...current, text: val };
+      }
+
+      return { ...currentSummary, [key]: updated };
+    });
+  };
   const sign = async () => {
     setSigning(true);
     try {
@@ -153,7 +266,7 @@ export default function DoctorEncounter() {
           {summary && (
             <>
               <SummarySection title="Chief Complaint" data={summary.chiefComplaint} onEdit={editSection('chiefComplaint')} />
-              <SummarySection title="History of Present Illness" data={{ text: JSON.stringify(summary.historyOfPresentIllness || {}), source: 'patient_interview' }} onEdit={editSection('historyOfPresentIllness')} />
+              <HistoryPresentIllnessSection data={summary.historyOfPresentIllness || {}} onSave={editSection('historyOfPresentIllness')} editable={!signed} />
               <SummarySection title="Past Medical History" data={summary.pastMedicalHistory} onEdit={editSection('pastMedicalHistory')} />
               <SummarySection title="Past Surgical History" data={summary.pastSurgicalHistory} onEdit={editSection('pastSurgicalHistory')} />
               <SummarySection title="Drug History" data={summary.drugHistory} onEdit={editSection('drugHistory')} />

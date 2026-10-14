@@ -14,7 +14,7 @@ router.get('/audit', authenticate, requireRole('admin'), async (req, res, next) 
 router.get('/purge-proof', authenticate, requireRole('admin', 'doctor'), async (req, res, next) => {
   try {
     const [rows] = await pool.query(
-      "SELECT * FROM audit_logs WHERE action = 'SESSION_PURGED' ORDER BY timestamp DESC LIMIT 50"
+      "SELECT * FROM audit_logs WHERE action IN ('SESSION_PURGED', 'SESSION_EXPIRED') ORDER BY timestamp DESC LIMIT 50"
     );
     res.json(rows);
   } catch (err) { next(err); }

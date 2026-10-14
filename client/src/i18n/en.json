@@ -85,7 +85,7 @@
   "review_note": "This information will be reviewed and verified by your doctor before any clinical decisions are made.",
   "no_answers": "No answers recorded yet.",
   "session_complete_desc": "Your information has been submitted. Your doctor will review it before your consultation.",
-  "purge_note": "Temporary kiosk data has been removed from the server. Only the finalized encounter record is retained.",
+  "purge_note": "Interview answers, transcript, and temporary document extraction results were removed. Consent history, red-flag alerts, audit evidence, and encounter records are retained.",
   "demo_accounts_label": "Demo Accounts:",
   "logging_in": "Logging in...",
   "back_to_home": "← Back to home",
@@ -136,5 +136,15 @@
   "feat_audit": "Audit Trail",
   "feat_audit_desc": "Full audit log of all actions",
   "feat_purge": "Session Purge",
-  "feat_purge_desc": "Temporary data deleted after submission"
+  "feat_purge_desc": "Temporary interview data removed after submission; audit records retained",
+  "purge_pending": "Removing temporary session data...",
+  "purge_failed": "Server-side purge could not be confirmed",
+  "purge_error": "Temporary data may still remain on the server. Retry before leaving this screen.",
+  "purge_missing_session": "The session ID is unavailable, so server-side purge cannot be verified.",
+  "purge_unconfirmed": "The server did not confirm that the purge completed.",
+  "purge_retry": "Retry Purge",
+  "purge_leave": "Leave Without Confirmation",
+  "purge_retained_title": "Records retained for traceability",
+  "idle_purge_pending": "Idle timeout reached. Removing temporary session data...",
+  "idle_purge_failed": "The session is still on this screen because server-side cleanup could not be confirmed."
 }

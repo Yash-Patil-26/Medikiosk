@@ -52,7 +52,7 @@ export default function Documents() {
   };
 
   const verify = async (idx, docId) => {
-    await api.post(`/documents/${docId}/verify`);
+    await api.post(`/documents/${docId}/verify`, { session_id: kiosk.sessionId });
     setExtractions(p => p.map((e, i) => i === idx ? { ...e, verified: true } : e));
   };
 

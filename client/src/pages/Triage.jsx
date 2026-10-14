@@ -38,6 +38,7 @@ export default function Triage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [alerts, setAlerts] = useState([]);
+  const [actionError, setActionError] = useState('');
   const intervalRef = useRef(null);
 
   const fetchAlerts = () => {
@@ -51,8 +52,17 @@ export default function Triage() {
   }, []);
 
   const ack = async (id) => {
-    await api.post(`/triage/alerts/${id}/acknowledge`);
-    fetchAlerts();
+    setActionError('');
+
+    try {
+      await api.post(`/triage/alerts/${id}/acknowledge`);
+    } catch (error) {
+      setActionError(
+        error.response?.data?.error || 'Could not acknowledge the alert. Please retry.'
+      );
+    } finally {
+      fetchAlerts();
+    }
   };
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
@@ -81,10 +91,16 @@ export default function Triage() {
           <span className="text-xs text-gray-400 animate-pulse">● Live — polling every 2s</span>
         </div>
 
+        {actionError && (
+          <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {actionError}
+          </p>
+        )}
+
         {alerts.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
             <CheckCircle size={48} className="mx-auto mb-3 text-teal-300" />
-            <p>No active alerts</p>
+            <p>No alerts</p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">

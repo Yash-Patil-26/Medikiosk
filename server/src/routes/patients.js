@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authenticate, requireRole } from '../middleware/auth.js';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../config/db.js';
 
@@ -23,7 +24,7 @@ router.post('/', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authenticate, requireRole('doctor', 'admin'), async (req, res, next) => {
   try {
     const [rows] = await pool.query(
       'SELECT id, sex, preferred_language, created_at FROM patients WHERE id = ?',

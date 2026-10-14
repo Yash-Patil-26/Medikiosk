@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS red_flags (
 CREATE TABLE IF NOT EXISTS encounters (
   id INT AUTO_INCREMENT PRIMARY KEY,
   patient_id INT,
+  session_id VARCHAR(36) NULL,
   token_no VARCHAR(20),
   language VARCHAR(10) DEFAULT 'en',
   ayush_mode TINYINT(1) DEFAULT 0,
@@ -113,12 +114,14 @@ CREATE TABLE IF NOT EXISTS encounters (
   summary_final_json JSON,
   doctor_notes TEXT,
   fhir_bundle_json LONGTEXT,
-  his_status ENUM('pending','sent','failed') DEFAULT 'pending',
+  his_status ENUM('pending','sent','failed','not_shared') DEFAULT 'pending',
   signed_by INT,
   signed_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_encounters_session_id (session_id),
   FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE SET NULL,
-  FOREIGN KEY (signed_by) REFERENCES users(id) ON DELETE SET NULL
+  FOREIGN KEY (signed_by) REFERENCES users(id) ON DELETE SET NULL,
+  CONSTRAINT fk_encounters_session_id FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS consents (

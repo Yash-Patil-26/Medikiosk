@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
+import { getJwtSecret } from '../config/jwt.js';
 import { authenticate } from '../middleware/auth.js';
 import { log } from '../utils/audit.js';
 
@@ -21,7 +22,7 @@ router.post('/login', async (req, res, next) => {
 
     const token = jwt.sign(
       { id: user.id, role: user.role, username: user.username, display_name: user.display_name },
-      process.env.JWT_SECRET || 'change_this_secret',
+      getJwtSecret(),
       { expiresIn: '8h' }
     );
 

@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../config/db.js';
 import { log } from '../utils/audit.js';
+import { findSession, getSession, requireActiveSession } from '../utils/sessionAccess.js';
+import { clearTemporarySessionData } from '../utils/sessionCleanup.js';
 
 const router = Router();
 
@@ -10,49 +12,277 @@ router.post('/', async (req, res, next) => {
     const { patient_id, language, ayush_mode, graph_id } = req.body;
     const id = uuidv4();
     const expires_at = new Date(Date.now() + 2 * 3600 * 1000);
+
     await pool.query(
-      'INSERT INTO sessions (id, patient_id, language, ayush_mode, graph_id, expires_at) VALUES (?,?,?,?,?,?)',
+      `INSERT INTO sessions
+       (id, patient_id, language, ayush_mode, graph_id, expires_at)
+       VALUES (?,?,?,?,?,?)`,
       [id, patient_id || null, language || 'en', ayush_mode ? 1 : 0, graph_id || null, expires_at]
     );
+
     await log('patient', patient_id || 0, 'SESSION_CREATED', 'session', id, {});
-    res.status(201).json({ id, expires_at });
-  } catch (err) { next(err); }
+    return res.status(201).json({ id, expires_at });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM sessions WHERE id = ?', [req.params.id]);
-    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
-    const [slots] = await pool.query('SELECT * FROM session_slots WHERE session_id = ?', [req.params.id]);
-    res.json({ ...rows[0], slots });
-  } catch (err) { next(err); }
+    const access = await requireActiveSession(req.params.id);
+
+    if (access.status !== 200) {
+      return res.status(access.status).json({ error: access.error });
+    }
+
+    const session = { ...access.session };
+    delete session._session_active;
+
+    const [slots] = await pool.query(
+      `SELECT id, session_id, slot_id, value, source,
+              confidence, confirmed_by, created_at
+       FROM session_slots
+       WHERE session_id = ?`,
+      [req.params.id]
+    );
+
+    return res.json({ ...session, slots });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 router.patch('/:id', async (req, res, next) => {
   try {
-    const allowed = ['language', 'ayush_mode', 'status', 'voice_consent', 'document_consent',
-      'share_his_consent', 'save_dashboard_consent', 'current_node_id', 'graph_id'];
+    const access = await requireActiveSession(req.params.id);
+
+    if (access.status !== 200) {
+      return res.status(access.status).json({ error: access.error });
+    }
+
+    const body = req.body || {};
+    const allowed = new Set(['language', 'ayush_mode']);
+    const unsupported = Object.keys(body).filter(key => !allowed.has(key));
+
+    if (unsupported.length) {
+      return res.status(400).json({
+        error: 'Unsupported session fields',
+        fields: unsupported
+      });
+    }
+
     const updates = {};
-    for (const k of allowed) if (req.body[k] !== undefined) updates[k] = req.body[k];
-    if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields' });
-    const sets = Object.keys(updates).map(k => `\`${k}\` = ?`).join(', ');
-    await pool.query(`UPDATE sessions SET ${sets} WHERE id = ?`, [...Object.values(updates), req.params.id]);
-    res.json({ updated: true });
-  } catch (err) { next(err); }
+
+    if (body.language !== undefined) {
+      if (
+        typeof body.language !== 'string' ||
+        body.language.trim().length < 2 ||
+        body.language.trim().length > 10
+      ) {
+        return res.status(400).json({ error: 'Invalid language' });
+      }
+
+      updates.language = body.language.trim();
+    }
+
+    if (body.ayush_mode !== undefined) {
+      if (
+        typeof body.ayush_mode !== 'boolean' &&
+        body.ayush_mode !== 0 &&
+        body.ayush_mode !== 1
+      ) {
+        return res.status(400).json({ error: 'Invalid ayush_mode' });
+      }
+
+      updates.ayush_mode =
+        body.ayush_mode === true || body.ayush_mode === 1 ? 1 : 0;
+    }
+
+    if (!Object.keys(updates).length) {
+      return res.status(400).json({ error: 'No valid fields' });
+    }
+
+    const sets = Object.keys(updates)
+      .map(key => `\`${key}\` = ?`)
+      .join(', ');
+
+    await pool.query(
+      `UPDATE sessions
+       SET ${sets}
+       WHERE id = ? AND status = 'active' AND expires_at > NOW()`,
+      [...Object.values(updates), req.params.id]
+    );
+
+    // Same-value updates can yield affectedRows = 0 in MySQL.
+    const current = await requireActiveSession(req.params.id);
+
+    if (current.status !== 200) {
+      return res.status(current.status).json({ error: current.error });
+    }
+
+    return res.json({ updated: true });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 router.delete('/:id', async (req, res, next) => {
-  try {
-    await pool.query('DELETE FROM session_slots WHERE session_id = ?', [req.params.id]);
-    await pool.query('DELETE FROM conversation_turns WHERE session_id = ?', [req.params.id]);
-    await pool.query('DELETE FROM document_extractions WHERE session_id = ?', [req.params.id]);
-    await pool.query('UPDATE sessions SET status = ? WHERE id = ?', ['purged', req.params.id]);
-    await log('system', 0, 'SESSION_PURGED', 'session', req.params.id, {});
-    res.json({
-      purged: true,
-      items: ['Temporary session deleted', 'Transcript removed', 'Temporary extraction removed', 'Kiosk state cleared']
-    });
-  } catch (err) { next(err); }
-});
+  const purgeItems = [
+    'Temporary interview answers removed',
+    'Conversation transcript removed',
+    'Temporary document extraction results removed',
+    'Session marked as purged and consent flags disabled'
+  ];
 
+  const retainedItems = [
+    'Consent history retained for audit',
+    'Red-flag alerts retained for staff review',
+    'Session metadata retained as a purged marker',
+    'Encounter records and purge audit event retained'
+  ];
+
+  let connection;
+  let transactionOpen = false;
+
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    transactionOpen = true;
+
+    // Lock the session so simultaneous purge requests cannot race.
+    const session = await getSession(req.params.id, connection, true);
+
+    if (!session) {
+      await connection.rollback();
+      transactionOpen = false;
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    if (session.status === 'purged') {
+      // Repair the audit proof if an earlier implementation purged
+      // this session but failed to record the event.
+      const [auditRows] = await connection.query(
+        `SELECT id
+         FROM audit_logs
+         WHERE action = 'SESSION_PURGED'
+           AND resource_type = 'session'
+           AND resource_id = ?
+         LIMIT 1`,
+        [req.params.id]
+      );
+
+      if (!auditRows[0]) {
+        const metadata = {
+          removed: [
+            'session_slots',
+            'conversation_turns',
+            'document_extractions'
+          ],
+          retained: [
+            'consents',
+            'red_flags',
+            'session marker',
+            'encounters'
+          ],
+          audit_repaired_on_retry: true
+        };
+
+        await connection.query(
+          `INSERT INTO audit_logs
+           (actor_role, actor_id, action, resource_type,
+            resource_id, metadata_json)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            'system',
+            0,
+            'SESSION_PURGED',
+            'session',
+            req.params.id,
+            JSON.stringify(metadata)
+          ]
+        );
+      }
+
+      await connection.commit();
+      transactionOpen = false;
+
+      return res.json({
+        purged: true,
+        already_purged: true,
+        items: purgeItems,
+        retained: retainedItems
+      });
+    }
+
+    await clearTemporarySessionData(connection, req.params.id);
+
+    const [updateResult] = await connection.query(
+      `UPDATE sessions
+       SET status = 'purged',
+           voice_consent = 0,
+           document_consent = 0,
+           share_his_consent = 0,
+           save_dashboard_consent = 0,
+           current_node_id = NULL
+       WHERE id = ?`,
+      [req.params.id]
+    );
+
+    if (updateResult.affectedRows !== 1) {
+      throw new Error('Session purge could not be confirmed');
+    }
+
+    const metadata = {
+      removed: [
+        'session_slots',
+        'conversation_turns',
+        'document_extractions'
+      ],
+      retained: [
+        'consents',
+        'red_flags',
+        'session marker',
+        'encounters'
+      ]
+    };
+
+    // Audit record and data removal commit together.
+    await connection.query(
+      `INSERT INTO audit_logs
+       (actor_role, actor_id, action, resource_type,
+        resource_id, metadata_json)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        'system',
+        0,
+        'SESSION_PURGED',
+        'session',
+        req.params.id,
+        JSON.stringify(metadata)
+      ]
+    );
+
+    await connection.commit();
+    transactionOpen = false;
+
+    return res.json({
+      purged: true,
+      already_purged: false,
+      items: purgeItems,
+      retained: retainedItems
+    });
+  } catch (err) {
+    if (connection && transactionOpen) {
+      try {
+        await connection.rollback();
+      } catch {
+        // Preserve the original error.
+      }
+    }
+
+    return next(err);
+  } finally {
+    connection?.release();
+  }
+});
 export default router;
