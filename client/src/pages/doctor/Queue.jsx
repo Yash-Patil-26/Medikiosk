@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity, LogOut, AlertOctagon, AlertTriangle, Clock, User, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import DemoBanner from '../../components/DemoBanner.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import api from '../../services/api.js';
 
@@ -32,7 +31,6 @@ export default function DoctorQueue() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <DemoBanner />
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">

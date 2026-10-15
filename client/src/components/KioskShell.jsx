@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, HelpCircle, Activity, HeartPulse } from 'lucide-react';
-import DemoBanner from './DemoBanner.jsx';
 import ProgressBar from './ProgressBar.jsx';
 import LanguageSelector from './LanguageSelector.jsx';
 import AccessibilityControls from './AccessibilityControls.jsx';
@@ -61,8 +60,6 @@ export default function KioskShell({ children, step, showBack = true, backTo }) 
 
   return (
     <div className={`min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-primary-50/30 ${kiosk.highContrast ? 'bg-gray-950 text-white' : ''} ${kiosk.largeText ? 'text-lg' : ''}`}>
-      <DemoBanner />
-
       {(warning || idlePurgeStatus !== null) && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-scale-in">

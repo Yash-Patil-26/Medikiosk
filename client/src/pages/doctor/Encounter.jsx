@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, PenLine, AlertTriangle, Download, CheckCircle, User, Clock, FileText, Activity } from 'lucide-react';
-import DemoBanner from '../../components/DemoBanner.jsx';
 import RedFlagBanner from '../../components/RedFlagBanner.jsx';
 import ProvenanceChip from '../../components/ProvenanceChip.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
@@ -50,7 +49,6 @@ export default function DoctorEncounter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <DemoBanner />
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/doctor')} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Activity, Lock, User, ArrowLeft } from 'lucide-react';
-import DemoBanner from '../components/DemoBanner.jsx';
 
 const ROLE_REDIRECTS = { doctor: '/doctor', triage: '/triage', admin: '/admin/audit', patient: '/me' };
 
@@ -28,7 +27,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <DemoBanner />
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="card w-full max-w-md p-8 animate-scale-in">
           <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 text-sm font-medium transition-colors">
