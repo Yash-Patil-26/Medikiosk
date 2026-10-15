@@ -21,11 +21,21 @@ export default function Identify() {
   const createPatient = async () => {
     setLoading(true); setError('');
     try {
-      const r = await api.post('/patients', { demo_name: 'Walk-in Patient' });
-      update({ patientId: r.data.id, enrollmentToken: r.data.enrollment_token });
+      const r = await api.post('/patients', {
+        preferred_language: kiosk.language
+      });
+
+      if (!r.data?.id || typeof r.data?.enrollmentToken !== 'string') {
+        throw new Error('Patient enrollment credential was not issued');
+      }
+
+      update({ patientId: r.data.id });
       navigate('/kiosk/consent');
-    } catch { setError('Could not create patient. Please try again.'); }
-    finally { setLoading(false); }
+    } catch {
+      setError('Could not create patient record');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAbha = () => {
@@ -37,23 +47,11 @@ export default function Identify() {
     createPatient();
   };
 
-  const sendOtp = async () => {
-    setLoading(true); setError('');
-    try {
-      await api.post('/patients/otp', { phone });
-      setOtpSent(true);
-    } catch { setError('Could not send OTP. Please try again.'); }
-    finally { setLoading(false); }
-  };
+  const sendOtp = () => { setOtpSent(true); setError(''); };
 
-  const verifyOtp = async () => {
-    setLoading(true); setError('');
-    try {
-      const r = await api.post('/patients/verify-otp', { phone, otp });
-      update({ patientId: r.data.id, enrollmentToken: r.data.enrollment_token });
-      navigate('/kiosk/consent');
-    } catch { setError('Invalid OTP. Please try again.'); }
-    finally { setLoading(false); }
+  const verifyOtp = () => {
+    if (otp !== '123456') { setError('Invalid OTP. Demo OTP is 123456'); return; }
+    createPatient();
   };
 
   return (
@@ -86,7 +84,7 @@ export default function Identify() {
               </div>
               <ArrowRight size={20} className="text-gray-300 group-hover:text-primary-500 transition-colors" />
             </button>
-            <button onClick={createPatient} disabled={loading} className="card card-hover flex items-center gap-5 p-6 transition-all touch-target-lg group disabled:opacity-50 disabled:hover:shadow-soft">
+            <button onClick={() => setMode('new')} className="card card-hover flex items-center gap-5 p-6 transition-all touch-target-lg group">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <UserPlus size={32} className="text-success-600" />
               </div>
@@ -142,7 +140,7 @@ export default function Identify() {
                   className="w-full mt-3 border border-gray-200 rounded-xl px-4 py-4 text-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                   maxLength={6} />
                 <button onClick={verifyOtp} disabled={loading}
-                  className="w-full mt-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3.5 rounded-xl font-bold disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
+                  className="w-full mt-4 bg-gradient-to-r from-primary-500 to primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3.5 rounded-xl font-bold disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
                   {loading ? t('verifying') : t('verify_continue')}
                 </button>
               </>
@@ -156,6 +154,20 @@ export default function Identify() {
               </div>
             )}
             <button onClick={() => { setMode(null); setError(''); setOtpSent(false); }} className="w-full mt-3 text-gray-500 text-sm font-medium hover:text-gray-700 transition-colors">
+              {t('back')}
+            </button>
+          </div>
+        )}
+
+        {mode === 'new' && (
+          <div className="card p-6 animate-scale-in text-center">
+            <p className="text-gray-600 mb-2">{t('new_patient_desc')}</p>
+            <p className="text-xs text-gray-400 mb-4">{t('no_aadhaar')}</p>
+            <button onClick={() => createPatient()} disabled={loading}
+              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3.5 rounded-xl font-bold disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
+              {loading ? t('creating') : t('continue_new_patient')}
+            </button>
+            <button onClick={() => setMode(null)} className="w-full mt-3 text-gray-500 text-sm font-medium hover:text-gray-700 transition-colors">
               {t('back')}
             </button>
           </div>
