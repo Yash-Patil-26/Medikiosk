@@ -35,7 +35,13 @@ export default function KioskShell({ children, step, showBack = true, backTo }) 
     try {
       const response = await api.delete(`/sessions/${sessionId}`);
 
-      if (response.data?.purged !== true) {
+      const purgeResult = response.data;
+
+      if (
+        purgeResult?.purged !== true ||
+        !Array.isArray(purgeResult.items) ||
+        !Array.isArray(purgeResult.retained)
+      ) {
         throw new Error('Server did not confirm session purge');
       }
 

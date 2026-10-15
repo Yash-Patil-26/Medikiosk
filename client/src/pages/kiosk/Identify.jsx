@@ -9,7 +9,7 @@ import api from '../../services/api.js';
 export default function Identify() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { update } = useKiosk();
+  const { kiosk, update } = useKiosk();
   const [mode, setMode] = useState(null);
   const [abha, setAbha] = useState('');
   const [phone, setPhone] = useState('');
@@ -18,25 +18,35 @@ export default function Identify() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const createPatient = async (label) => {
+  const createPatient = async () => {
     setLoading(true);
     try {
-      const r = await api.post('/patients', { name_encrypted: label });
+      const r = await api.post('/patients', {
+        preferred_language: kiosk.language
+      });
+
+      if (!r.data?.id || typeof r.data?.enrollmentToken !== 'string') {
+        throw new Error('Patient enrollment credential was not issued');
+      }
+
       update({ patientId: r.data.id });
       navigate('/kiosk/consent');
-    } catch { setError('Could not create patient record'); }
-    finally { setLoading(false); }
+    } catch {
+      setError('Could not create patient record');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAbha = () => {
-    if (!/^\d{14}$/.test(abha.replace(/-/g, ''))) { setError('Enter a valid 14-digit ABHA number (demo only)'); return; }
-    createPatient(`ABHA-DEMO-${abha.slice(-4)}`);
+    if (!/^\d{14}$/.test(abha.replace(/-/g, ''))) { setError('Enter a 14-digit synthetic demo value only; do not use a real ABHA number'); return; }
+    createPatient();
   };
 
   const sendOtp = () => { setOtpSent(true); setError(''); };
   const verifyOtp = () => {
     if (otp !== '123456') { setError('Invalid OTP. Demo OTP is 123456'); return; }
-    createPatient(`MOBILE-DEMO-${phone.slice(-4)}`);
+    createPatient();
   };
 
   return (
@@ -46,8 +56,8 @@ export default function Identify() {
       {!mode && (
         <div className="grid grid-cols-1 gap-4 w-full">
           {[
-            { id: 'abha', icon: CreditCard, label: t('identify_abha'), desc: 'Enter your 14-digit ABHA number' },
-            { id: 'mobile', icon: Phone, label: t('identify_mobile'), desc: 'Verify with OTP (Demo OTP: 123456)' },
+            { id: 'abha', icon: CreditCard, label: t('identify_abha'), desc: 'Use synthetic demo digits only; never enter a real ABHA number' },
+            { id: 'mobile', icon: Phone, label: t('identify_mobile'), desc: 'Demo-only OTP; use synthetic details, not a real mobile number' },
             { id: 'new', icon: UserPlus, label: t('identify_new'), desc: 'Generate a new patient ID' }
           ].map(opt => (
             <button key={opt.id} onClick={() => setMode(opt.id)}
@@ -64,7 +74,7 @@ export default function Identify() {
 
       {mode === 'abha' && (
         <div className="w-full flex flex-col gap-4">
-          <label className="font-medium text-gray-700">ABHA Number (14 digits, demo only)</label>
+          <label className="font-medium text-gray-700">Synthetic demo ABHA value (14 digits only)</label>
           <input value={abha} onChange={e => setAbha(e.target.value)} placeholder="12345678901234"
             className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -78,7 +88,7 @@ export default function Identify() {
 
       {mode === 'mobile' && (
         <div className="w-full flex flex-col gap-4">
-          <label className="font-medium text-gray-700">Mobile Number</label>
+          <label className="font-medium text-gray-700">Synthetic demo mobile number</label>
           <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="9876543210"
             className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           {!otpSent ? (
@@ -105,7 +115,7 @@ export default function Identify() {
         <div className="w-full flex flex-col gap-4 items-center text-center">
           <p className="text-gray-600">{t('new_patient_desc')}</p>
           <p className="text-xs text-gray-400">{t('no_aadhaar')}</p>
-          <button onClick={() => createPatient('NEW-PATIENT')} disabled={loading}
+          <button onClick={() => createPatient()} disabled={loading}
             className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">
             {loading ? t('creating') : t('continue_new_patient')}
           </button>

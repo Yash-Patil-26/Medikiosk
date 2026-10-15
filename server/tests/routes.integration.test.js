@@ -13,11 +13,55 @@ test(
     const request = (await import('supertest')).default;
     const jwt = (await import('jsonwebtoken')).default;
     const { getJwtSecret } = await import('../src/config/jwt.js');
+const { createOpaqueToken } = await import('../src/utils/opaqueToken.js');
 
     const sessions = [];
     const encounters = [];
     const redFlagIds = [];
-    const api = request(app);
+const sessionTokens = new Map();
+    function createApiRequest(method, path) {
+      const req = request(app)[method](path);
+
+      const attachForSession = sessionId => {
+        const token = sessionId && sessionTokens.get(sessionId);
+        if (!token) return;
+
+        req.set('X-Kiosk-Token', token);
+        req.set('X-Kiosk-Session-Id', sessionId);
+      };
+
+      const match = path.match(
+        /\/(?:sessions|dialogue)\/([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/i
+      );
+
+      if (match) attachForSession(match[1]);
+
+      const originalSend = req.send.bind(req);
+      req.send = function (body, ...args) {
+        if (body && typeof body === 'object') {
+          attachForSession(body.session_id);
+        }
+
+        return originalSend(body, ...args);
+      };
+
+      if (typeof req.field === 'function') {
+        const originalField = req.field.bind(req);
+        req.field = function (name, value, ...args) {
+          if (name === 'session_id') attachForSession(value);
+          return originalField(name, value, ...args);
+        };
+      }
+
+      return req;
+    }
+
+    const api = {
+      get: path => createApiRequest('get', path),
+      post: path => createApiRequest('post', path),
+      patch: path => createApiRequest('patch', path),
+      delete: path => createApiRequest('delete', path)
+    };
 
     async function cleanup() {
       if (!sessions.length) return;
@@ -126,29 +170,33 @@ test(
       assert.equal(unauthenticated.status, 401);
 
       const missingId = await api.post('/api/encounters').send({});
-      assert.equal(missingId.status, 400);
+      assert.equal(missingId.status, 401);
 
       const unknownSession = await api.post('/api/encounters').send({
         session_id: randomUUID(),
         patient_id: null
       });
-      assert.equal(unknownSession.status, 404);
+      assert.equal(unknownSession.status, 401);
 
       async function seedSession(shareConsent, patientId = null) {
         const id = randomUUID();
         sessions.push(id);
 
+        const credential = createOpaqueToken();
+        sessionTokens.set(id, credential.token);
+
         await pool.query(
           `INSERT INTO sessions
             (id, patient_id, language, ayush_mode, status,
              share_his_consent, document_consent, voice_consent,
-             save_dashboard_consent, expires_at)
-           VALUES (?, ?, 'en', 0, 'active', ?, 0, 0, 0, ?)`,
+             save_dashboard_consent, expires_at, kiosk_token_hash)
+           VALUES (?, ?, 'en', 0, 'active', ?, 0, 0, 0, ?, ?)`,
           [
             id,
             patientId,
             shareConsent ? 1 : 0,
-            new Date(Date.now() + 3600000)
+            new Date(Date.now() + 3600000),
+            credential.tokenHash
           ]
         );
 

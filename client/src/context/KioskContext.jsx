@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+import { clearKioskCredentials } from '../services/kioskCredentials.js';
 
 const KioskContext = createContext(null);
 
@@ -16,25 +17,40 @@ const defaultState = {
   largeText: false
 };
 
+function createDefaultState() {
+  return {
+    ...defaultState,
+    consents: { ...defaultState.consents },
+    slots: {}
+  };
+}
+
 export function KioskProvider({ children }) {
   const [kiosk, setKiosk] = useState(() => {
+    // Remove legacy persisted identity and clinical state from prior versions.
     try {
-      const saved = sessionStorage.getItem('kiosk');
-      return saved ? { ...defaultState, ...JSON.parse(saved) } : defaultState;
-    } catch { return defaultState; }
+      sessionStorage.removeItem('kiosk');
+    } catch {
+      // Storage may be unavailable in restricted browser contexts.
+    }
+
+    return createDefaultState();
   });
 
-  const update = (patch) => {
-    setKiosk(prev => {
-      const next = { ...prev, ...patch };
-      sessionStorage.setItem('kiosk', JSON.stringify(next));
-      return next;
-    });
+  const update = patch => {
+    setKiosk(prev => ({ ...prev, ...patch }));
   };
 
   const reset = () => {
-    sessionStorage.removeItem('kiosk');
-    setKiosk(defaultState);
+    clearKioskCredentials();
+
+    try {
+      sessionStorage.removeItem('kiosk');
+    } catch {
+      // Storage may be unavailable in restricted browser contexts.
+    }
+
+    setKiosk(createDefaultState());
   };
 
   return (

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireKioskSessionToken } from '../middleware/kioskSessionAuth.js';
 import pool from '../config/db.js';
 import { getSession, sessionIsActive } from '../utils/sessionAccess.js';
 
@@ -11,7 +12,7 @@ const CONSENT_COLUMNS = Object.freeze({
   dashboard: 'save_dashboard_consent'
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', requireKioskSessionToken(req => req.body?.session_id), async (req, res, next) => {
   const body = req.body || {};
   const { patient_id, session_id, purpose_key, granted } = body;
 
@@ -130,7 +131,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.post('/:id/revoke', async (req, res, next) => {
+router.post('/:id/revoke', requireKioskSessionToken(req => req.body?.session_id), async (req, res, next) => {
   const { session_id } = req.body || {};
 
   if (!session_id) {

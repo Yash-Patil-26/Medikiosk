@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { requireKioskSessionToken } from '../middleware/kioskSessionAuth.js';
+import { createOpaqueToken, matchesOpaqueToken } from '../utils/opaqueToken.js';
 import { v4 as uuidv4 } from 'uuid';
 import pool from '../config/db.js';
 import { log } from '../utils/audit.js';
@@ -8,26 +10,150 @@ import { clearTemporarySessionData } from '../utils/sessionCleanup.js';
 const router = Router();
 
 router.post('/', async (req, res, next) => {
-  try {
-    const { patient_id, language, ayush_mode, graph_id } = req.body;
-    const id = uuidv4();
-    const expires_at = new Date(Date.now() + 2 * 3600 * 1000);
+  const body = req.body || {};
+  const unsupported = Object.keys(body).filter(
+    key => !['patient_id', 'language', 'ayush_mode', 'graph_id'].includes(key)
+  );
 
-    await pool.query(
-      `INSERT INTO sessions
-       (id, patient_id, language, ayush_mode, graph_id, expires_at)
-       VALUES (?,?,?,?,?,?)`,
-      [id, patient_id || null, language || 'en', ayush_mode ? 1 : 0, graph_id || null, expires_at]
+  if (unsupported.length) {
+    return res.status(400).json({
+      error: 'Unsupported session fields',
+      fields: unsupported
+    });
+  }
+
+  const patientId = Number(body.patient_id);
+  const enrollmentToken = req.get('X-Kiosk-Enrollment-Token');
+
+  if (!Number.isSafeInteger(patientId) || patientId < 1) {
+    return res.status(400).json({ error: 'A valid patient_id is required' });
+  }
+
+  if (!enrollmentToken) {
+    return res.status(401).json({
+      error: 'Patient enrollment authorization required'
+    });
+  }
+
+  const language = body.language === undefined ? 'en' : body.language;
+
+  if (
+    typeof language !== 'string' ||
+    language.trim().length < 2 ||
+    language.trim().length > 10
+  ) {
+    return res.status(400).json({ error: 'Invalid language' });
+  }
+
+  if (
+    body.ayush_mode !== undefined &&
+    typeof body.ayush_mode !== 'boolean' &&
+    body.ayush_mode !== 0 &&
+    body.ayush_mode !== 1
+  ) {
+    return res.status(400).json({ error: 'Invalid ayush_mode' });
+  }
+
+  const graphId = body.graph_id ?? null;
+
+  if (
+    graphId !== null &&
+    (typeof graphId !== 'string' || graphId.length > 100)
+  ) {
+    return res.status(400).json({ error: 'Invalid graph_id' });
+  }
+
+  const id = uuidv4();
+  const expires_at = new Date(Date.now() + 2 * 3600 * 1000);
+  const sessionCredential = createOpaqueToken();
+
+  let connection;
+  let transactionOpen = false;
+
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    transactionOpen = true;
+
+    const [patientRows] = await connection.query(
+      `SELECT id, kiosk_enrollment_token_hash
+       FROM patients
+       WHERE id = ?
+       FOR UPDATE`,
+      [patientId]
     );
 
-    await log('patient', patient_id || 0, 'SESSION_CREATED', 'session', id, {});
-    return res.status(201).json({ id, expires_at });
+    if (
+      !patientRows[0] ||
+      !matchesOpaqueToken(
+        enrollmentToken,
+        patientRows[0].kiosk_enrollment_token_hash
+      )
+    ) {
+      await connection.rollback();
+      transactionOpen = false;
+
+      return res.status(401).json({
+        error: 'Invalid patient enrollment authorization'
+      });
+    }
+
+    // Consume the enrollment token and create its session atomically.
+    await connection.query(
+      `UPDATE patients
+       SET kiosk_enrollment_token_hash = NULL
+       WHERE id = ?`,
+      [patientId]
+    );
+
+    await connection.query(
+      `INSERT INTO sessions
+         (id, patient_id, language, ayush_mode, graph_id,
+          expires_at, kiosk_token_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        patientId,
+        language.trim(),
+        body.ayush_mode === true || body.ayush_mode === 1 ? 1 : 0,
+        graphId,
+        expires_at,
+        sessionCredential.tokenHash
+      ]
+    );
+
+    await connection.query(
+      `INSERT INTO audit_logs
+         (actor_role, actor_id, action, resource_type,
+          resource_id, metadata_json)
+       VALUES ('patient', ?, 'SESSION_CREATED', 'session', ?, ?)`,
+      [patientId, id, JSON.stringify({})]
+    );
+
+    await connection.commit();
+    transactionOpen = false;
+
+    return res.status(201).json({
+      id,
+      expires_at,
+      kioskToken: sessionCredential.token
+    });
   } catch (err) {
+    if (connection && transactionOpen) {
+      try {
+        await connection.rollback();
+      } catch {
+        // Preserve the original error.
+      }
+    }
+
     return next(err);
+  } finally {
+    connection?.release();
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', requireKioskSessionToken(req => req.params.id), async (req, res, next) => {
   try {
     const access = await requireActiveSession(req.params.id);
 
@@ -37,6 +163,7 @@ router.get('/:id', async (req, res, next) => {
 
     const session = { ...access.session };
     delete session._session_active;
+delete session.kiosk_token_hash;
 
     const [slots] = await pool.query(
       `SELECT id, session_id, slot_id, value, source,
@@ -52,7 +179,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', requireKioskSessionToken(req => req.params.id), async (req, res, next) => {
   try {
     const access = await requireActiveSession(req.params.id);
 
@@ -126,7 +253,7 @@ router.patch('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireKioskSessionToken(req => req.params.id), async (req, res, next) => {
   const purgeItems = [
     'Temporary interview answers removed',
     'Conversation transcript removed',

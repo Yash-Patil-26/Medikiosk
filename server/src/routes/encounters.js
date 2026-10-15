@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireKioskSessionToken } from '../middleware/kioskSessionAuth.js';
 import pool from '../config/db.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { buildSummary } from '../services/summaryService.js';
@@ -27,7 +28,7 @@ function validPositiveInteger(value) {
 }
 
 // Create exactly one encounter from a validated kiosk session.
-router.post('/', async (req, res, next) => {
+router.post('/', requireKioskSessionToken(req => req.body?.session_id), async (req, res, next) => {
   const {
     patient_id,
     session_id,

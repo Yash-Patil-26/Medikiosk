@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS patients (
   sex ENUM('male','female','other','prefer_not_to_say'),
   phone_encrypted VARCHAR(500),
   phone_hash VARCHAR(255),
+    kiosk_enrollment_token_hash CHAR(64) NULL,
   preferred_language VARCHAR(10) DEFAULT 'en',
   user_id INT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -42,6 +43,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   current_node_id VARCHAR(100),
   graph_id VARCHAR(100),
   expires_at DATETIME,
+    kiosk_token_hash CHAR(64) NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE SET NULL
 );

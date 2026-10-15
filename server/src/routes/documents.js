@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireKioskSessionToken, requireMatchingKioskSession } from '../middleware/kioskSessionAuth.js';
 import multer from 'multer';
 import pool from '../config/db.js';
 import { extractDocument } from '../providers/ocr/index.js';
@@ -20,7 +21,7 @@ const upload = multer({
   }
 });
 
-router.post('/extract', upload.single('file'), async (req, res, next) => {
+router.post('/extract', requireKioskSessionToken(req => req.get('X-Kiosk-Session-Id')), upload.single('file'), requireMatchingKioskSession, async (req, res, next) => {
   const { session_id } = req.body || {};
 
   if (!req.file) {
@@ -144,7 +145,7 @@ router.post('/extract', upload.single('file'), async (req, res, next) => {
   }
 });
 
-router.post('/:id/verify', async (req, res, next) => {
+router.post('/:id/verify', requireKioskSessionToken(req => req.body?.session_id), async (req, res, next) => {
   const { session_id } = req.body || {};
 
   if (!session_id) {

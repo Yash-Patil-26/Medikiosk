@@ -6,7 +6,8 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "test": "node --test",
-    "migrate:encounter-session": "node scripts/migrateEncounterSession.js"
+    "migrate:encounter-session": "node scripts/migrateEncounterSession.js",
+    "migrate:kiosk-session-auth": "node scripts/migrateKioskSessionAuth.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

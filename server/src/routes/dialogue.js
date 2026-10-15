@@ -1,4 +1,5 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
+import { requireKioskSessionToken } from '../middleware/kioskSessionAuth.js';
 import pool from '../config/db.js';
 import {
   getNextNode,
@@ -15,7 +16,7 @@ const router = Router();
 const VALID_SOURCES = new Set(['touch', 'voice', 'text']);
 const VALID_CONFIRMATIONS = new Set(['touch', 'readback', 'patient_review']);
 
-router.get('/:sessionId/next', async (req, res, next) => {
+router.get('/:sessionId/next', requireKioskSessionToken(req => req.params.sessionId), async (req, res, next) => {
   try {
     const access = await requireActiveSession(req.params.sessionId);
 
@@ -41,7 +42,7 @@ router.get('/:sessionId/next', async (req, res, next) => {
   }
 });
 
-router.post('/:sessionId/answer', async (req, res, next) => {
+router.post('/:sessionId/answer', requireKioskSessionToken(req => req.params.sessionId), async (req, res, next) => {
   const body = req.body || {};
   const {
     node_id,

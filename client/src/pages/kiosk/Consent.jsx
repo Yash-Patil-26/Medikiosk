@@ -6,6 +6,7 @@ import KioskShell from '../../components/KioskShell.jsx';
 import { useKiosk } from '../../context/KioskContext.jsx';
 import { useTTS } from '../../hooks/useTTS.js';
 import api from '../../services/api.js';
+import { getKioskSessionCredentials } from '../../services/kioskCredentials.js';
 
 const CONSENT_ITEMS = [
   { key: 'voice', label: 'Voice processing', desc: 'Your spoken responses may be processed to capture your answers.' },
@@ -17,7 +18,7 @@ const CONSENT_ITEMS = [
 export default function Consent() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { kiosk, update } = useKiosk();
+  const { kiosk, update, reset } = useKiosk();
   const { speak } = useTTS();
   const [consents, setConsents] = useState({ voice: false, document: false, his: false, dashboard: false });
   const [understood, setUnderstood] = useState(false);
@@ -35,13 +36,29 @@ export default function Consent() {
     let createdSessionId = null;
 
     try {
-      const r = await api.post('/sessions', {
-        patient_id: kiosk.patientId,
-        language: kiosk.language,
-        ayush_mode: kiosk.ayushMode
-      });
+      const existingCredentials = getKioskSessionCredentials();
+      const canResume =
+        Boolean(kiosk.sessionId) &&
+        existingCredentials?.id === kiosk.sessionId;
 
-      createdSessionId = r.data.id;
+      if (canResume) {
+        createdSessionId = kiosk.sessionId;
+      } else {
+        const r = await api.post('/sessions', {
+          patient_id: kiosk.patientId,
+          language: kiosk.language,
+          ayush_mode: kiosk.ayushMode
+        });
+
+        createdSessionId = r.data.id;
+
+        if (!createdSessionId || typeof r.data.kioskToken !== 'string') {
+          throw new Error('Server did not issue a kiosk session credential');
+        }
+
+        // Keep the session ID in memory so consent can resume if a write fails.
+        update({ sessionId: createdSessionId });
+      }
 
       for (const [key, granted] of Object.entries(consents)) {
         await api.post('/consents', {
@@ -64,15 +81,32 @@ export default function Consent() {
 
       navigate('/kiosk/complaint');
     } catch {
+      let cleanupConfirmed = false;
+
       if (createdSessionId) {
         try {
-          await api.delete(`/sessions/${createdSessionId}`);
+          const cleanup = await api.delete(`/sessions/${createdSessionId}`);
+          cleanupConfirmed =
+            cleanup.data?.purged === true &&
+            Array.isArray(cleanup.data.items) &&
+            Array.isArray(cleanup.data.retained);
         } catch {
-          console.error('Consent setup cleanup failed.');
+          console.error('Consent setup cleanup could not be confirmed.');
         }
       }
 
-      alert('Error saving consent. Please try again.');
+      if (cleanupConfirmed) {
+        // The enrollment token was consumed; start a fresh identity flow.
+        reset();
+        navigate('/kiosk/identify');
+        alert('Consent setup could not be completed. Please start again.');
+      } else if (createdSessionId) {
+        // Keep the session credential so another attempt can resume this session.
+        update({ sessionId: createdSessionId });
+        alert('Consent could not be fully saved. Please retry to resume this session.');
+      } else {
+        alert('Could not create the session. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
