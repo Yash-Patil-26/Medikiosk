@@ -16,9 +16,10 @@ INSERT INTO users (role, username, password_hash, display_name) VALUES
 ('admin',   'admin',   '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin Demo'),
 ('patient', 'patient', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Demo Patient');
 
--- NOTE: The password hash above is for 'password' (bcrypt default test hash).
--- The actual seed will use properly hashed passwords generated at startup.
--- See server/src/config/seedPasswords.js for the actual seeding logic.
+-- NOTE: The server automatically seeds demo users on first startup with properly
+-- hashed passwords (Doctor@123, Triage@123, Admin@123, Patient@123).
+-- See server/src/config/seed.js for the actual seeding logic.
+-- Manual seeding above uses placeholder hashes and is optional.
 
 -- Demo patient record
 INSERT INTO patients (name_encrypted, dob_encrypted, sex, phone_encrypted, phone_hash, preferred_language, user_id)

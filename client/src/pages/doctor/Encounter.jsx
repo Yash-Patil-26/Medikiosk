@@ -142,6 +142,7 @@ export default function DoctorEncounter() {
   const [signing, setSigning] = useState(false);
   const [signed, setSigned] = useState(false);
   const [fhir, setFhir] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get(`/encounters/${id}/summary`).then(r => {
@@ -184,12 +185,15 @@ export default function DoctorEncounter() {
   };
   const sign = async () => {
     setSigning(true);
+    setError('');
     try {
       await api.patch(`/encounters/${id}/summary`, { summary_draft_json: summary, doctor_notes: notes });
       const r = await api.post(`/encounters/${id}/sign`);
       setFhir(r.data.fhir);
       setSigned(true);
-    } catch (e) { alert(e.response?.data?.error || 'Sign-off failed'); }
+    } catch (e) {
+      setError(e.response?.data?.error || 'Sign-off failed');
+    }
     finally { setSigning(false); }
   };
 
@@ -257,6 +261,11 @@ export default function DoctorEncounter() {
 
         {/* Center: summary */}
         <div className="lg:col-span-2 flex flex-col gap-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-800 flex items-center gap-2">
+              <AlertTriangle size={16} /> {error}
+            </div>
+          )}
           {!signed && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800 flex items-center gap-2">
               <AlertTriangle size={16} /> This summary is a draft and requires physician verification.

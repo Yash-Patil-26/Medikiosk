@@ -15,6 +15,7 @@ export default function Review() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!kiosk.sessionId) return;
@@ -25,6 +26,7 @@ export default function Review() {
 
   const submit = async () => {
     setSubmitting(true);
+    setError('');
     try {
       const r = await api.post('/encounters', {
         patient_id: kiosk.patientId,
@@ -34,7 +36,9 @@ export default function Review() {
       });
       update({ encounterId: r.data.id });
       navigate('/kiosk/done');
-    } catch { alert('Submission failed'); }
+    } catch {
+      setError('Submission failed. Please try again.');
+    }
     finally { setSubmitting(false); }
   };
 
@@ -61,6 +65,8 @@ export default function Review() {
       <div className="w-full mt-4 flex flex-col gap-5">
         <h1 className="text-2xl font-bold text-gray-800">{t('review_title')}</h1>
         <p className="text-gray-500 text-sm">{t('review_note')}</p>
+
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <div className="bg-white border rounded-2xl divide-y">
           {slots.length === 0 && (

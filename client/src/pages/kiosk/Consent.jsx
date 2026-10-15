@@ -23,6 +23,7 @@ export default function Consent() {
   const [consents, setConsents] = useState({ voice: false, document: false, his: false, dashboard: false });
   const [understood, setUnderstood] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const toggle = (key) => setConsents(p => ({ ...p, [key]: !p[key] }));
 
@@ -33,6 +34,7 @@ export default function Consent() {
 
   const proceed = async () => {
     setLoading(true);
+    setError('');
     let createdSessionId = null;
 
     try {
@@ -99,13 +101,13 @@ export default function Consent() {
         // The enrollment token was consumed; start a fresh identity flow.
         reset();
         navigate('/kiosk/identify');
-        alert('Consent setup could not be completed. Please start again.');
+        setError('Consent setup could not be completed. Please start again.');
       } else if (createdSessionId) {
         // Keep the session credential so another attempt can resume this session.
         update({ sessionId: createdSessionId });
-        alert('Consent could not be fully saved. Please retry to resume this session.');
+        setError('Consent could not be fully saved. Please retry to resume this session.');
       } else {
-        alert('Could not create the session. Please try again.');
+        setError('Could not create the session. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -121,6 +123,8 @@ export default function Consent() {
             <Volume2 size={18} /> {t('read_aloud')}
           </button>
         </div>
+
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         <div className="flex flex-col gap-4 mb-6">
           {CONSENT_ITEMS.map(item => (

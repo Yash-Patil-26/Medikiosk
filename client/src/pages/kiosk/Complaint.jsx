@@ -24,9 +24,11 @@ export default function Complaint() {
   const [typed, setTyped] = useState('');
   const [voiceText, setVoiceText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const select = async (value, label) => {
     setLoading(true);
+    setError('');
     try {
       await api.post(`/dialogue/${kiosk.sessionId}/answer`, {
         node_id: 'complaint_selection',
@@ -39,7 +41,9 @@ export default function Complaint() {
       });
       update({ complaint: value });
       navigate('/kiosk/interview');
-    } catch { alert('Error saving complaint'); }
+    } catch {
+      setError('Error saving complaint. Please try again.');
+    }
     finally { setLoading(false); }
   };
 
@@ -48,6 +52,8 @@ export default function Complaint() {
   return (
     <KioskShell step="Complaint" backTo="/kiosk/consent">
       <h1 className="text-2xl font-bold text-gray-800 mt-4 mb-6">{t('complaint_title')}</h1>
+
+      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
       <div className="grid grid-cols-2 gap-3 w-full mb-6">
         {COMPLAINTS.map(c => (

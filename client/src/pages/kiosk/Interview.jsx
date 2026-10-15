@@ -21,6 +21,7 @@ export default function Interview() {
   const [voiceResult, setVoiceResult] = useState(null);
   const [selected, setSelected] = useState([]);
   const [textInput, setTextInput] = useState('');
+  const [error, setError] = useState('');
 
   const fetchNext = useCallback(async () => {
     setLoading(true); setVoiceResult(null); setSelected([]); setTextInput('');
@@ -36,6 +37,7 @@ export default function Interview() {
 
   const saveAnswer = async (value, source, rawText, confirmedBy) => {
     setSaving(true);
+    setError('');
     try {
       await api.post(`/dialogue/${kiosk.sessionId}/answer`, {
         node_id: node.id,
@@ -47,7 +49,9 @@ export default function Interview() {
         confirmed_by: confirmedBy
       });
       fetchNext();
-    } catch { alert('Error saving answer'); }
+    } catch {
+      setError('Error saving answer. Please try again.');
+    }
     finally { setSaving(false); }
   };
 
@@ -86,6 +90,7 @@ export default function Interview() {
   return (
     <KioskShell step="Interview" backTo="/kiosk/complaint">
       <div className="w-full mt-4 flex flex-col gap-5">
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <div className="flex items-start justify-between gap-3">
           <h2 className="text-xl font-bold text-gray-800 flex-1">{node.text}</h2>
           <button onClick={() => speak(node.text)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg shrink-0">

@@ -121,7 +121,7 @@ Click **New** → Name: `medikiosk` → Create
 Select `medikiosk` database → Click **SQL** tab → Paste contents of `database/schema.sql` → Go
 
 ### Step 6 — Run Seed (optional)
-The server auto-seeds demo users on first start. Or paste `database/seed.sql` manually.
+The server automatically seeds demo users on first startup with properly hashed passwords (Doctor@123, Triage@123, Admin@123, Patient@123). Manual seeding via `database/seed.sql` is optional.
 
 ---
 
