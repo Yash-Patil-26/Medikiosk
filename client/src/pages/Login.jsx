@@ -56,7 +56,7 @@ export default function Login() {
                 className="w-full border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="••••••••" autoComplete="current-password" />
             </div>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {error && <p className="text-red-600 text-sm" role="alert">{error}</p>}
             <button type="submit" disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold disabled:opacity-50">
               {loading ? t('logging_in') : t('login')}

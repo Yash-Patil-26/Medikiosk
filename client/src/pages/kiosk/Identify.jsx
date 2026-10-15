@@ -39,7 +39,11 @@ export default function Identify() {
   };
 
   const handleAbha = () => {
-    if (!/^\d{14}$/.test(abha.replace(/-/g, ''))) { setError('Enter a 14-digit synthetic demo value only; do not use a real ABHA number'); return; }
+    const cleanAbha = abha.replace(/-/g, '');
+    if (!/^\d{14}$/.test(cleanAbha)) {
+      setError('Enter a 14-digit synthetic demo value only; do not use a real ABHA number');
+      return;
+    }
     createPatient();
   };
 
@@ -74,10 +78,10 @@ export default function Identify() {
 
       {mode === 'abha' && (
         <div className="w-full flex flex-col gap-4">
-          <label className="font-medium text-gray-700">Synthetic demo ABHA value (14 digits only)</label>
-          <input value={abha} onChange={e => setAbha(e.target.value)} placeholder="12345678901234"
-            className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <label className="font-medium text-gray-700" htmlFor="abha-input">Synthetic demo ABHA value (14 digits only)</label>
+          <input id="abha-input" value={abha} onChange={e => setAbha(e.target.value)} placeholder="12345678901234"
+            className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" maxLength={14} />
+          {error && <p className="text-red-500 text-sm" role="alert">{error}</p>}
           <button onClick={handleAbha} disabled={loading}
             className="bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">
             {loading ? t('please_wait') : t('continue')}
@@ -88,9 +92,9 @@ export default function Identify() {
 
       {mode === 'mobile' && (
         <div className="w-full flex flex-col gap-4">
-          <label className="font-medium text-gray-700">Synthetic demo mobile number</label>
-          <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="9876543210"
-            className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          <label className="font-medium text-gray-700" htmlFor="phone-input">Synthetic demo mobile number</label>
+          <input id="phone-input" value={phone} onChange={e => setPhone(e.target.value)} placeholder="9876543210"
+            className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" maxLength={10} />
           {!otpSent ? (
             <button onClick={sendOtp} className="bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">
               {t('send_otp')}
@@ -99,14 +103,14 @@ export default function Identify() {
             <>
               <p className="text-sm text-teal-600">{t('demo_otp_sent')} <strong>123456</strong></p>
               <input value={otp} onChange={e => setOtp(e.target.value)} placeholder={t('enter_otp')}
-                className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                className="border rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" maxLength={6} />
               <button onClick={verifyOtp} disabled={loading}
                 className="bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50">
                 {loading ? t('verifying') : t('verify_continue')}
               </button>
             </>
           )}
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-sm" role="alert">{error}</p>}
           <button onClick={() => { setMode(null); setError(''); setOtpSent(false); }} className="text-gray-500 text-sm">{t('back')}</button>
         </div>
       )}
