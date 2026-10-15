@@ -13,7 +13,7 @@ const COMPLAINTS = [
   { value: 'cough', label: 'Cough', desc: 'Dry or productive cough', icon: Wind, color: 'text-blue-500' },
   { value: 'headache', label: 'Headache', desc: 'Head pain or pressure', icon: Brain, color: 'text-purple-500' },
   { value: 'abdominal_pain', label: 'Abdominal Pain', desc: 'Stomach or belly pain', icon: Activity, color: 'text-teal-500' },
-  { value: 'general_weakness', label: 'General Weakness', desc: 'Fatigue or low energy', icon: Zap, color: 'text-amber-500' },
+  { value: 'general_weakness', label: 'General Weakness', desc: 'Fatigue or low energy', icon: Zap, color: 'text-yellow-500' },
   { value: 'other', label: 'Other', desc: 'Something else', icon: HelpCircle, color: 'text-gray-500' }
 ];
 
@@ -69,7 +69,7 @@ export default function Complaint() {
         <div className="grid grid-cols-2 gap-4 w-full mb-6" role="listbox" aria-label="Select your complaint">
           {COMPLAINTS.map(c => (
             <button key={c.value} onClick={() => select(c.value, c.label)} disabled={loading}
-              className="card flex flex-col items-center gap-3 p-6 text-center transition-all touch-target-lg group disabled:opacity-50"
+              className="card card-hover flex flex-col items-center gap-3 p-6 text-center transition-all touch-target-lg group disabled:opacity-50"
               role="option" aria-label={`${c.label}: ${c.desc}`}>
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <c.icon size={32} className={c.color} aria-hidden="true" />
@@ -80,26 +80,26 @@ export default function Complaint() {
           ))}
         </div>
 
-        <div className="card p-5">
-          <p className="text-sm text-gray-500 text-center mb-4">{t('or_describe')}</p>
+        <div className="w-full border-t border-gray-200 pt-6 flex flex-col gap-4">
+          <p className="text-sm text-gray-500 text-center">{t('or_describe')}</p>
           <div className="flex gap-3">
             <input value={typed} onChange={e => setTyped(e.target.value)}
               placeholder={t('complaint_type')}
               className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white" />
             <button onClick={() => typed && select('other', typed)} disabled={!typed || loading}
-              className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl font-medium disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
+              className="px-6 py-3 bg-gradient-to-r from-primary-500 to primary-600 text-white rounded-xl font-medium disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
               Go
             </button>
           </div>
-          <div className="flex flex-col items-center gap-3 mt-4">
+          <div className="flex flex-col items-center gap-3">
             <p className="text-sm text-gray-500">{t('complaint_speak')}</p>
             <MicButton onResult={handleVoice} />
             {voiceText && (
-              <div className="w-full bg-primary-50 border border-primary-200 rounded-xl p-4 text-center animate-scale-in">
+              <div className="w-full card p-4 text-center bg-primary-50 border-primary-200">
                 <p className="text-sm text-gray-500">{t('i_heard')}</p>
                 <p className="font-semibold text-gray-800">"{voiceText}"</p>
                 <button onClick={() => select('other', voiceText)}
-                  className="mt-3 px-5 py-2.5 bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 text-white rounded-lg text-sm font-medium shadow-md shadow-success-200 transition-all">
+                  className="mt-3 px-5 py-2.5 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 transition-all">
                   {t('use_this')}
                 </button>
               </div>
