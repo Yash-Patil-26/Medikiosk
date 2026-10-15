@@ -130,8 +130,8 @@ export default function Consent() {
           {CONSENT_ITEMS.map(item => (
             <div key={item.key} className="flex items-start gap-4 bg-white border rounded-xl p-4">
               <button onClick={() => toggle(item.key)}
-                className={`w-12 h-7 rounded-full transition-colors shrink-0 mt-0.5 ${consents[item.key] ? 'bg-teal-500' : 'bg-gray-300'}`}
-                role="switch" aria-checked={consents[item.key]}>
+                className={`w-12 h-7 rounded-full transition-colors shrink-0 mt-0.5 focus:ring-2 focus:ring-blue-500 focus:outline-none ${consents[item.key] ? 'bg-teal-500' : 'bg-gray-300'}`}
+                role="switch" aria-checked={consents[item.key]} aria-label={`Toggle ${item.label}`}>
                 <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform mx-1 ${consents[item.key] ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
               <div>

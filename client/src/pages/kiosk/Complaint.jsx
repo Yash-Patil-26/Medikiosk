@@ -55,11 +55,12 @@ export default function Complaint() {
 
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-      <div className="grid grid-cols-2 gap-3 w-full mb-6">
+      <div className="grid grid-cols-2 gap-3 w-full mb-6" role="listbox" aria-label="Select your complaint">
         {COMPLAINTS.map(c => (
           <button key={c.value} onClick={() => select(c.value, c.label)} disabled={loading}
-            className="flex flex-col items-center gap-2 p-5 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-2xl text-center transition touch-target-lg disabled:opacity-50">
-            <c.icon size={36} className={c.color} />
+            className="flex flex-col items-center gap-2 p-5 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-2xl text-center transition touch-target-lg disabled:opacity-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            role="option" aria-label={`${c.label}: ${c.desc}`}>
+            <c.icon size={36} className={c.color} aria-hidden="true" />
             <p className="font-bold text-gray-800">{c.label}</p>
             <p className="text-xs text-gray-500">{c.desc}</p>
           </button>

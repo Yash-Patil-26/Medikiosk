@@ -49,7 +49,11 @@ export default function PurgeProof() {
         {loading ? <LoadingSpinner /> : (
           <div className="flex flex-col gap-4">
             {records.length === 0 && (
-              <div className="text-center py-12 text-gray-400">No purge records yet</div>
+              <div className="text-center py-12">
+                <CheckCircle size={48} className="text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-400">No purge records yet</p>
+                <p className="text-xs text-gray-300 mt-1">Purge proof records will appear here after patients complete sessions</p>
+              </div>
             )}
             {records.map(r => (
               <div key={r.id} className="bg-white border rounded-2xl p-5 flex flex-col gap-2">

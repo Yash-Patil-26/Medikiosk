@@ -63,7 +63,13 @@ export default function DoctorQueue() {
               </thead>
               <tbody className="divide-y">
                 {encounters.length === 0 && (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No encounters yet</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <Activity size={48} className="text-gray-300 mx-auto" />
+                      <p className="text-gray-400">No encounters yet</p>
+                      <p className="text-xs text-gray-300">Encounters will appear here after patients complete the kiosk flow</p>
+                    </div>
+                  </td></tr>
                 )}
                 {encounters.map(enc => (
                   <tr key={enc.id} className={`hover:bg-gray-50 ${enc.red_flag_level === 'critical' ? 'bg-red-50' : enc.red_flag_level === 'warning' ? 'bg-amber-50' : ''}`}>

@@ -107,7 +107,7 @@ export default function Interview() {
         ) : (
           <>
             {(node.inputType === 'choice' || node.inputType === 'multiselect') && node.options && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3" role={node.inputType === 'choice' ? 'radiogroup' : 'group'} aria-label={node.text}>
                 {node.options.map(opt => (
                   <button key={opt.value}
                     onClick={() => {
@@ -131,8 +131,10 @@ export default function Interview() {
                       });
                     }}
                     disabled={saving}
-                    className={`p-4 rounded-xl border-2 text-left font-medium transition touch-target
-                      ${(node.inputType === 'multiselect' && selected.includes(opt.value)) ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}>
+                    className={`p-4 rounded-xl border-2 text-left font-medium transition touch-target focus:ring-2 focus:ring-blue-500 focus:outline-none
+                      ${(node.inputType === 'multiselect' && selected.includes(opt.value)) ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'}`}
+                    role={node.inputType === 'choice' ? 'radio' : 'checkbox'}
+                    aria-checked={node.inputType === 'choice' ? undefined : selected.includes(opt.value)}>
                     {opt.label}
                   </button>
                 ))}

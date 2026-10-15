@@ -57,7 +57,13 @@ export default function AuditLogs() {
               </thead>
               <tbody className="divide-y">
                 {logs.length === 0 && (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No audit logs</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <Activity size={48} className="text-gray-300 mx-auto" />
+                      <p className="text-gray-400">No audit logs yet</p>
+                      <p className="text-xs text-gray-300">Audit logs will appear here as users interact with the system</p>
+                    </div>
+                  </td></tr>
                 )}
                 {logs.map(log => (
                   <tr key={log.id} className="hover:bg-gray-50">
