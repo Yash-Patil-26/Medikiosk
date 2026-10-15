@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Shield, FileText, Database, ArrowRight } from 'lucide-react';
 import KioskShell from '../../components/KioskShell.jsx';
 import { useKiosk } from '../../context/KioskContext.jsx';
 import { useTTS } from '../../hooks/useTTS.js';
@@ -9,10 +9,10 @@ import api from '../../services/api.js';
 import { getKioskSessionCredentials } from '../../services/kioskCredentials.js';
 
 const CONSENT_ITEMS = [
-  { key: 'voice', label: 'Voice processing', desc: 'Your spoken responses may be processed to capture your answers.' },
-  { key: 'document', label: 'Document processing', desc: 'Uploaded documents will be processed to extract medical information.' },
-  { key: 'his', label: 'Share with hospital HIS', desc: 'Your summary may be shared with the hospital information system.' },
-  { key: 'dashboard', label: 'Save to patient dashboard', desc: 'Your records will be saved to your patient dashboard.' }
+  { key: 'voice', label: 'Voice Processing', desc: 'Allow voice recording for transcription', icon: Volume2 },
+  { key: 'document', label: 'Document Upload', desc: 'Allow document OCR and extraction', icon: FileText },
+  { key: 'his', label: 'HIS Integration', desc: 'Share data with hospital information system', icon: Database },
+  { key: 'dashboard', label: 'Save to Dashboard', desc: 'Save encounter for future reference', icon: Shield }
 ];
 
 export default function Consent() {
@@ -28,8 +28,8 @@ export default function Consent() {
   const toggle = (key) => setConsents(p => ({ ...p, [key]: !p[key] }));
 
   const readAloud = () => {
-    const text = CONSENT_ITEMS.map(i => `${i.label}: ${i.desc}`).join('. ');
-    speak(`Consent notice. ${text}. Please review each item and toggle to agree.`);
+    const text = CONSENT_ITEMS.map(item => `${item.label}: ${item.desc}`).join('. ');
+    speak(text);
   };
 
   const proceed = async () => {
@@ -116,41 +116,57 @@ export default function Consent() {
 
   return (
     <KioskShell step="Consent" backTo="/kiosk/identify">
-      <div className="w-full mt-4">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">{t('consent_title')}</h1>
-          <button onClick={readAloud} className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
+      <div className="w-full flex flex-col gap-6 animate-slide-up">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('consent_title')}</h1>
+            <p className="text-gray-500 text-lg">{t('consent_subtitle')}</p>
+          </div>
+          <button onClick={readAloud} className="flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-700 rounded-xl hover:bg-primary-100 transition-colors font-medium">
             <Volume2 size={18} /> {t('read_aloud')}
           </button>
         </div>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && (
+          <div className="bg-error-50 border border-error-200 rounded-xl p-3 text-sm text-error-700 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-error-200 flex items-center justify-center flex-shrink-0">
+              <span className="text-error-700 text-xs font-bold">!</span>
+            </span>
+            {error}
+          </div>
+        )}
 
         <div className="flex flex-col gap-4 mb-6">
           {CONSENT_ITEMS.map(item => (
-            <div key={item.key} className="flex items-start gap-4 bg-white border rounded-xl p-4">
+            <div key={item.key} className="card p-5 flex items-start gap-4">
               <button onClick={() => toggle(item.key)}
-                className={`w-12 h-7 rounded-full transition-colors shrink-0 mt-0.5 focus:ring-2 focus:ring-blue-500 focus:outline-none ${consents[item.key] ? 'bg-teal-500' : 'bg-gray-300'}`}
+                className={`w-14 h-8 rounded-full transition-colors shrink-0 mt-0.5 focus:ring-2 focus:ring-primary-500 focus:outline-none ${consents[item.key] ? 'bg-gradient-to-r from-success-500 to-success-600' : 'bg-gray-200'}`}
                 role="switch" aria-checked={consents[item.key]} aria-label={`Toggle ${item.label}`}>
-                <span className={`block w-5 h-5 bg-white rounded-full shadow transition-transform mx-1 ${consents[item.key] ? 'translate-x-5' : 'translate-x-0'}`} />
+                <span className={`block w-6 h-6 bg-white rounded-full shadow transition-transform mx-1 ${consents[item.key] ? 'translate-x-6' : 'translate-x-0'}`} />
               </button>
-              <div>
-                <p className="font-semibold text-gray-800">{item.label}</p>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-1">
+                  <item.icon size={20} className="text-primary-500" />
+                  <p className="font-semibold text-gray-800">{item.label}</p>
+                </div>
                 <p className="text-sm text-gray-500">{item.desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <label className="flex items-center gap-3 mb-6 cursor-pointer">
-          <input type="checkbox" checked={understood} onChange={e => setUnderstood(e.target.checked)}
-            className="w-5 h-5 rounded" />
-          <span className="text-gray-700">{t('consent_understand')}</span>
-        </label>
+        <div className="card p-4 bg-primary-50 border-primary-200">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" checked={understood} onChange={e => setUnderstood(e.target.checked)}
+              className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 mt-0.5" />
+            <span className="text-sm text-primary-800">{t('consent_understand')}</span>
+          </label>
+        </div>
 
         <button onClick={proceed} disabled={!understood || loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg disabled:opacity-40 transition">
-          {loading ? t('saving') : t('next') + '→'}
+          className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-4 rounded-2xl font-bold text-lg disabled:opacity-50 shadow-md shadow-primary-200 transition-all hover:shadow-lg flex items-center justify-center gap-2">
+          {loading ? t('please_wait') : t('continue')}
+          <ArrowRight size={20} />
         </button>
       </div>
     </KioskShell>

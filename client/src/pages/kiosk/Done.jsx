@@ -6,7 +6,8 @@ import {
   Trash2,
   AlertTriangle,
   RefreshCw,
-  LoaderCircle
+  Loader2,
+  Home
 } from 'lucide-react';
 import KioskShell from '../../components/KioskShell.jsx';
 import { useKiosk } from '../../context/KioskContext.jsx';
@@ -87,103 +88,112 @@ export default function Done() {
 
   return (
     <KioskShell step="Done" showBack={false}>
-      <div className="w-full mt-8 flex flex-col items-center gap-6 text-center">
+      <div className="w-full flex flex-col items-center gap-6 text-center animate-scale-in">
         {purgeStatus === 'success' ? (
-          <div className="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center">
-            <CheckCircle size={44} className="text-teal-600" />
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center shadow-lg shadow-success-200">
+            <CheckCircle size={48} className="text-success-600" />
           </div>
         ) : purgeStatus === 'failed' ? (
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
-            <AlertTriangle size={44} className="text-red-600" />
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-error-100 to-error-200 flex items-center justify-center shadow-lg shadow-error-200">
+            <AlertTriangle size={48} className="text-error-600" />
           </div>
         ) : (
-          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
-            <LoaderCircle size={44} className="text-blue-600 animate-spin" />
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center shadow-lg shadow-primary-200">
+            <Loader2 size={48} className="text-primary-600 animate-spin" />
           </div>
         )}
 
-        <h1 className="text-3xl font-extrabold text-gray-800">
-          {t('done_title')}
-        </h1>
-
-        <p className="text-gray-500 max-w-sm">
-          {t('session_complete_desc')}
-        </p>
+        <div>
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-3">
+            {t('done_title')}
+          </h1>
+          <p className="text-gray-500 text-lg max-w-sm">
+            {t('session_complete_desc')}
+          </p>
+        </div>
 
         {purgeStatus === 'purging' && (
-          <div role="status" className="w-full rounded-xl border bg-white p-4 text-sm text-gray-600">
-            {t('purge_pending')}
+          <div role="status" className="card p-5 text-sm text-gray-600 w-full max-w-md">
+            <div className="flex items-center gap-3">
+              <Loader2 size={20} className="text-primary-500 animate-spin" />
+              <span>{t('purge_pending')}</span>
+            </div>
           </div>
         )}
 
         {purgeStatus === 'failed' && (
-          <div role="alert" className="w-full rounded-xl border border-red-200 bg-red-50 p-4 text-left">
-            <h2 className="font-bold text-red-800 mb-2">
-              {t('purge_failed')}
-            </h2>
-            <p className="text-sm text-red-700">{purgeError}</p>
-            <p className="text-sm text-red-700 mt-2">
+          <div role="alert" className="card p-5 text-left w-full max-w-md border-error-200 bg-error-50">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle size={20} className="text-error-600" />
+              <h2 className="font-bold text-error-800">
+                {t('purge_failed')}
+              </h2>
+            </div>
+            <p className="text-sm text-error-700 mb-2">{purgeError}</p>
+            <p className="text-sm text-error-700">
               {t('purge_error')}
             </p>
           </div>
         )}
 
         {purgeStatus === 'success' && (
-          <div className="w-full bg-white border rounded-2xl p-5 text-left">
-            <div className="flex items-center gap-2 mb-4">
-              <Trash2 size={20} className="text-teal-600" />
-              <h2 className="font-bold text-gray-800 text-lg">
+          <div className="card p-6 w-full max-w-md">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center">
+                <Trash2 size={24} className="text-success-600" />
+              </div>
+              <h2 className="font-bold text-gray-800 text-xl">
                 {t('session_purged')}
               </h2>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3 mb-5">
               {items.map((item, index) => (
-                <div key={index} className="flex items-start gap-3 text-sm text-gray-700">
-                  <CheckCircle size={16} className="text-teal-500 shrink-0 mt-0.5" />
-                  {item}
+                <div key={index} className="flex items-start gap-3 text-sm text-gray-700 p-3 bg-success-50 rounded-xl">
+                  <CheckCircle size={18} className="text-success-600 shrink-0 mt-0.5" />
+                  <span>{item}</span>
                 </div>
               ))}
             </div>
 
             {retained.length > 0 && (
               <>
-                <h3 className="font-semibold text-gray-800 mt-5 mb-3">
+                <h3 className="font-semibold text-gray-800 mb-3">
                   {t('purge_retained_title')}
                 </h3>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3 mb-5">
                   {retained.map((item, index) => (
-                    <div key={index} className="flex items-start gap-3 text-sm text-gray-600">
-                      <CheckCircle size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                      {item}
+                    <div key={index} className="flex items-start gap-3 text-sm text-gray-600 p-3 bg-primary-50 rounded-xl">
+                      <CheckCircle size={18} className="text-primary-500 shrink-0 mt-0.5" />
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>
               </>
             )}
 
-            <p className="text-xs text-gray-500 mt-4">
+            <p className="text-xs text-gray-500 text-center">
               {t('purge_note')}
             </p>
           </div>
         )}
 
         {purgeStatus === 'failed' ? (
-          <div className="w-full flex flex-col gap-3">
+          <div className="w-full flex flex-col gap-3 max-w-md">
             {sessionIdRef.current && (
               <button
                 onClick={purgeSession}
                 disabled={purgeStatus === 'purging'}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-4 rounded-2xl font-bold text-lg disabled:opacity-50 shadow-md shadow-primary-200 transition-all"
               >
-                <RefreshCw size={18} />
+                <RefreshCw size={20} />
                 {t('purge_retry')}
               </button>
             )}
 
             <button
               onClick={leaveScreen}
-              className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200"
+              className="w-full bg-gray-100 text-gray-700 py-3.5 rounded-xl font-medium hover:bg-gray-200 transition-colors"
             >
               {t('purge_leave')}
             </button>
@@ -191,8 +201,9 @@ export default function Done() {
         ) : purgeStatus === 'success' ? (
           <button
             onClick={leaveScreen}
-            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700"
+            className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-4 rounded-2xl font-bold text-lg shadow-md shadow-primary-200 transition-all hover:shadow-lg flex items-center justify-center gap-2 max-w-md"
           >
+            <Home size={20} />
             {t('return_home')}
           </button>
         ) : null}
