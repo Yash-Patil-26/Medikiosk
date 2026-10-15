@@ -34,6 +34,7 @@ export default function Documents() {
   const { kiosk } = useKiosk();
   const [extractions, setExtractions] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [verifying, setVerifying] = useState(null);
   const [error, setError] = useState('');
 
   const upload = async (e) => {
@@ -52,8 +53,15 @@ export default function Documents() {
   };
 
   const verify = async (idx, docId) => {
-    await api.post(`/documents/${docId}/verify`, { session_id: kiosk.sessionId });
-    setExtractions(p => p.map((e, i) => i === idx ? { ...e, verified: true } : e));
+    setVerifying(idx);
+    try {
+      await api.post(`/documents/${docId}/verify`, { session_id: kiosk.sessionId });
+      setExtractions(p => p.map((e, i) => i === idx ? { ...e, verified: true } : e));
+    } catch {
+      setError('Verification failed. Please try again.');
+    } finally {
+      setVerifying(null);
+    }
   };
 
   return (
@@ -102,9 +110,9 @@ export default function Documents() {
               <span className="text-xs text-gray-400">Confidence: {Math.round((ext.confidence || 0) * 100)}%</span>
               {ext.verified
                 ? <span className="flex items-center gap-1 text-teal-600 text-sm font-medium"><CheckCircle size={16} /> Verified by patient</span>
-                : <button onClick={() => verify(idx, ext.id)}
-                    className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600">
-                    Verify this document
+                : <button onClick={() => verify(idx, ext.id)} disabled={verifying === idx}
+                    className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 disabled:opacity-50">
+                    {verifying === idx ? 'Verifying...' : 'Verify this document'}
                   </button>}
             </div>
           </div>
