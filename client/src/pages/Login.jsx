@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Activity, Lock, User, ArrowLeft } from 'lucide-react';
 
-const ROLE_REDIRECTS = { doctor: '/doctor', triage: '/triage', admin: '/admin/audit', patient: '/me' };
+const ROLE_REDIRECTS = { doctor: '/doctor', triage: '/triage', admin: '/admin/audit', patient: '/kiosk/identify' };
 
 export default function Login() {
   const { login } = useAuth();
@@ -40,12 +40,12 @@ export default function Login() {
             </div>
             <div>
               <span className="text-2xl font-bold text-gray-800">MediKiosk</span>
-              <span className="text-sm text-gray-500 block">Staff Portal</span>
+              <span className="text-sm text-gray-500 block">Login Portal</span>
             </div>
           </div>
 
           <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('login_title')}</h1>
-          <p className="text-gray-500 mb-6">Sign in to access your dashboard</p>
+          <p className="text-gray-500 mb-6">Sign in to access your dashboard or start kiosk flow</p>
 
           <div className="bg-primary-50 border border-primary-200 rounded-xl p-4 mb-6 text-sm text-primary-700">
             <strong className="block mb-2">{t('demo_accounts_label')}</strong>
