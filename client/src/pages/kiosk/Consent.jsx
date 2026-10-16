@@ -6,7 +6,7 @@ import KioskShell from '../../components/KioskShell.jsx';
 import { useKiosk } from '../../context/KioskContext.jsx';
 import { useTTS } from '../../hooks/useTTS.js';
 import api from '../../services/api.js';
-import { getKioskSessionCredentials } from '../../services/kioskCredentials.js';
+import { getKioskSessionCredentials, setKioskSessionCredentials } from '../../services/kioskCredentials.js';
 
 const CONSENT_ITEMS = [
   { key: 'voice', label: 'Voice Processing', desc: 'Allow voice recording for transcription', icon: Volume2 },
@@ -57,6 +57,9 @@ export default function Consent() {
         if (!createdSessionId || typeof r.data.kioskToken !== 'string') {
           throw new Error('Server did not issue a kiosk session credential');
         }
+
+        // Store the kiosk session credentials
+        setKioskSessionCredentials(createdSessionId, r.data.kioskToken);
 
         // Keep the session ID in memory so consent can resume if a write fails.
         update({ sessionId: createdSessionId });
