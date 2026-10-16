@@ -39,7 +39,14 @@ export default function Interview() {
     setSaving(true);
     setError('');
     try {
-      await api.post(`/dialogue/${kiosk.sessionId}/answer`, {
+      console.log('Attempting to save answer:', { 
+        sessionId: kiosk.sessionId, 
+        nodeId: node.id, 
+        slotId: node.slotId, 
+        value, 
+        source 
+      });
+      const response = await api.post(`/dialogue/${kiosk.sessionId}/answer`, {
         node_id: node.id,
         slot_id: node.slotId,
         value,
@@ -48,9 +55,12 @@ export default function Interview() {
         confidence: source === 'voice' ? 0.9 : 1.0,
         confirmed_by: confirmedBy
       });
+      console.log('Save successful:', response.data);
       fetchNext();
-    } catch {
-      setError('Error saving answer. Please try again.');
+    } catch (err) {
+      console.error('Error saving answer:', err);
+      console.error('Error response:', err.response?.data);
+      setError(err.response?.data?.error || 'Error saving answer. Please try again.');
     }
     finally { setSaving(false); }
   };
