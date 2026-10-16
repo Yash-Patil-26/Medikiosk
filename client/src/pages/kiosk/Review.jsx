@@ -20,16 +20,8 @@ export default function Review() {
 
   useEffect(() => {
     if (!kiosk.sessionId) return;
-    console.log('Fetching session data for review:', kiosk.sessionId);
     api.get(`/sessions/${kiosk.sessionId}`)
-      .then(r => {
-        console.log('Session data fetched:', r.data);
-        setSession(r.data);
-      })
-      .catch(err => {
-        console.error('Error fetching session:', err);
-        console.error('Error response:', err.response?.data);
-      })
+      .then(r => setSession(r.data))
       .finally(() => setLoading(false));
   }, [kiosk.sessionId]);
 
@@ -37,20 +29,16 @@ export default function Review() {
     setSubmitting(true);
     setError('');
     try {
-      console.log('Creating encounter:', { patientId: kiosk.patientId, sessionId: kiosk.sessionId, language: kiosk.language });
       const r = await api.post('/encounters', {
         patient_id: kiosk.patientId,
         session_id: kiosk.sessionId,
         language: kiosk.language,
         ayush_mode: kiosk.ayushMode
       });
-      console.log('Encounter created:', r.data);
       update({ encounterId: r.data.id });
       navigate('/kiosk/done');
-    } catch (err) {
-      console.error('Encounter creation error:', err);
-      console.error('Encounter creation error response:', err.response?.data);
-      setError(err.response?.data?.error || 'Submission failed. Please try again.');
+    } catch {
+      setError('Submission failed. Please try again.');
     }
     finally { setSubmitting(false); }
   };

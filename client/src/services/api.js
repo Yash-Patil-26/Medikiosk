@@ -156,8 +156,6 @@ api.interceptors.request.use(config => {
     if (isDocumentExtraction) {
       setHeader(config, 'X-Kiosk-Session-Id', credentials.id);
     }
-    
-    console.log('API Request:', { method, path, authorized, hasToken: !!credentials.token, sessionId: credentials.id });
   }
 
   return config;

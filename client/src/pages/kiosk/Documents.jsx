@@ -43,17 +43,13 @@ export default function Documents() {
     if (file.size > 5 * 1024 * 1024) { setError('File too large. Max 5MB.'); return; }
     setUploading(true); setError('');
     try {
-      console.log('Uploading document:', { fileName: file.name, fileSize: file.size, sessionId: kiosk.sessionId });
       const fd = new FormData();
       fd.append('file', file);
       fd.append('session_id', kiosk.sessionId);
       const r = await api.post('/documents/extract', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      console.log('Upload successful:', r.data);
       setExtractions(p => [...p, { ...r.data, id: r.data.id, verified: false, fileName: file.name }]);
-    } catch (err) {
-      console.error('Upload error:', err);
-      console.error('Upload error response:', err.response?.data);
-      setError(err.response?.data?.error || 'Upload failed. Please try again.');
+    } catch {
+      setError('Upload failed. Please try again.');
     }
     finally { setUploading(false); }
   };

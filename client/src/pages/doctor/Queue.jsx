@@ -24,16 +24,8 @@ export default function DoctorQueue() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('Fetching encounters list');
     api.get('/encounters')
-      .then(r => {
-        console.log('Encounters fetched:', r.data);
-        setEncounters(r.data);
-      })
-      .catch(err => {
-        console.error('Error fetching encounters:', err);
-        console.error('Error response:', err.response?.data);
-      })
+      .then(r => setEncounters(r.data))
       .finally(() => setLoading(false));
   }, []);
 

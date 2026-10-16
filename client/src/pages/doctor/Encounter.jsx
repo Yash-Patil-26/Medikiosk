@@ -21,10 +21,8 @@ export default function DoctorEncounter() {
   const [editValue, setEditValue] = useState('');
 
   useEffect(() => {
-    console.log('Fetching encounter data:', id);
     api.get(`/encounters/${id}/summary`)
       .then(r => {
-        console.log('Encounter data fetched:', r.data);
         setEncounter(r.data);
         const draft = r.data.summary_draft_json;
         setSummary(draft && typeof draft === 'object' ? draft : (draft ? JSON.parse(draft) : null));
@@ -32,8 +30,6 @@ export default function DoctorEncounter() {
         if (r.data.status === 'signed') setSigned(true);
       })
       .catch(err => {
-        console.error('Error fetching encounter:', err);
-        console.error('Error response:', err.response?.data);
         setError(err.response?.data?.error || 'Failed to load encounter');
       })
       .finally(() => setLoading(false));
@@ -91,8 +87,6 @@ export default function DoctorEncounter() {
       setFhir(r.data.fhir);
       setSigned(true);
     } catch (e) {
-      console.error('Sign error:', e);
-      console.error('Sign error response:', e.response?.data);
       setError(e.response?.data?.error || 'Sign-off failed');
     }
     finally { setSigning(false); }
@@ -495,7 +489,7 @@ export default function DoctorEncounter() {
             )}
 
             {/* Document Findings */}
-            {summary?.documentFindings?.length > 0 && (
+            {summary?.documentFindings?.length > 0 ? (
               <div className="card overflow-hidden">
                 <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200">
                   <div className="flex items-center gap-3">
@@ -506,7 +500,7 @@ export default function DoctorEncounter() {
                 <div className="divide-y divide-gray-100">
                   {summary.documentFindings.map((doc, i) => (
                     <div key={i} className="p-4">
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                           <FileText size={18} className="text-primary-500" />
                           <p className="font-semibold text-gray-800">{doc.docType}</p>
@@ -521,42 +515,72 @@ export default function DoctorEncounter() {
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-500 mb-3">
+                      <div className="text-sm text-gray-500 mb-4">
                         <span className="font-medium">{doc.date}</span> · <span>{doc.provider}</span>
                       </div>
+                      
+                      {/* Labs Table */}
                       {doc.labs?.length > 0 && (
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="text-left text-gray-500 text-xs uppercase">
-                              <th className="pb-2">Lab</th>
-                              <th className="pb-2">Value</th>
-                              <th className="pb-2">Reference</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {doc.labs.map((lab, j) => (
-                              <tr key={j} className="border-t border-gray-100">
-                                <td className="py-2 text-gray-800">{lab.name}</td>
-                                <td className="py-2 font-medium text-gray-900">{lab.value} {lab.unit}</td>
-                                <td className="py-2 text-gray-500">{lab.referenceRange}</td>
+                        <div className="mb-4">
+                          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Lab Results</p>
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="text-left text-gray-500 text-xs uppercase bg-gray-50">
+                                <th className="px-3 py-2 rounded-tl-lg">Lab</th>
+                                <th className="px-3 py-2">Value</th>
+                                <th className="px-3 py-2 rounded-tr-lg">Reference</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody>
+                              {doc.labs.map((lab, j) => (
+                                <tr key={j} className="border-t border-gray-100">
+                                  <td className="px-3 py-2 text-gray-800">{lab.name}</td>
+                                  <td className="px-3 py-2 font-medium text-gray-900">{lab.value} {lab.unit}</td>
+                                  <td className="px-3 py-2 text-gray-500">{lab.referenceRange}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       )}
+                      
+                      {/* Medications */}
                       {doc.medications?.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {doc.medications.map((med, j) => (
-                            <div key={j} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                              <Pill size={16} className="text-primary-500" />
-                              <span className="text-sm text-gray-800">{med.name} {med.dose} — {med.frequency}</span>
-                            </div>
-                          ))}
+                        <div className="mb-4">
+                          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Medications</p>
+                          <div className="space-y-2">
+                            {doc.medications.map((med, j) => (
+                              <div key={j} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <Pill size={16} className="text-primary-500" />
+                                <span className="text-sm text-gray-800">{med.name} {med.dose} — {med.frequency}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Diagnoses */}
+                      {doc.diagnoses?.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Diagnoses</p>
+                          <div className="space-y-2">
+                            {doc.diagnoses.map((diag, j) => (
+                              <div key={j} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <AlertCircle size={16} className="text-warning-500" />
+                                <span className="text-sm text-gray-800">{typeof diag === 'string' ? diag : diag.text}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : (
+              <div className="card p-6 text-center">
+                <FileText size={48} className="text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-400">No documents uploaded</p>
               </div>
             )}
 

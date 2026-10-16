@@ -30,13 +30,19 @@ export async function extract(_buffer, _mimeType, filename = '') {
       confidence: 0.82
     };
   }
+  // For generic files, return demo lab data for better demo experience
   return {
     docType: 'medical_document',
     date: new Date().toISOString().slice(0, 10),
     provider: 'Demo Provider',
-    diagnoses: [],
-    medications: [],
-    labs: [],
+    diagnoses: [{ text: 'Routine checkup (synthetic)' }],
+    medications: [
+      { name: 'Paracetamol', dose: '500mg', frequency: 'as needed' }
+    ],
+    labs: [
+      { name: 'Hemoglobin', value: '14.0', unit: 'g/dL', referenceRange: '12-16' },
+      { name: 'Blood Pressure', value: '120/80', unit: 'mmHg', referenceRange: '90-120 / 60-80' }
+    ],
     confidence: 0.75
   };
 }
