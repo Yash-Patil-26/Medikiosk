@@ -58,8 +58,12 @@ export default function Consent() {
           throw new Error('Server did not issue a kiosk session credential');
         }
 
+        console.log('Session created, storing credentials:', { sessionId: createdSessionId, hasToken: !!r.data.kioskToken });
+
         // Store the kiosk session credentials
         setKioskSessionCredentials(createdSessionId, r.data.kioskToken);
+
+        console.log('Credentials stored successfully');
 
         // Keep the session ID in memory so consent can resume if a write fails.
         update({ sessionId: createdSessionId });
