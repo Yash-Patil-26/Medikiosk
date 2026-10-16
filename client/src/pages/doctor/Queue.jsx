@@ -5,6 +5,18 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import api from '../../services/api.js';
 
+function StatusBadge({ status }) {
+  const map = { pending: 'bg-warning-100 text-warning-700', in_review: 'bg-primary-100 text-primary-700', signed: 'bg-success-100 text-success-700' };
+  return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${map[status] || 'bg-gray-100 text-gray-600'}`}>{status}</span>;
+}
+
+function FlagBadge({ level }) {
+  if (!level || level === 'none') return <span className="text-gray-300">—</span>;
+  return level === 'critical'
+    ? <span className="flex items-center gap-1 text-error-600 font-bold text-xs"><AlertOctagon size={14} /> Critical</span>
+    : <span className="flex items-center gap-1 text-warning-600 font-bold text-xs"><AlertTriangle size={14} /> Warning</span>;
+}
+
 export default function DoctorQueue() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -12,21 +24,31 @@ export default function DoctorQueue() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/encounters').then(r => setEncounters(r.data)).finally(() => setLoading(false));
+    console.log('Fetching encounters list');
+    api.get('/encounters')
+      .then(r => {
+        console.log('Encounters fetched:', r.data);
+        setEncounters(r.data);
+      })
+      .catch(err => {
+        console.error('Error fetching encounters:', err);
+        console.error('Error response:', err.response?.data);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
-  const getPriorityColor = (flags) => {
-    if (flags?.some(f => f.level === 'critical')) return 'text-error-600 bg-error-50 border-error-200';
-    if (flags?.some(f => f.level === 'warning')) return 'text-warning-600 bg-warning-50 border-warning-200';
-    return 'text-success-600 bg-success-50 border-success-200';
-  };
-
-  const getPriorityLabel = (flags) => {
-    if (flags?.some(f => f.level === 'critical')) return 'Critical';
-    if (flags?.some(f => f.level === 'warning')) return 'Warning';
-    return 'Normal';
+  const getChiefComplaint = (enc) => {
+    if (!enc.summary_draft_json) return '—';
+    try {
+      const summary = typeof enc.summary_draft_json === 'object' 
+        ? enc.summary_draft_json 
+        : JSON.parse(enc.summary_draft_json);
+      return summary?.chiefComplaint?.text || '—';
+    } catch {
+      return '—';
+    }
   };
 
   return (
@@ -71,7 +93,7 @@ export default function DoctorQueue() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Patient', 'Complaint', 'Priority', 'Language', 'Time', 'Action'].map(h => (
+                  {['Token', 'Complaint', 'Red Flag', 'Status', 'Time', 'Action'].map(h => (
                     <th key={h} className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -88,29 +110,18 @@ export default function DoctorQueue() {
                     </div>
                   </td></tr>
                 )}
-                {encounters.map(e => (
-                  <tr key={e.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate(`/doctor/encounter/${e.id}`)}>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                          <User size={18} className="text-primary-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-800">{e.patient_name || 'Anonymous'}</p>
-                          <p className="text-xs text-gray-500">ID: {e.patient_id}</p>
-                        </div>
-                      </div>
+                {encounters.map(enc => (
+                  <tr key={enc.id} className={`hover:bg-gray-50 transition-colors ${enc.red_flag_level === 'critical' ? 'bg-error-50' : enc.red_flag_level === 'warning' ? 'bg-warning-50' : ''}`}>
+                    <td className="px-6 py-4 font-bold text-gray-800">{enc.token_no}</td>
+                    <td className="px-6 py-4 text-gray-700">{getChiefComplaint(enc)}</td>
+                    <td className="px-6 py-4"><FlagBadge level={enc.red_flag_level} /></td>
+                    <td className="px-6 py-4"><StatusBadge status={enc.status} /></td>
+                    <td className="px-6 py-4 text-gray-500 text-sm flex items-center gap-1">
+                      <Clock size={12} /> {new Date(enc.created_at).toLocaleTimeString()}
                     </td>
-                    <td className="px-6 py-4 text-gray-700">{e.complaint_label || 'Not specified'}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(e.red_flags)}`}>
-                        {getPriorityLabel(e.red_flags)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 capitalize">{e.language || 'en'}</td>
-                    <td className="px-6 py-4 text-gray-500 text-sm">{new Date(e.created_at).toLocaleString()}</td>
-                    <td className="px-6 py-4">
-                      <button className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg text-sm font-medium hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all">
+                      <button onClick={() => navigate(`/doctor/encounter/${enc.id}`)}
+                        className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg text-sm font-medium hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all">
                         Review
                       </button>
                     </td>

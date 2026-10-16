@@ -6,6 +6,134 @@ import ProvenanceChip from '../../components/ProvenanceChip.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import api from '../../services/api.js';
 
+function SummarySection({ title, data, onEdit, editable }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(
+    typeof data === 'object' ? data?.text || JSON.stringify(data) : data || ''
+  );
+
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">{title}</h3>
+        {editable && !editing && (
+          <button onClick={() => setEditing(!editing)} className="text-primary-500 hover:text-primary-700 p-1">
+            <PenLine size={15} />
+          </button>
+        )}
+      </div>
+      {editing ? (
+        <div className="flex flex-col gap-2">
+          <textarea value={val} onChange={e => setVal(e.target.value)}
+            className="border rounded-lg p-2 text-sm w-full min-h-[80px] focus:ring-2 focus:ring-primary-500 focus:outline-none" />
+          <div className="flex gap-2">
+            <button onClick={() => { onEdit(val); setEditing(false); }}
+              className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-xs font-medium">Save</button>
+            <button onClick={() => setEditing(false)} className="px-3 py-1.5 bg-gray-100 rounded-lg text-xs">Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <p className="text-gray-800 text-sm">{val || <span className="text-gray-400 italic">Not recorded</span>}</p>
+          {data?.source && <ProvenanceChip source={data.source} confirmedBy={data.confirmedBy} />}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const HPI_FIELDS = [
+  { key: 'site', label: 'Location' },
+  { key: 'onset', label: 'Onset' },
+  { key: 'character', label: 'Character' },
+  { key: 'radiation', label: 'Radiation' },
+  { key: 'severity', label: 'Severity' },
+  { key: 'duration', label: 'Duration' },
+  { key: 'breathingDifficulty', label: 'Breathing difficulty' }
+];
+
+function HistoryPresentIllnessSection({ data, onSave, editable }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ ...data });
+
+  const startEditing = () => {
+    setDraft({ ...data });
+    setEditing(true);
+  };
+
+  const saveChanges = () => {
+    onSave({
+      ...draft,
+      source: data.source || 'patient_interview'
+    });
+    setEditing(false);
+  };
+
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
+          History of Present Illness
+        </h3>
+        {editable && !editing && (
+          <button onClick={startEditing}
+            className="text-primary-500 hover:text-primary-700 p-1"
+            aria-label="Edit history of present illness">
+            <PenLine size={15} />
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {HPI_FIELDS.map(field => (
+              <label key={field.key} className="flex flex-col gap-1 text-sm text-gray-600">
+                <span>{field.label}</span>
+                <input
+                  value={draft[field.key] ?? ''}
+                  onChange={event => setDraft(current => ({
+                    ...current,
+                    [field.key]: event.target.value || null
+                  }))}
+                  className="border rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                />
+              </label>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button onClick={saveChanges}
+              className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-xs font-medium">
+              Save
+            </button>
+            <button onClick={() => {
+              setDraft({ ...data });
+              setEditing(false);
+            }}
+              className="px-3 py-1.5 bg-gray-100 rounded-lg text-xs">
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {HPI_FIELDS.map(field => (
+            <div key={field.key} className="text-sm">
+              <p className="text-gray-500">{field.label}</p>
+              <p className="text-gray-800">
+                {data[field.key] || <span className="text-gray-400 italic">Not recorded</span>}
+              </p>
+            </div>
+          ))}
+          <div className="sm:col-span-2">
+            <ProvenanceChip source={data.source || 'patient_interview'} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DoctorEncounter() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -19,11 +147,52 @@ export default function DoctorEncounter() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([
-      api.get(`/encounters/${id}`).then(r => setEncounter(r.data)),
-      api.get(`/encounters/${id}/summary`).then(r => setSummary(r.data.summary_draft_json))
-    ]).finally(() => setLoading(false));
+    console.log('Fetching encounter data:', id);
+    api.get(`/encounters/${id}/summary`)
+      .then(r => {
+        console.log('Encounter data fetched:', r.data);
+        setEncounter(r.data);
+        const draft = r.data.summary_draft_json;
+        setSummary(draft && typeof draft === 'object' ? draft : (draft ? JSON.parse(draft) : null));
+        setNotes(r.data.doctor_notes || '');
+        if (r.data.status === 'signed') setSigned(true);
+      })
+      .catch(err => {
+        console.error('Error fetching encounter:', err);
+        console.error('Error response:', err.response?.data);
+        setError(err.response?.data?.error || 'Failed to load encounter');
+      })
+      .finally(() => setLoading(false));
   }, [id]);
+
+  const saveNotes = async () => {
+    await api.patch(`/encounters/${id}/summary`, { summary_draft_json: summary, doctor_notes: notes });
+  };
+
+  const editSection = (key, subKey) => (val) => {
+    setSummary(currentSummary => {
+      const current = currentSummary?.[key] || {};
+      let updated;
+
+      if (subKey) {
+        updated = { ...current, [subKey]: val };
+      } else if (
+        key === 'historyOfPresentIllness' &&
+        val &&
+        typeof val === 'object' &&
+        !Array.isArray(val)
+      ) {
+        updated = {
+          ...val,
+          source: current.source || 'patient_interview'
+        };
+      } else {
+        updated = { ...current, text: val };
+      }
+
+      return { ...currentSummary, [key]: updated };
+    });
+  };
 
   const sign = async () => {
     setSigning(true);
@@ -34,9 +203,18 @@ export default function DoctorEncounter() {
       setFhir(r.data.fhir);
       setSigned(true);
     } catch (e) {
+      console.error('Sign error:', e);
+      console.error('Sign error response:', e.response?.data);
       setError(e.response?.data?.error || 'Sign-off failed');
     }
     finally { setSigning(false); }
+  };
+
+  const downloadFhir = async () => {
+    const r = await api.get(`/encounters/${id}/fhir`);
+    const blob = new Blob([JSON.stringify(r.data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `fhir-encounter-${id}.json`; a.click();
   };
 
   if (loading) return (
@@ -45,7 +223,16 @@ export default function DoctorEncounter() {
     </div>
   );
 
-  const slots = summary?.slots || [];
+  const flags = Array.isArray(encounter?.red_flag_reasons)
+    ? encounter.red_flag_reasons
+    : (encounter?.red_flag_reasons ? JSON.parse(encounter.red_flag_reasons) : []);
+
+  const getChiefComplaint = () => {
+    if (!summary?.chiefComplaint) return '—';
+    return typeof summary.chiefComplaint === 'string' 
+      ? summary.chiefComplaint 
+      : summary.chiefComplaint?.text || '—';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
@@ -65,21 +252,12 @@ export default function DoctorEncounter() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {signed && fhir && (
-            <button onClick={() => {
-              const blob = new Blob([JSON.stringify(fhir, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `fhir-${id}.json`;
-              a.click();
-            }} className="flex items-center gap-2 px-4 py-2 bg-success-500 text-white rounded-xl text-sm font-medium hover:bg-success-600 transition-colors">
+          {signed && (
+            <button onClick={downloadFhir} className="flex items-center gap-2 px-4 py-2 bg-success-500 text-white rounded-xl text-sm font-medium hover:bg-success-600 transition-colors">
               <Download size={16} /> Download FHIR
             </button>
           )}
-          <button onClick={() => navigate('/login')} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-            Logout
-          </button>
+          <span className="text-sm font-medium text-gray-600">{encounter?.token_no}</span>
         </div>
       </header>
 
@@ -93,8 +271,8 @@ export default function DoctorEncounter() {
                   <User size={32} className="text-primary-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{encounter?.patient_name || 'Anonymous'}</h2>
-                  <p className="text-sm text-gray-500">ID: {encounter?.patient_id}</p>
+                  <h2 className="text-xl font-bold text-gray-900">Anonymous</h2>
+                  <p className="text-sm text-gray-500">ID: {encounter?.patient_id || '—'}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -104,13 +282,17 @@ export default function DoctorEncounter() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <FileText size={16} className="text-gray-400" />
-                  <span className="text-gray-600 capitalize">{encounter?.complaint_label || 'Not specified'}</span>
+                  <span className="text-gray-600">{getChiefComplaint()}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-400">Language:</span>
+                  <span className="text-gray-600 capitalize">{encounter?.language || 'en'}</span>
                 </div>
               </div>
             </div>
 
-            {encounter?.red_flags?.length > 0 && (
-              <RedFlagBanner flags={encounter.red_flags} />
+            {flags.length > 0 && (
+              <RedFlagBanner level={encounter?.red_flag_level} reasons={flags} />
             )}
           </div>
 
@@ -129,35 +311,34 @@ export default function DoctorEncounter() {
               </div>
             )}
 
-            <div className="card p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Patient Summary</h3>
-                {!signed && (
-                  <button onClick={() => setSummary(summary)} className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium">
-                    <PenLine size={16} /> Edit
-                  </button>
-                )}
-              </div>
+            {summary && (
+              <>
+                <SummarySection title="Chief Complaint" data={summary.chiefComplaint} onEdit={editSection('chiefComplaint')} editable={!signed} />
+                <HistoryPresentIllnessSection data={summary.historyOfPresentIllness || {}} onSave={editSection('historyOfPresentIllness')} editable={!signed} />
+                <SummarySection title="Past Medical History" data={summary.pastMedicalHistory} onEdit={editSection('pastMedicalHistory')} editable={!signed} />
+                <SummarySection title="Past Surgical History" data={summary.pastSurgicalHistory} onEdit={editSection('pastSurgicalHistory')} editable={!signed} />
+                <SummarySection title="Drug History" data={summary.drugHistory} onEdit={editSection('drugHistory')} editable={!signed} />
+                <SummarySection title="Allergy History" data={summary.allergyHistory} onEdit={editSection('allergyHistory')} editable={!signed} />
+                <SummarySection title="Family History" data={summary.familyHistory} onEdit={editSection('familyHistory')} editable={!signed} />
+              </>
+            )}
 
-              <div className="space-y-4">
-                {slots.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
-                    <FileText size={48} className="mx-auto mb-3 text-gray-300" />
-                    <p>No information collected</p>
+            {summary?.documentFindings?.length > 0 && (
+              <div className="card p-4">
+                <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide mb-3">Document Findings</h3>
+                {summary.documentFindings.map((doc, i) => (
+                  <div key={i} className="mb-3 text-sm">
+                    <p className="font-medium">{doc.docType} — {doc.date} — {doc.provider}</p>
+                    {doc.labs?.map((lab, j) => (
+                      <p key={j} className="text-gray-600 ml-2">• {lab.name}: {lab.value} {lab.unit} (Ref: {lab.referenceRange})</p>
+                    ))}
+                    {doc.verifiedByPatient
+                      ? <span className="text-xs text-success-600">✓ Verified by patient</span>
+                      : <span className="text-xs text-warning-600">⚠ Not verified by patient</span>}
                   </div>
-                ) : (
-                  slots.map((slot, i) => (
-                    <div key={i} className="p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-gray-400 uppercase tracking-wide font-semibold">{slot.slot_id.replace(/_/g, ' ')}</span>
-                        <ProvenanceChip source={slot.source} confirmedBy={slot.confirmed_by} />
-                      </div>
-                      <p className="font-medium text-gray-800">{slot.value}</p>
-                    </div>
-                  ))
-                )}
+                ))}
               </div>
-            </div>
+            )}
 
             <div className="card p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Doctor Notes</h3>
