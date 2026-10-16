@@ -73,7 +73,7 @@ export default function Landing() {
             {t('hero_desc')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => navigate('/kiosk/identify')}
+            <button onClick={() => navigate('/login')}
               className="px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-2xl text-lg font-bold shadow-lg shadow-primary-200 transition-all hover:shadow-xl hover:shadow-primary-300 flex items-center justify-center gap-2">
               {t('start_kiosk')}
               <ArrowRight size={20} />
@@ -149,7 +149,7 @@ export default function Landing() {
           <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl p-12 text-center text-white shadow-2xl shadow-primary-200">
             <h2 className="text-3xl font-bold mb-4">Ready to Transform Patient Intake?</h2>
             <p className="text-primary-100 mb-8 max-w-xl mx-auto">Join healthcare facilities already using MediKiosk to streamline their clinical workflows.</p>
-            <button onClick={() => navigate('/kiosk/identify')}
+            <button onClick={() => navigate('/login')}
               className="px-8 py-4 bg-white text-primary-600 rounded-2xl text-lg font-bold hover:bg-gray-50 transition-all shadow-lg inline-flex items-center gap-2">
               Get Started
               <ArrowRight size={20} />
