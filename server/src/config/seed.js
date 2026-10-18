@@ -19,8 +19,8 @@ export async function runSeed() {
       );
       if (u.role === 'patient') {
         await pool.query(
-          'INSERT INTO patients (name_encrypted, dob_encrypted, sex, phone_encrypted, phone_hash, preferred_language, user_id) VALUES (?,?,?,?,?,?,?)',
-          ['DEMO_PATIENT', 'DEMO_DOB', 'male', 'DEMO_PHONE', 'DEMO_HASH', 'en', result.insertId]
+          'INSERT INTO patients (sex, preferred_language, user_id) VALUES (?,?,?)',
+          ['male', 'en', result.insertId]
         );
       }
       console.log(`Seeded demo user: ${u.username}`);

@@ -14,16 +14,18 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- By design, MediKiosk never collects or stores a patient's real identity
+-- (name, date of birth, phone number, or ABHA number) -- the Identify
+-- screen's "ABHA ID" / "Mobile Number" / "New Patient" options are all
+-- demo-only format checks that enrol an anonymous patient, linked only by
+-- a one-time hashed enrollment token (kiosk_enrollment_token_hash). This
+-- keeps the demo genuinely synthetic-data-only end to end, which is also
+-- why there is no PII encryption utility anywhere in server/src: there is
+-- no real PII to encrypt. See client/src/pages/kiosk/Identify.jsx.
 CREATE TABLE IF NOT EXISTS patients (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  abha_hash VARCHAR(255),
-  abha_last4 VARCHAR(4),
-  name_encrypted VARCHAR(500),
-  dob_encrypted VARCHAR(500),
   sex ENUM('male','female','other','prefer_not_to_say'),
-  phone_encrypted VARCHAR(500),
-  phone_hash VARCHAR(255),
-    kiosk_enrollment_token_hash CHAR(64) NULL,
+  kiosk_enrollment_token_hash CHAR(64) NULL,
   preferred_language VARCHAR(10) DEFAULT 'en',
   user_id INT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

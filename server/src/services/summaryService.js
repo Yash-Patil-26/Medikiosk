@@ -39,6 +39,33 @@ export function formatMedicalHistory(value) {
     .join(', ');
 }
 
+const AYUSH_SLOT_IDS = [
+  'prakriti_type',
+  'agni_type',
+  'diet_type',
+  'sleep_hours',
+  'exercise_frequency',
+  'vikriti_description'
+];
+
+function buildAyushAssessment(get, val) {
+  const present = AYUSH_SLOT_IDS.some(key => val(key) !== null);
+
+  if (!present) return null;
+
+  return {
+    disclaimer: 'Patient-reported self-assessment, not a clinical Prakriti/Vikriti diagnosis. Requires physician or Vaidya review.',
+    prakritiType: val('prakriti_type'),
+    agniType: val('agni_type'),
+    dietType: val('diet_type'),
+    sleepHours: val('sleep_hours'),
+    exerciseFrequency: val('exercise_frequency'),
+    vikritiDescription: val('vikriti_description'),
+    source: 'patient_interview',
+    confirmedBy: get('prakriti_type')?.confirmed_by || null
+  };
+}
+
 export function buildSummary(slotMap, docs = []) {
   const get = key => slotMap[key] || null;
   const val = key => get(key)?.value || null;
@@ -58,6 +85,9 @@ export function buildSummary(slotMap, docs = []) {
       severity: val('severity') || val('severity_score'),
       duration: val('duration'),
       breathingDifficulty: val('breathing_difficulty'),
+      temperature: val('temperature'),
+      chills: val('chills'),
+      alteredConsciousness: val('altered_consciousness'),
       source: 'patient_interview'
     },
     pastMedicalHistory: {
@@ -85,6 +115,7 @@ export function buildSummary(slotMap, docs = []) {
       source: src('family_history'),
       confirmedBy: get('family_history')?.confirmed_by || null
     },
+    ayushAssessment: buildAyushAssessment(get, val),
     documentFindings: docs.map(doc => ({
       docType: doc.doc_type,
       date: doc.doc_date,

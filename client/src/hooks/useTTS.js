@@ -1,11 +1,20 @@
+import { useCallback } from 'react';
+
 export function useTTS() {
-  const speak = (text, lang = 'en-IN') => {
+  const speak = useCallback((text, lang = 'en-IN') => {
     if (!window.speechSynthesis) return;
+
     window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = lang;
-    window.speechSynthesis.speak(utt);
-  };
-  const stop = () => window.speechSynthesis?.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  const stop = useCallback(() => {
+    window.speechSynthesis?.cancel();
+  }, []);
+
   return { speak, stop };
 }

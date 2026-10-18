@@ -7,10 +7,8 @@ Stack: React + Vite, Node.js + Express, MySQL 8. College/resume project; synthet
 - `setup.ps1`: checks tools and manifests, creates `server/.env` from `.env.example` if absent, and runs `npm ci` in root, server, and client.
 - `run.ps1`: starts the app through the existing root `npm run dev`.
 
-## Before first setup
-The current `server/package.json` and `client/package.json` each contain an unused `"medikiosk": "file:.."` dependency. `setup.ps1` intentionally stops until those declarations are removed and the matching lockfiles are regenerated. Do not bypass this check.
-
-After correcting those manifests/lockfiles, run PowerShell from the project root:
+## First-time setup
+Run PowerShell from the project root:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
@@ -19,9 +17,8 @@ Set-ExecutionPolicy -Scope Process Bypass
 
 Then:
 1. Edit `server/.env`; set `DB_PASSWORD` as needed and replace `JWT_SECRET` with a unique random value.
-2. Create the `medikiosk` database and review/apply `database/schema.sql`.
-3. Apply `database/seed.sql` only if you want the included synthetic demo data. The backend also has an automatic seed routine; review it before first startup.
-4. Run `Set-ExecutionPolicy -Scope Process Bypass` if needed, then `.un.ps1`.
+2. Create the `medikiosk` database and apply `database/schema.sql` (see `database/README.md`).
+3. Run `.\run.ps1`. Demo accounts and demo data are seeded automatically on first server start -- see `database/README.md` for the account list.
 
 Expected URLs from the current project: frontend `http://localhost:5173`, backend `http://localhost:5000`.
 

@@ -130,6 +130,7 @@ export async function getNextNode(session, slotMap) {
   const graphId = COMPLAINT_GRAPH_MAP[complaint] || 'general';
 
   let complaintNodes = [];
+  let ayushNodes = [];
   let generalNodes = [];
 
   try {
@@ -137,6 +138,15 @@ export async function getNextNode(session, slotMap) {
     complaintNodes = graph.nodes || [];
   } catch {
     // Fall through to general questions if the complaint graph is unavailable.
+  }
+
+  if (Number(session.ayush_mode) === 1) {
+    try {
+      const ayushGraph = await loadGraph('ayush');
+      ayushNodes = ayushGraph.nodes || [];
+    } catch {
+      // AYUSH content is optional; continue without it if unavailable.
+    }
   }
 
   if (graphId !== 'general') {
@@ -151,7 +161,7 @@ export async function getNextNode(session, slotMap) {
   const seen = new Set();
   const allNodes = [];
 
-  for (const node of [...complaintNodes, ...generalNodes]) {
+  for (const node of [...complaintNodes, ...ayushNodes, ...generalNodes]) {
     if (node.slotId && !seen.has(node.slotId)) {
       seen.add(node.slotId);
       allNodes.push(node);

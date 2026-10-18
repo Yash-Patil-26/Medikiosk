@@ -91,7 +91,6 @@ medikiosk/
 │       └── utils/        # Audit logger
 ├── database/
 │   ├── schema.sql        # All CREATE TABLE statements
-│   └── seed.sql          # Demo users and sample data
 ├── content/
 │   ├── questions/        # Interview question graphs (JSON)
 │   ├── redflags.json     # Deterministic red-flag rules
@@ -120,8 +119,8 @@ Click **New** → Name: `medikiosk` → Create
 ### Step 5 — Run Schema
 Select `medikiosk` database → Click **SQL** tab → Paste contents of `database/schema.sql` → Go
 
-### Step 6 — Run Seed (optional)
-The server automatically seeds demo users on first startup with properly hashed passwords (Doctor@123, Triage@123, Admin@123, Patient@123). Manual seeding via `database/seed.sql` is optional.
+### Step 6 — Demo accounts (automatic)
+The server automatically seeds demo accounts and the synthetic demo patient record on first startup through `server/src/config/seed.js`. Passwords are hashed by the server. There is no separate `database/seed.sql` file to run.
 
 ---
 

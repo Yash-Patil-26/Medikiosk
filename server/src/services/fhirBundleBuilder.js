@@ -30,8 +30,13 @@ export function buildFhirBundle(encounter, summary) {
         { title: 'Chief Complaint', text: { div: summary?.chiefComplaint?.text || '' } },
         { title: 'History of Present Illness', text: { div: JSON.stringify(summary?.historyOfPresentIllness || {}) } },
         { title: 'Past Medical History', text: { div: summary?.pastMedicalHistory?.text || 'None reported' } },
+        { title: 'Past Surgical History', text: { div: summary?.pastSurgicalHistory?.text || 'None reported' } },
         { title: 'Drug History', text: { div: summary?.drugHistory?.text || 'None reported' } },
-        { title: 'Allergy History', text: { div: summary?.allergyHistory?.text || 'None reported' } }
+        { title: 'Allergy History', text: { div: summary?.allergyHistory?.text || 'None reported' } },
+        { title: 'Family History', text: { div: summary?.familyHistory?.text || 'None reported' } },
+        ...(summary?.ayushAssessment
+          ? [{ title: 'AYUSH Assessment (Patient-Reported)', text: { div: JSON.stringify(summary.ayushAssessment) } }]
+          : [])
       ]
     }
   });

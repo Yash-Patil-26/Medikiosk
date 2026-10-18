@@ -62,6 +62,33 @@ export default function Identify() {
           <p className="text-gray-500 text-lg">{t('identify_subtitle')}</p>
         </div>
 
+        <section
+          className="w-full flex items-start gap-4 bg-amber-50 border border-amber-200 rounded-xl p-4"
+          aria-label={t('ayush_toggle_label')}
+        >
+          <button
+            type="button"
+            onClick={() => update({ ayushMode: !kiosk.ayushMode })}
+            role="switch"
+            aria-checked={Boolean(kiosk.ayushMode)}
+            aria-label={t('ayush_toggle_label')}
+            className={`w-12 h-7 rounded-full transition-colors shrink-0 mt-0.5 ${kiosk.ayushMode ? 'bg-amber-600' : 'bg-gray-300'}`}
+          >
+            <span
+              className={`block w-5 h-5 bg-white rounded-full shadow transition-transform mx-1 ${kiosk.ayushMode ? 'translate-x-5' : 'translate-x-0'}`}
+            />
+          </button>
+
+          <div>
+            <p className="font-semibold text-gray-800">
+              {t('ayush_toggle_label')}
+            </p>
+            <p className="text-sm text-gray-600">
+              {t('ayush_toggle_desc')}
+            </p>
+          </div>
+        </section>
+
         {!mode && (
           <div className="grid grid-cols-1 gap-4">
             <button onClick={() => setMode('abha')} className="card card-hover flex items-center gap-5 p-6 transition-all touch-target-lg group">

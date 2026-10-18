@@ -17,6 +17,23 @@ const COMPLAINTS = [
   { value: 'other', label: 'Other', desc: 'Something else', icon: HelpCircle, color: 'text-gray-500' }
 ];
 
+const COMPLAINT_KEYWORDS = [
+  { value: 'chest_discomfort', terms: ['chest', 'heart', 'cardiac', 'breathless', 'breathing difficulty'] },
+  { value: 'fever', terms: ['fever', 'temperature', 'chills', 'shivering'] },
+  { value: 'headache', terms: ['headache', 'head pain', 'migraine', 'head ache'] },
+  { value: 'cough', terms: ['cough', 'cold', 'throat', 'phlegm'] },
+  { value: 'abdominal_pain', terms: ['stomach', 'abdomen', 'belly', 'abdominal'] },
+  { value: 'general_weakness', terms: ['weak', 'tired', 'fatigue', 'low energy', 'dizzy', 'dizziness'] }
+];
+
+function classifyComplaint(rawText) {
+  const text = (rawText || '').toLowerCase();
+  const match = COMPLAINT_KEYWORDS.find(entry =>
+    entry.terms.some(term => text.includes(term))
+  );
+
+  return match ? match.value : 'other';
+}
 export default function Complaint() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -86,8 +103,8 @@ export default function Complaint() {
             <input value={typed} onChange={e => setTyped(e.target.value)}
               placeholder={t('complaint_type')}
               className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white" />
-            <button onClick={() => typed && select('other', typed)} disabled={!typed || loading}
-              className="px-6 py-3 bg-gradient-to-r from-primary-500 to primary-600 text-white rounded-xl font-medium disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
+            <button onClick={() => typed.trim() && select(classifyComplaint(typed), typed)} disabled={!typed || loading}
+              className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
               Go
             </button>
           </div>
@@ -98,7 +115,7 @@ export default function Complaint() {
               <div className="w-full card p-4 text-center bg-primary-50 border-primary-200">
                 <p className="text-sm text-gray-500">{t('i_heard')}</p>
                 <p className="font-semibold text-gray-800">"{voiceText}"</p>
-                <button onClick={() => select('other', voiceText)}
+                <button onClick={() => select(classifyComplaint(voiceText), voiceText)}
                   className="mt-3 px-5 py-2.5 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 transition-all">
                   {t('use_this')}
                 </button>

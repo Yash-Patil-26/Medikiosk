@@ -1,0 +1,84 @@
+{
+  "graphId": "ayush",
+  "disclaimer": "AYUSH fields are patient-reported self-assessments, not a clinical Prakriti/Vikriti diagnosis. They require physician or Vaidya review before use in treatment decisions.",
+  "nodes": [
+    {
+      "id": "ayush_prakriti",
+      "type": "question",
+      "slotId": "prakriti_type",
+      "text": "Which best describes your natural body constitution (Prakriti), if you know it?",
+      "inputType": "choice",
+      "options": [
+        { "value": "vata", "label": "Vata" },
+        { "value": "pitta", "label": "Pitta" },
+        { "value": "kapha", "label": "Kapha" },
+        { "value": "mixed", "label": "A mix of more than one" },
+        { "value": "not_sure", "label": "I'm not sure" }
+      ],
+      "next": "ayush_agni"
+    },
+    {
+      "id": "ayush_agni",
+      "type": "question",
+      "slotId": "agni_type",
+      "text": "How would you describe your digestion (Agni) in general?",
+      "inputType": "choice",
+      "options": [
+        { "value": "regular", "label": "Regular and comfortable" },
+        { "value": "irregular", "label": "Irregular" },
+        { "value": "slow", "label": "Slow / feels heavy after eating" },
+        { "value": "excessive", "label": "Excessive hunger / acidity" },
+        { "value": "not_sure", "label": "Not sure" }
+      ],
+      "next": "ayush_ahara"
+    },
+    {
+      "id": "ayush_ahara",
+      "type": "question",
+      "slotId": "diet_type",
+      "text": "What best describes your diet (Ahara)?",
+      "inputType": "choice",
+      "options": [
+        { "value": "vegetarian", "label": "Vegetarian" },
+        { "value": "non_vegetarian", "label": "Non-vegetarian" },
+        { "value": "vegan", "label": "Vegan" },
+        { "value": "mixed", "label": "Mixed / varies" }
+      ],
+      "next": "ayush_sleep"
+    },
+    {
+      "id": "ayush_sleep",
+      "type": "question",
+      "slotId": "sleep_hours",
+      "text": "On average, how many hours do you sleep per night?",
+      "inputType": "scale",
+      "min": 3,
+      "max": 10,
+      "next": "ayush_exercise"
+    },
+    {
+      "id": "ayush_exercise",
+      "type": "question",
+      "slotId": "exercise_frequency",
+      "text": "How often do you exercise or do physical activity (Vihara)?",
+      "inputType": "choice",
+      "options": [
+        { "value": "daily", "label": "Daily" },
+        { "value": "few_times_week", "label": "A few times a week" },
+        { "value": "rarely", "label": "Rarely" },
+        { "value": "never", "label": "Never" }
+      ],
+      "next": "ayush_vikriti"
+    },
+    {
+      "id": "ayush_vikriti",
+      "type": "question",
+      "slotId": "vikriti_description",
+      "text": "Do you feel your body is currently out of balance in any way? For example, excess heat, heaviness, dryness, or restlessness.",
+      "inputType": "text_or_none",
+      "placeholder": "e.g. feeling unusually heavy and sluggish",
+      "noneLabel": "Nothing specific",
+      "next": "general_onset"
+    }
+  ]
+}
