@@ -29,10 +29,13 @@ function ProtectedRoute({ children, roles }) {
   if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
   return children;
 }
+import DemoBanner from './components/DemoBanner.jsx';
 
 function AppRoutes() {
   return (
-    <Routes>
+    <>
+      <DemoBanner />
+      <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
 
@@ -55,6 +58,7 @@ function AppRoutes() {
 
       <Route path="/me" element={<PatientDashboard />} />
     </Routes>
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 export function buildFhirBundle(encounter, summary) {
   const now = new Date().toISOString();
@@ -7,7 +7,7 @@ export function buildFhirBundle(encounter, summary) {
 
   const bundle = {
     resourceType: 'Bundle',
-    id: uuidv4(),
+    id: randomUUID(),
     meta: { lastUpdated: now },
     type: 'document',
     timestamp: now,
@@ -16,10 +16,10 @@ export function buildFhirBundle(encounter, summary) {
 
   // Composition
   bundle.entry.push({
-    fullUrl: `urn:uuid:${uuidv4()}`,
+    fullUrl: `urn:uuid:${randomUUID()}`,
     resource: {
       resourceType: 'Composition',
-      id: uuidv4(),
+      id: randomUUID(),
       status: 'final',
       type: { text: 'OPConsultRecord' },
       subject: { reference: patientId },
@@ -70,7 +70,7 @@ export function buildFhirBundle(encounter, summary) {
   for (const doc of docs) {
     for (const lab of (doc.labs || [])) {
       bundle.entry.push({
-        fullUrl: `urn:uuid:${uuidv4()}`,
+        fullUrl: `urn:uuid:${randomUUID()}`,
         resource: {
           resourceType: 'Observation',
           status: 'final',

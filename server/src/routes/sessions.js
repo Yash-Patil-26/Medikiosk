@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { requireKioskSessionToken } from '../middleware/kioskSessionAuth.js';
 import { createOpaqueToken, matchesOpaqueToken } from '../utils/opaqueToken.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import pool from '../config/db.js';
 import { log } from '../utils/audit.js';
 import { findSession, getSession, requireActiveSession } from '../utils/sessionAccess.js';
@@ -63,7 +63,7 @@ router.post('/', async (req, res, next) => {
     return res.status(400).json({ error: 'Invalid graph_id' });
   }
 
-  const id = uuidv4();
+  const id = randomUUID();
   const expires_at = new Date(Date.now() + 2 * 3600 * 1000);
   const sessionCredential = createOpaqueToken();
 

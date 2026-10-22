@@ -167,7 +167,7 @@ export default function Identify() {
                   className="w-full mt-3 border border-gray-200 rounded-xl px-4 py-4 text-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                   maxLength={6} />
                 <button onClick={verifyOtp} disabled={loading}
-                  className="w-full mt-4 bg-gradient-to-r from-primary-500 to primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3.5 rounded-xl font-bold disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
+                  className="w-full mt-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3.5 rounded-xl font-bold disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
                   {loading ? t('verifying') : t('verify_continue')}
                 </button>
               </>

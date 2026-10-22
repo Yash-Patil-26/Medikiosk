@@ -9,10 +9,10 @@ import api from '../../services/api.js';
 import { getKioskSessionCredentials, setKioskSessionCredentials } from '../../services/kioskCredentials.js';
 
 const CONSENT_ITEMS = [
-  { key: 'voice', label: 'Voice Processing', desc: 'Allow voice recording for transcription', icon: Volume2 },
-  { key: 'document', label: 'Document Upload', desc: 'Allow document OCR and extraction', icon: FileText },
-  { key: 'his', label: 'HIS Integration', desc: 'Share data with hospital information system', icon: Database },
-  { key: 'dashboard', label: 'Save to Dashboard', desc: 'Save encounter for future reference', icon: Shield }
+  { key: 'voice', labelKey: 'consent_voice', descKey: 'consent_voice_desc', icon: Volume2 },
+  { key: 'document', labelKey: 'consent_document', descKey: 'consent_document_desc', icon: FileText },
+  { key: 'his', labelKey: 'consent_his', descKey: 'consent_his_desc', icon: Database },
+  { key: 'dashboard', labelKey: 'consent_dashboard', descKey: 'consent_dashboard_desc', icon: Shield }
 ];
 
 export default function Consent() {
@@ -28,7 +28,7 @@ export default function Consent() {
   const toggle = (key) => setConsents(p => ({ ...p, [key]: !p[key] }));
 
   const readAloud = () => {
-    const text = CONSENT_ITEMS.map(item => `${item.label}: ${item.desc}`).join('. ');
+    const text = CONSENT_ITEMS.map(item => `${t(item.labelKey)}: ${t(item.descKey)}`).join('. ');
     speak(text);
   };
 
@@ -104,13 +104,20 @@ export default function Consent() {
         // The enrollment token was consumed; start a fresh identity flow.
         reset();
         navigate('/kiosk/identify');
-        setError('Consent setup could not be completed. Please start again.');
-      } else if (createdSessionId) {
-        // Keep the session credential so another attempt can resume this session.
+        setError(t('consent_error_restart'));
+      } else if (
+        createdSessionId &&
+        getKioskSessionCredentials()?.id === createdSessionId
+      ) {
+        // Resume only when the matching session credential still exists.
         update({ sessionId: createdSessionId });
-        setError('Consent could not be fully saved. Please retry to resume this session.');
+        setError(t('consent_error_resume'));
+      } else if (createdSessionId) {
+        // A session ID without its credential cannot be resumed.
+        reset();
+        navigate('/kiosk/identify');
       } else {
-        setError('Could not create the session. Please try again.');
+        setError(t('consent_error_create'));
       }
     } finally {
       setLoading(false);
@@ -144,15 +151,15 @@ export default function Consent() {
             <div key={item.key} className="card p-5 flex items-start gap-4">
               <button onClick={() => toggle(item.key)}
                 className={`w-14 h-8 rounded-full transition-colors shrink-0 mt-0.5 focus:ring-2 focus:ring-primary-500 focus:outline-none ${consents[item.key] ? 'bg-gradient-to-r from-success-500 to-success-600' : 'bg-gray-200'}`}
-                role="switch" aria-checked={consents[item.key]} aria-label={`Toggle ${item.label}`}>
+                role="switch" aria-checked={consents[item.key]} aria-label={t('consent_toggle_label', { purpose: t(item.labelKey) })}>
                 <span className={`block w-6 h-6 bg-white rounded-full shadow transition-transform mx-1 ${consents[item.key] ? 'translate-x-6' : 'translate-x-0'}`} />
               </button>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
                   <item.icon size={20} className="text-primary-500" />
-                  <p className="font-semibold text-gray-800">{item.label}</p>
+                  <p className="font-semibold text-gray-800">{t(item.labelKey)}</p>
                 </div>
-                <p className="text-sm text-gray-500">{item.desc}</p>
+                <p className="text-sm text-gray-500">{t(item.descKey)}</p>
               </div>
             </div>
           ))}

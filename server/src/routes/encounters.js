@@ -7,7 +7,7 @@ import { buildFhirBundle } from '../services/fhirBundleBuilder.js';
 import { evaluateRedFlags } from '../services/redFlagService.js';
 import { log } from '../utils/audit.js';
 import { hasCurrentConsent } from '../utils/consentAccess.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { getSession, sessionIsActive } from '../utils/sessionAccess.js';
 
 const router = Router();
@@ -181,7 +181,7 @@ router.post('/', requireKioskSessionToken(req => req.body?.session_id), async (r
           flag.ruleId,
           flag.level,
           flag.reason,
-          uuidv4()
+          randomUUID()
         ]
       );
     }

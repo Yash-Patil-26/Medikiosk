@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import pool from '../config/db.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { createOpaqueToken } from '../utils/opaqueToken.js';
@@ -34,7 +34,7 @@ router.post('/', async (req, res, next) => {
     }
 
     const enrollment = createOpaqueToken();
-    const syntheticId = `DEMO-${uuidv4().slice(0, 8).toUpperCase()}`;
+    const syntheticId = `DEMO-${randomUUID().slice(0, 8).toUpperCase()}`;
 
     connection = await pool.getConnection();
     await connection.beginTransaction();

@@ -357,6 +357,39 @@ const sessionTokens = new Map();
       );
       assert.equal(complaintSaved.status, 200);
 
+      // Follow the general question graph in order before testing multiselect.
+      const onsetSaved = await sendAnswer(
+        'general_onset', 'onset_type', 'today', 'Today'
+      );
+      assert.equal(
+        onsetSaved.status, 200,
+        `Onset answer failed: ${JSON.stringify(onsetSaved.body)}`
+      );
+
+      const durationSaved = await sendAnswer(
+        'general_duration', 'duration', 'constant', 'Constant'
+      );
+      assert.equal(
+        durationSaved.status, 200,
+        `Duration answer failed: ${JSON.stringify(durationSaved.body)}`
+      );
+
+      const characterSaved = await sendAnswer(
+        'general_character', 'character', 'persistent cough', 'Persistent cough'
+      );
+      assert.equal(
+        characterSaved.status, 200,
+        `Character answer failed: ${JSON.stringify(characterSaved.body)}`
+      );
+
+      const severitySaved = await sendAnswer(
+        'general_severity', 'severity', '3', '3'
+      );
+      assert.equal(
+        severitySaved.status, 200,
+        `Severity answer failed: ${JSON.stringify(severitySaved.body)}`
+      );
+
       const allergySaved = await sendAnswer(
         'general_allergies', 'allergies', 'none', 'No known allergies'
       );

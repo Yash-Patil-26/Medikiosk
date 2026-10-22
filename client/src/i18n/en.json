@@ -28,6 +28,11 @@
   "consent_document": "Document processing",
   "consent_his": "Share with hospital HIS",
   "consent_dashboard": "Save to patient dashboard",
+  "consent_voice_desc": "Allow voice recording for transcription",
+  "consent_document_desc": "Allow document OCR and extraction",
+  "consent_his_desc": "Share data with hospital information system",
+  "consent_dashboard_desc": "Save encounter for future reference",
+  "consent_toggle_label": "Toggle {{purpose}} consent",
   "consent_understand": "I understand how my information will be used.",
   "read_aloud": "Read Aloud",
   "complaint_title": "What brings you in today?",
@@ -149,5 +154,8 @@
   "purge_leave": "Leave Without Confirmation",
   "purge_retained_title": "Records retained for traceability",
   "idle_purge_pending": "Idle timeout reached. Removing temporary session data...",
-  "idle_purge_failed": "The session is still on this screen because server-side cleanup could not be confirmed."
+  "idle_purge_failed": "The session is still on this screen because server-side cleanup could not be confirmed.",
+  "consent_error_restart": "Consent setup could not be completed. Please start again.",
+  "consent_error_resume": "Consent could not be fully saved. Please retry to resume this session.",
+  "consent_error_create": "Could not create the session. Please try again."
 }
