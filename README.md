@@ -181,12 +181,28 @@ This starts both:
 
 ## Demo Accounts
 
+### Staff Accounts
+
 | Role    | Username | Password    |
 |---------|----------|-------------|
 | Doctor  | doctor   | Doctor@123  |
 | Triage  | triage   | Triage@123  |
 | Admin   | admin    | Admin@123   |
-| Patient | patient  | Patient@123 |
+
+Staff accounts are used to access the doctor queue, triage dashboard, and admin panels.
+
+### Patient Registration
+
+Patients create their own accounts through the registration flow:
+
+1. Visit `/register` to create a new patient account
+2. Choose a login ID type: ABHA number, mobile number, or email address
+3. Provide basic profile information (name, date of birth, sex, preferred language)
+4. Set a password (minimum 10 characters)
+5. Complete consent preferences for voice, document, HIS sharing, and dashboard storage
+6. Sign in with the same login ID and password at `/login`
+
+**Important:** This is an academic prototype. Login identifiers are validated for format but ownership is NOT verified through OTP or government health identity services. Use synthetic data for demonstrations only.
 
 All accounts are **demo accounts with synthetic data only**.
 
@@ -231,9 +247,11 @@ All accounts are **demo accounts with synthetic data only**.
 | Path                      | Description              |
 |---------------------------|--------------------------|
 | /                         | Landing page             |
-| /login                    | Sign-in for patients and staff |
-| /register                 | Patient registration     |
-| /register/consent         | Initial account consent  |
+| /login                    | Sign-in for patients and staff (supports username, ABHA, mobile, email) |
+| /register                 | Patient account registration with identifier selection |
+| /register/consent         | Initial consent preferences for new accounts |
+| /me                       | Patient dashboard        |
+| /me/consent               | Manage consent preferences |
 | /kiosk/complaint          | Complaint selection      |
 | /kiosk/interview          | Adaptive interview       |
 | /kiosk/documents          | Document upload          |
@@ -245,8 +263,6 @@ All accounts are **demo accounts with synthetic data only**.
 | /his                      | Mock HIS viewer          |
 | /admin/audit              | Audit logs               |
 | /admin/purge-proof        | Purge proof              |
-| /me                       | Patient dashboard        |
-| /me/consent               | Consent preferences      |
 
 ---
 
@@ -268,8 +284,9 @@ Note: `npm test` runs the backend test suite only. Frontend tests must be run se
 - Voice uses browser Web Speech API (Chrome recommended)
 - No real ABHA integration
 - No real HIS/ABDM integration
-- ABHA numbers, mobile numbers, and email addresses are not verified for ownership. Real OTP verification is not integrated.
-- Encryption is placeholder (not production-grade)
+- Patient identifiers (ABHA, mobile, email) are validated for format but ownership is NOT verified through OTP or government health identity services. Use synthetic data for demonstrations only.
+- No production-grade encryption for patient identifiers
+- Patient account data persists in the database between sessions (not anonymous)
 
 ---
 
