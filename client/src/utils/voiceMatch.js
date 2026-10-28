@@ -81,9 +81,35 @@ function bestOptionMatch(transcript, options) {
   return bestScore > 0 && !tied ? best : null;
 }
 
+// Detect explicit negation immediately before an option phrase.
+// "No diabetes but high blood pressure" negates diabetes, not the following clause.
+function hasUnnegatedMention(text, phrase) {
+  const escaped = phrase.toLowerCase()
+    .replace(/[.*+?^$()|[\]\\]/g, '\\$&')
+    .replace(/\s+/g, '\\s+');
+
+  const pattern = new RegExp('\\b' + escaped + '\\b', 'g');
+  const negation = /\b(?:no|not|without|never|denies|deny|don't|doesn't|do not|does not|didn't|did not)\b(?:\s+\w+){0,4}\s*$/i;
+
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    const before = text.slice(Math.max(0, match.index - 100), match.index);
+    const currentClause = before.split(/\b(?:but|however|although|except)\b/i).pop();
+
+    if (!negation.test(currentClause)) return true;
+  }
+
+  return false;
+}
+
+// Only whole-answer none-style responses count as an exclusive "none" answer.
 function matchesNone(transcript) {
-  const text = transcript.toLowerCase();
-  return /\bno\b|\bnone\b|\bnothing\b/.test(text);
+  const text = transcript.toLowerCase()
+    .replace(/[,.!?;:]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return /^(?:no(?:\s+none of (?:those|them|the above))?|none(?: of (?:those|them|the above))?|nothing(?: at all| like that)?)$/.test(text);
 }
 
 /**
@@ -102,25 +128,40 @@ export function resolveVoiceAnswer(node, transcript) {
 
   if (node.inputType === 'multiselect') {
     const noneOption = (node.options || []).find(o => o.value === 'none');
+    const text = ' ' + transcript.toLowerCase() + ' ';
+
+    const matched = (node.options || []).filter(option => {
+      if (option.value === 'none') return false;
+
+      // If the full option phrase is present, respect its negation instead
+      // of falling back to a word inside that same negated phrase.
+      if (hasUnnegatedMention(text, option.label)) return true;
+
+      const escapedLabel = option.label.toLowerCase()
+        .replace(/[.*+?^$()|[\]\\]/g, '\\$&')
+        .replace(/\s+/g, '\\s+');
+      const fullPhrasePattern = new RegExp('\\b' + escapedLabel + '\\b');
+
+      if (fullPhrasePattern.test(text)) return false;
+
+      const words = significantWords(option.label);
+      return words.some(word => hasUnnegatedMention(text, word));
+    });
+
+    // Positive answers take precedence over words like "no" elsewhere in
+    // the transcript. Return only conditions that were not negated.
+    if (matched.length > 0) {
+      return {
+        value: JSON.stringify(matched.map(m => m.value)),
+        label: matched.map(m => m.label).join(', ')
+      };
+    }
 
     if (noneOption && matchesNone(transcript)) {
       return { value: JSON.stringify(['none']), label: noneOption.label };
     }
 
-    const text = ` ${transcript.toLowerCase()} `;
-    const matched = (node.options || []).filter(option => {
-      if (option.value === 'none') return false;
-      if (text.includes(option.label.toLowerCase())) return true;
-      const words = significantWords(option.label);
-      return words.some(w => hasWord(text, w));
-    });
-
-    if (matched.length === 0) return null;
-
-    return {
-      value: JSON.stringify(matched.map(m => m.value)),
-      label: matched.map(m => m.label).join(', ')
-    };
+    return null;
   }
 
   if (node.inputType === 'scale') {

@@ -67,7 +67,7 @@ export default function Complaint() {
   const handleVoice = ({ text }) => setVoiceText(text);
 
   return (
-    <KioskShell step="Complaint" backTo="/kiosk/consent">
+    <KioskShell step="Complaint" backTo="/register/consent">
       <div className="w-full flex flex-col gap-6 animate-slide-up">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('complaint_title')}</h1>

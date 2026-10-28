@@ -6,6 +6,32 @@ import { fileURLToPath } from 'node:url';
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(scriptDir, '../.env') });
 
+const migrationDatabase = process.env.MEDIKIOSK_MIGRATION_DB?.trim();
+const configuredDatabase = process.env.DB_NAME?.trim();
+
+if (!migrationDatabase) {
+  console.error(
+    'Migration refused: set MEDIKIOSK_MIGRATION_DB explicitly to the intended database name.'
+  );
+  process.exit(1);
+}
+
+if (!/^[A-Za-z0-9_]+$/.test(migrationDatabase)) {
+  console.error('Migration refused: the target database name has an invalid format.');
+  process.exit(1);
+}
+
+if (!migrationDatabase.toLowerCase().endsWith('_test')) {
+  console.error('Migration refused: MEDIKIOSK_MIGRATION_DB must end in _test. Use an isolated test database only.');
+  process.exit(1);
+}
+if (!configuredDatabase || configuredDatabase !== migrationDatabase) {
+  console.error(
+    'Migration refused: MEDIKIOSK_MIGRATION_DB must exactly match DB_NAME.'
+  );
+  process.exit(1);
+}
+
 const { default: pool } = await import('../src/config/db.js');
 
 async function ensureColumn(databaseName, tableName, columnName, definition) {
@@ -37,6 +63,12 @@ try {
 
   if (!databaseName) {
     throw new Error('No MySQL database is selected. Check server/.env.');
+  }
+
+  if (databaseName !== migrationDatabase) {
+    throw new Error(
+      'Connected database does not match MEDIKIOSK_MIGRATION_DB. Refusing to alter tables.'
+    );
   }
 
   const [tables] = await pool.query(

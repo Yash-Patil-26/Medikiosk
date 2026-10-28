@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
@@ -17,13 +17,27 @@ export default function Review() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
+
+  const loadSession = useCallback(async () => {
+    if (!kiosk.sessionId) return;
+
+    setLoading(true);
+    setLoadError('');
+
+    try {
+      const r = await api.get('/sessions/' + kiosk.sessionId);
+      setSession(r.data);
+    } catch {
+      setLoadError('Could not load your answers. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [kiosk.sessionId]);
 
   useEffect(() => {
-    if (!kiosk.sessionId) return;
-    api.get(`/sessions/${kiosk.sessionId}`)
-      .then(r => setSession(r.data))
-      .finally(() => setLoading(false));
-  }, [kiosk.sessionId]);
+    loadSession();
+  }, [loadSession]);
 
   const submit = async () => {
     setSubmitting(true);
@@ -51,7 +65,7 @@ export default function Review() {
             <CheckCircle size={32} className="text-gray-400" />
           </div>
           <p className="text-gray-500">{t('no_session')}</p>
-          <button onClick={() => navigate('/kiosk/identify')}
+          <button onClick={() => navigate('/me')}
             className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all">
             {t('start_over')}
           </button>
@@ -61,6 +75,30 @@ export default function Review() {
   }
 
   if (loading) return <KioskShell step="Review"><LoadingSpinner /></KioskShell>;
+
+  if (loadError) {
+    return (
+      <KioskShell step="Review">
+        <div className="flex flex-col items-center gap-4 mt-10 text-center">
+          <p role="alert" className="text-error-700">{loadError}</p>
+          <button
+            type="button"
+            onClick={loadSession}
+            className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/me')}
+            className="text-gray-500 text-sm font-medium hover:text-gray-700"
+          >
+            Start Over
+          </button>
+        </div>
+      </KioskShell>
+    );
+  }
 
   const slots = session?.slots || [];
 

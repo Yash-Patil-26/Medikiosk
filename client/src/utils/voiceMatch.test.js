@@ -56,6 +56,26 @@ describe('resolveVoiceAnswer', () => {
     expect(JSON.parse(result.value)).toEqual(['none']);
   });
 
+  it('keeps a positive condition when another condition is negated', () => {
+    const result = resolveVoiceAnswer(
+      pastHistoryNode,
+      'No diabetes, but I have high blood pressure'
+    );
+    expect(JSON.parse(result.value)).toEqual(['hypertension']);
+  });
+
+  it('does not turn a single negated condition into an exclusive none answer', () => {
+    expect(resolveVoiceAnswer(pastHistoryNode, 'No diabetes')).toBeNull();
+  });
+
+  it('excludes a negated condition while retaining a positive condition', () => {
+    const result = resolveVoiceAnswer(
+      pastHistoryNode,
+      'I have diabetes and no high blood pressure'
+    );
+    expect(JSON.parse(result.value)).toEqual(['diabetes']);
+  });
+
   it('parses a spoken number within range for scale questions', () => {
     expect(resolveVoiceAnswer(severityNode, 'it is about a seven').value).toBe('7');
     expect(resolveVoiceAnswer(severityNode, '9 out of 10').value).toBe('9');

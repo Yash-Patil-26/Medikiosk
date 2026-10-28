@@ -199,12 +199,12 @@ All accounts are **demo accounts with synthetic data only**.
 | POST   | /api/auth/login                   | Login                    |
 | POST   | /api/auth/logout                  | Logout                   |
 | GET    | /api/auth/me                      | Current user             |
-| POST   | /api/patients                     | Create patient           |
+| POST   | /api/auth/register                | Register patient account |
 | POST   | /api/sessions                     | Create session           |
 | GET    | /api/sessions/:id                 | Get session + slots      |
 | PATCH  | /api/sessions/:id                 | Update session           |
 | DELETE | /api/sessions/:id                 | Purge session            |
-| POST   | /api/consents                     | Record consent           |
+| POST   | /api/auth/consent-preferences     | Save account consent preferences |
 | POST   | /api/consents/:id/revoke          | Revoke consent           |
 | GET    | /api/dialogue/:sessionId/next     | Get next question        |
 | POST   | /api/dialogue/:sessionId/answer   | Save answer              |
@@ -212,6 +212,7 @@ All accounts are **demo accounts with synthetic data only**.
 | POST   | /api/triage/alerts/:id/acknowledge| Acknowledge alert        |
 | POST   | /api/documents/extract            | Upload & extract doc     |
 | POST   | /api/documents/:id/verify         | Patient verify doc       |
+| DELETE | /api/documents/:id                | Delete extracted document |
 | POST   | /api/encounters                   | Create encounter         |
 | GET    | /api/encounters                   | List encounters          |
 | GET    | /api/encounters/:id/summary       | Get summary              |
@@ -230,9 +231,9 @@ All accounts are **demo accounts with synthetic data only**.
 | Path                      | Description              |
 |---------------------------|--------------------------|
 | /                         | Landing page             |
-| /login                    | Staff login              |
-| /kiosk/identify           | Patient identification   |
-| /kiosk/consent            | Consent screen           |
+| /login                    | Sign-in for patients and staff |
+| /register                 | Patient registration     |
+| /register/consent         | Initial account consent  |
 | /kiosk/complaint          | Complaint selection      |
 | /kiosk/interview          | Adaptive interview       |
 | /kiosk/documents          | Document upload          |
@@ -245,14 +246,19 @@ All accounts are **demo accounts with synthetic data only**.
 | /admin/audit              | Audit logs               |
 | /admin/purge-proof        | Purge proof              |
 | /me                       | Patient dashboard        |
+| /me/consent               | Consent preferences      |
 
 ---
 
 ## Testing
 
-```bash
-npm test
-```
+Run the following commands from the repository root:
+
+- Backend tests: `npm test`
+- Frontend tests (single run): `npm --prefix client test -- --run`
+- Production frontend build: `npm run build`
+
+Note: `npm test` runs the backend test suite only. Frontend tests must be run separately.
 
 ---
 
@@ -262,7 +268,7 @@ npm test
 - Voice uses browser Web Speech API (Chrome recommended)
 - No real ABHA integration
 - No real HIS/ABDM integration
-- Demo OTP is always `123456`
+- ABHA numbers, mobile numbers, and email addresses are not verified for ownership. Real OTP verification is not integrated.
 - Encryption is placeholder (not production-grade)
 
 ---
@@ -285,4 +291,28 @@ MediKiosk is a student project prototype using synthetic data only.
 It is NOT a medical device.
 It does NOT provide autonomous diagnosis or treatment recommendations.
 Red flags only indicate "Priority for staff review."
-No real patient data is used or stored.
+Do not enter real patient names, identifiers, contact details, prescriptions, lab reports, or other medical information.
+
+---
+
+## GitHub and Hosting Notes
+
+### GitHub repository safety
+
+- Keep actual environment files, database passwords, JWT secrets, and other credentials out of GitHub. Commit the example environment file only.
+- Use synthetic demo data only. Do not upload real patient information or real medical documents.
+- The root `.gitignore` excludes `.env`, dependency folders, build output, logs, and uploads.
+
+### Hosting preparation
+
+Provider-specific hosting configuration is not included in this repository. Deployment requires additional configuration and verification.
+
+- Provision a MySQL database and apply `database/schema.sql` to the intended database.
+- Configure the backend environment using `.env.example`, including database connection settings, a unique strong `JWT_SECRET`, and the correct `CORS_ORIGIN`.
+- The Vite `/api` proxy targets `http://localhost:5000` for local development only. A hosted deployment must route `/api` to the backend through an appropriate proxy, or implement a configurable frontend API URL and matching CORS settings.
+- Before deployment, run the backend tests with `npm test`, the frontend tests with `npm --prefix client test -- --run`, and the frontend production build with `npm run build`.
+- Verify the health endpoint at `/api/health` after the backend is reachable.
+
+### Deployment limitations
+
+MediKiosk is an academic and portfolio prototype using synthetic demo data. It is not a production clinical service. Mock OCR and HIS functionality, missing real ABHA/ABDM integration, and unverified patient identifiers remain limitations.

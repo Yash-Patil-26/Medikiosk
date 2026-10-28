@@ -1,72 +1,42 @@
 import { Router } from 'express';
 import { requireKioskSessionToken } from '../middleware/kioskSessionAuth.js';
-import { createOpaqueToken, matchesOpaqueToken } from '../utils/opaqueToken.js';
+import { authenticate, requireRole } from '../middleware/auth.js';
+import { createOpaqueToken } from '../utils/opaqueToken.js';
 import { randomUUID } from 'node:crypto';
 import pool from '../config/db.js';
-import { log } from '../utils/audit.js';
-import { findSession, getSession, requireActiveSession } from '../utils/sessionAccess.js';
+import { getSession, requireActiveSession } from '../utils/sessionAccess.js';
+import { CONSENT_NOTICE_VERSION, CONSENT_PURPOSES } from '../utils/patientRegistration.js';
 import { clearTemporarySessionData } from '../utils/sessionCleanup.js';
 
 const router = Router();
 
-router.post('/', async (req, res, next) => {
+router.post('/', authenticate, requireRole('patient'), async (req, res, next) => {
   const body = req.body || {};
   const unsupported = Object.keys(body).filter(
-    key => !['patient_id', 'language', 'ayush_mode', 'graph_id'].includes(key)
+    key => !['language', 'ayush_mode', 'graph_id'].includes(key)
   );
-
   if (unsupported.length) {
-    return res.status(400).json({
-      error: 'Unsupported session fields',
-      fields: unsupported
-    });
-  }
-
-  const patientId = Number(body.patient_id);
-  const enrollmentToken = req.get('X-Kiosk-Enrollment-Token');
-
-  if (!Number.isSafeInteger(patientId) || patientId < 1) {
-    return res.status(400).json({ error: 'A valid patient_id is required' });
-  }
-
-  if (!enrollmentToken) {
-    return res.status(401).json({
-      error: 'Patient enrollment authorization required'
-    });
+    return res.status(400).json({ error: 'Unsupported session fields', fields: unsupported });
   }
 
   const language = body.language === undefined ? 'en' : body.language;
-
-  if (
-    typeof language !== 'string' ||
-    language.trim().length < 2 ||
-    language.trim().length > 10
-  ) {
+  if (typeof language !== 'string' || !['en', 'hi', 'mr'].includes(language)) {
     return res.status(400).json({ error: 'Invalid language' });
   }
-
   if (
     body.ayush_mode !== undefined &&
-    typeof body.ayush_mode !== 'boolean' &&
-    body.ayush_mode !== 0 &&
-    body.ayush_mode !== 1
+    typeof body.ayush_mode !== 'boolean' && body.ayush_mode !== 0 && body.ayush_mode !== 1
   ) {
     return res.status(400).json({ error: 'Invalid ayush_mode' });
   }
-
   const graphId = body.graph_id ?? null;
-
-  if (
-    graphId !== null &&
-    (typeof graphId !== 'string' || graphId.length > 100)
-  ) {
+  if (graphId !== null && (typeof graphId !== 'string' || graphId.length > 100)) {
     return res.status(400).json({ error: 'Invalid graph_id' });
   }
 
   const id = randomUUID();
   const expires_at = new Date(Date.now() + 2 * 3600 * 1000);
   const sessionCredential = createOpaqueToken();
-
   let connection;
   let transactionOpen = false;
 
@@ -76,77 +46,98 @@ router.post('/', async (req, res, next) => {
     transactionOpen = true;
 
     const [patientRows] = await connection.query(
-      `SELECT id, kiosk_enrollment_token_hash
-       FROM patients
-       WHERE id = ?
-       FOR UPDATE`,
-      [patientId]
+      'SELECT id, preferred_language FROM patients WHERE user_id = ? FOR UPDATE',
+      [req.user.id]
     );
-
-    if (
-      !patientRows[0] ||
-      !matchesOpaqueToken(
-        enrollmentToken,
-        patientRows[0].kiosk_enrollment_token_hash
-      )
-    ) {
+    if (!patientRows[0]) {
       await connection.rollback();
       transactionOpen = false;
-
-      return res.status(401).json({
-        error: 'Invalid patient enrollment authorization'
-      });
+      return res.status(409).json({ error: 'Patient profile is not linked to this account.' });
     }
+    const patientId = Number(patientRows[0].id);
 
-    // Consume the enrollment token and create its session atomically.
-    await connection.query(
-      `UPDATE patients
-       SET kiosk_enrollment_token_hash = NULL
-       WHERE id = ?`,
+    const [preferenceRows] = await connection.query(
+      `SELECT purpose_key, granted, notice_version, language
+       FROM patient_consent_preferences WHERE patient_id = ? FOR UPDATE`,
       [patientId]
     );
+    const preferences = Object.fromEntries(
+      preferenceRows.map(row => [row.purpose_key, Number(row.granted) === 1])
+    );
+    const complete = CONSENT_PURPOSES.every(purpose =>
+      Object.hasOwn(preferences, purpose) &&
+      preferenceRows.find(row => row.purpose_key === purpose)?.notice_version === CONSENT_NOTICE_VERSION
+    );
+    if (!complete) {
+      await connection.rollback();
+      transactionOpen = false;
+      return res.status(409).json({ error: 'Initial consent is required before starting a session.' });
+    }
 
     await connection.query(
       `INSERT INTO sessions
-         (id, patient_id, language, ayush_mode, graph_id,
-          expires_at, kiosk_token_hash)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (id, patient_id, language, ayush_mode, graph_id,
+        voice_consent, document_consent, share_his_consent, save_dashboard_consent,
+        expires_at, kiosk_token_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         patientId,
-        language.trim(),
+        language,
         body.ayush_mode === true || body.ayush_mode === 1 ? 1 : 0,
         graphId,
+        preferences.voice ? 1 : 0,
+        preferences.document ? 1 : 0,
+        preferences.his ? 1 : 0,
+        preferences.dashboard ? 1 : 0,
         expires_at,
         sessionCredential.tokenHash
       ]
     );
 
+    // Snapshot previously saved account preferences into this session. This
+    // is not a new consent prompt or decision; it makes downstream session-level
+    // consent checks enforce the patient's saved choices consistently.
+    for (const purpose of CONSENT_PURPOSES) {
+      const preference = preferenceRows.find(row => row.purpose_key === purpose);
+      await connection.query(
+        `INSERT INTO consents
+         (patient_id, session_id, encounter_id, purpose_key, granted, notice_version, language, action)
+         VALUES (?, ?, NULL, ?, ?, ?, ?, ?)`,
+        [
+          patientId,
+          id,
+          purpose,
+          preferences[purpose] ? 1 : 0,
+          preference.notice_version || CONSENT_NOTICE_VERSION,
+          preference.language || language,
+          preferences[purpose] ? 'grant' : 'deny'
+        ]
+      );
+    }
+
     await connection.query(
       `INSERT INTO audit_logs
-         (actor_role, actor_id, action, resource_type,
-          resource_id, metadata_json)
+       (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
        VALUES ('patient', ?, 'SESSION_CREATED', 'session', ?, ?)`,
-      [patientId, id, JSON.stringify({})]
+      [req.user.id, id, JSON.stringify({ consent_preferences_snapshotted: true })]
     );
 
     await connection.commit();
     transactionOpen = false;
-
     return res.status(201).json({
       id,
+      patient_id: patientId,
+      language,
+      ayush_mode: body.ayush_mode === true || body.ayush_mode === 1,
       expires_at,
+      consents: preferences,
       kioskToken: sessionCredential.token
     });
   } catch (err) {
     if (connection && transactionOpen) {
-      try {
-        await connection.rollback();
-      } catch {
-        // Preserve the original error.
-      }
+      try { await connection.rollback(); } catch { /* Preserve original error. */ }
     }
-
     return next(err);
   } finally {
     connection?.release();

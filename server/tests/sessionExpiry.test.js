@@ -9,6 +9,30 @@ test(
   'expired session cleanup removes temporary data and retains audit records',
   { skip: process.env.MEDIKIOSK_DB_INTEGRATION !== '1' },
   async () => {
+    const expectedTestDb = process.env.MEDIKIOSK_TEST_DB?.trim();
+
+    assert.ok(
+      expectedTestDb,
+      'Set MEDIKIOSK_TEST_DB explicitly to a dedicated database ending in _test'
+    );
+    assert.match(
+      expectedTestDb,
+      /^[A-Za-z0-9_]+_test$/i,
+      'MEDIKIOSK_TEST_DB must end in _test'
+    );
+    assert.equal(
+      process.env.DB_NAME?.trim(),
+      expectedTestDb,
+      'DB_NAME must exactly match MEDIKIOSK_TEST_DB'
+    );
+
+    const [dbRows] = await pool.query('SELECT DATABASE() AS db');
+    assert.equal(
+      dbRows[0].db,
+      expectedTestDb,
+      'Refusing to run against a database other than the explicit test database'
+    );
+
     const sessionId = randomUUID();
 
     const cleanup = async () => {

@@ -1,12 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
-import { KioskProvider } from './context/KioskContext.jsx';
+import { KioskProvider, useKiosk } from './context/KioskContext.jsx';
 
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
-
-import KioskIdentify from './pages/kiosk/Identify.jsx';
-import KioskConsent from './pages/kiosk/Consent.jsx';
+import Register from './pages/Register.jsx';
+import ConsentPreferences from './pages/ConsentPreferences.jsx';
 import KioskComplaint from './pages/kiosk/Complaint.jsx';
 import KioskInterview from './pages/kiosk/Interview.jsx';
 import KioskDocuments from './pages/kiosk/Documents.jsx';
@@ -15,50 +14,75 @@ import KioskDone from './pages/kiosk/Done.jsx';
 
 import DoctorQueue from './pages/doctor/Queue.jsx';
 import DoctorEncounter from './pages/doctor/Encounter.jsx';
-
 import Triage from './pages/Triage.jsx';
 import HIS from './pages/HIS.jsx';
 import AuditLogs from './pages/admin/AuditLogs.jsx';
 import PurgeProof from './pages/admin/PurgeProof.jsx';
 import PatientDashboard from './pages/PatientDashboard.jsx';
 
-// Must be rendered inside AuthProvider
-function ProtectedRoute({ children, roles }) {
+function ProtectedRoute({ children, roles, allowIncompleteConsent = false, requireSession = false }) {
   const { user } = useAuth();
+  const { kiosk } = useKiosk();
+
   if (!user) return <Navigate to="/login" replace />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
+  if (user.role === 'patient' && !user.hasConsentSetup && !allowIncompleteConsent) {
+    return <Navigate to="/register/consent" replace />;
+  }
+  if (requireSession && !kiosk.sessionId) return <Navigate to="/me" replace />;
   return children;
 }
-import DemoBanner from './components/DemoBanner.jsx';
+
+function PatientConsentRoute() {
+  const { user } = useAuth();
+  if (user?.hasConsentSetup) return <Navigate to="/me" replace />;
+  return (
+    <ProtectedRoute roles={['patient']} allowIncompleteConsent>
+      <ConsentPreferences mode="initial" />
+    </ProtectedRoute>
+  );
+}
+
+function PatientSettingsRoute() {
+  return (
+    <ProtectedRoute roles={['patient']}>
+      <ConsentPreferences mode="manage" />
+    </ProtectedRoute>
+  );
+}
+
+function PatientIntakeRoute({ children }) {
+  return (
+    <ProtectedRoute roles={['patient']} requireSession>
+      {children}
+    </ProtectedRoute>
+  );
+}
 
 function AppRoutes() {
   return (
-    <>
-      <DemoBanner />
-      <Routes>
+    <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/register/consent" element={<PatientConsentRoute />} />
+      <Route path="/me" element={<ProtectedRoute roles={['patient']}><PatientDashboard /></ProtectedRoute>} />
+      <Route path="/me/consent" element={<PatientSettingsRoute />} />
 
-      <Route path="/kiosk/identify" element={<KioskIdentify />} />
-      <Route path="/kiosk/consent" element={<KioskConsent />} />
-      <Route path="/kiosk/complaint" element={<KioskComplaint />} />
-      <Route path="/kiosk/interview" element={<KioskInterview />} />
-      <Route path="/kiosk/documents" element={<KioskDocuments />} />
-      <Route path="/kiosk/review" element={<KioskReview />} />
-      <Route path="/kiosk/done" element={<KioskDone />} />
+      <Route path="/kiosk/complaint" element={<PatientIntakeRoute><KioskComplaint /></PatientIntakeRoute>} />
+      <Route path="/kiosk/interview" element={<PatientIntakeRoute><KioskInterview /></PatientIntakeRoute>} />
+      <Route path="/kiosk/documents" element={<PatientIntakeRoute><KioskDocuments /></PatientIntakeRoute>} />
+      <Route path="/kiosk/review" element={<PatientIntakeRoute><KioskReview /></PatientIntakeRoute>} />
+      <Route path="/kiosk/done" element={<ProtectedRoute roles={['patient']}><KioskDone /></ProtectedRoute>} />
 
       <Route path="/doctor" element={<ProtectedRoute roles={['doctor']}><DoctorQueue /></ProtectedRoute>} />
       <Route path="/doctor/encounter/:id" element={<ProtectedRoute roles={['doctor']}><DoctorEncounter /></ProtectedRoute>} />
-
       <Route path="/triage" element={<ProtectedRoute roles={['triage', 'doctor']}><Triage /></ProtectedRoute>} />
       <Route path="/his" element={<ProtectedRoute roles={['doctor', 'admin']}><HIS /></ProtectedRoute>} />
-
       <Route path="/admin/audit" element={<ProtectedRoute roles={['admin']}><AuditLogs /></ProtectedRoute>} />
       <Route path="/admin/purge-proof" element={<ProtectedRoute roles={['admin', 'doctor']}><PurgeProof /></ProtectedRoute>} />
-
-      <Route path="/me" element={<PatientDashboard />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-    </>
   );
 }
 

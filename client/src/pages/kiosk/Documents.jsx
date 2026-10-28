@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Upload, FileText, CheckCircle, AlertCircle, ArrowRight, X } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, ArrowRight, X, Loader2 } from 'lucide-react';
 import KioskShell from '../../components/KioskShell.jsx';
 import { useKiosk } from '../../context/KioskContext.jsx';
 import api from '../../services/api.js';
@@ -35,6 +35,7 @@ export default function Documents() {
   const [extractions, setExtractions] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [verifying, setVerifying] = useState(null);
+  const [removing, setRemoving] = useState(null);
   const [error, setError] = useState('');
 
   const upload = async (e) => {
@@ -66,8 +67,25 @@ export default function Documents() {
     }
   };
 
-  const remove = (idx) => {
-    setExtractions(p => p.filter((_, i) => i !== idx));
+  const remove = async (docId) => {
+    if (!kiosk.sessionId || !docId) {
+      setError('Cannot remove this document without an active session.');
+      return;
+    }
+
+    setRemoving(docId);
+    setError('');
+
+    try {
+      await api.delete('/documents/' + encodeURIComponent(String(docId)), {
+        data: { session_id: kiosk.sessionId }
+      });
+      setExtractions(current => current.filter(item => item.id !== docId));
+    } catch {
+      setError('Could not remove this document from the session. Please try again.');
+    } finally {
+      setRemoving(null);
+    }
   };
 
   return (
@@ -76,6 +94,10 @@ export default function Documents() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('documents_title')}</h1>
           <p className="text-gray-500 text-lg">{t('documents_hint')}</p>
+        </div>
+
+        <div role="note" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          {t('document_mock_notice')}
         </div>
 
         <label className={`card flex flex-col items-center justify-center border-2 border-dashed rounded-3xl p-10 cursor-pointer transition-all
@@ -98,7 +120,7 @@ export default function Documents() {
         )}
 
         {extractions.map((ext, idx) => (
-          <div key={idx} className="card p-5 flex flex-col gap-4 animate-scale-in">
+          <div key={ext.id} className="card p-5 flex flex-col gap-4 animate-scale-in">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
@@ -109,8 +131,17 @@ export default function Documents() {
                   <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full ml-2">{ext.docType}</span>
                 </div>
               </div>
-              <button onClick={() => remove(idx)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-error-500 transition-colors">
-                <X size={18} />
+              <button
+                type="button"
+                onClick={() => remove(ext.id)}
+                disabled={removing === ext.id || verifying === idx}
+                aria-label="Remove document from this session"
+                title="Remove document from this session"
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-error-500 disabled:opacity-50 transition-colors"
+              >
+                {removing === ext.id
+                  ? <Loader2 size={18} className="animate-spin" />
+                  : <X size={18} />}
               </button>
             </div>
             {ext.date && <p className="text-sm text-gray-500">Date: {ext.date} · Provider: {ext.provider}</p>}
@@ -137,7 +168,11 @@ export default function Documents() {
             )}
 
             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-              <span className="text-xs text-gray-400">Confidence: {Math.round((ext.confidence || 0) * 100)}%</span>
+              <span className="text-xs text-gray-400">
+                {Number(ext.confidence) > 0
+                  ? 'Confidence: ' + Math.round(Number(ext.confidence) * 100) + '%'
+                  : 'OCR confidence unavailable (mock mode)'}
+              </span>
               {ext.verified
                 ? <span className="flex items-center gap-2 text-success-600 text-sm font-medium"><CheckCircle size={16} /> Verified by patient</span>
                 : <button onClick={() => verify(idx, ext.id)} disabled={verifying === idx}

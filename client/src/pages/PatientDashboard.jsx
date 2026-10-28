@@ -1,102 +1,146 @@
-import { useNavigate } from 'react-router-dom';
-import { Activity, FileText, Shield, Trash2, User, ArrowRight, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useKiosk } from '../context/KioskContext.jsx';
+import api from '../services/api.js';
+
+function maskLoginId(value, type) {
+  if (!value) return 'Not available';
+  if (type === 'email') {
+    const [name, domain] = value.split('@');
+    return domain ? `${name.slice(0, 1)}•••@${domain}` : '••••';
+  }
+  if (value.length <= 4) return '••••';
+  return `${'•'.repeat(Math.max(4, value.length - 4))}${value.slice(-4)}`;
+}
 
 export default function PatientDashboard() {
+  const { user, logout } = useAuth();
+  const { kiosk, update, reset } = useKiosk();
   const navigate = useNavigate();
+  const [starting, setStarting] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [error, setError] = useState('');
+
+  const startSession = async () => {
+    setStarting(true);
+    setError('');
+    try {
+      const response = await api.post('/sessions', {
+        language: user.preferred_language || 'en',
+        ayush_mode: Boolean(kiosk.ayushMode)
+      });
+      update({
+        patientId: response.data.patient_id,
+        sessionId: response.data.id,
+        language: response.data.language || user.preferred_language || 'en',
+        consents: response.data.consents || user.consents || {},
+        complaint: null,
+        slots: {},
+        encounterId: null
+      });
+      navigate('/kiosk/complaint');
+    } catch (err) {
+      setError(err.response?.data?.error || 'A new intake session could not be started. Please try again.');
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  const signOut = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } catch {
+      // The local UI is still cleared below if the server is unavailable.
+    } finally {
+      reset();
+      setLoggingOut(false);
+      navigate('/', { replace: true });
+    }
+  };
+
+  const consentEntries = [
+    ['voice', 'Voice processing'],
+    ['document', 'Document processing'],
+    ['his', 'Hospital system sharing'],
+    ['dashboard', 'Save to dashboard']
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20">
+      <header className="bg-white/90 backdrop-blur border-b border-gray-200 px-5 sm:px-8 py-4 flex items-center justify-between gap-4 sticky top-0 z-20">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-            <Activity size={20} className="text-white" />
-          </div>
-          <div>
-            <span className="font-bold text-gray-800 text-lg leading-tight">MediKiosk</span>
-            <span className="text-xs text-gray-500 font-medium block">Patient Portal</span>
-          </div>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md"><Activity size={20} className="text-white" /></div>
+          <div><strong className="block text-gray-900">MediKiosk</strong><span className="text-xs text-gray-500">Patient dashboard</span></div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-              <User size={16} className="text-primary-600" />
-            </div>
-            <span className="text-sm font-medium text-gray-700">Patient</span>
-          </div>
-          <button onClick={() => navigate('/')} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-            <LogOut size={16} /> Logout
-          </button>
-        </div>
+        <button onClick={signOut} disabled={loggingOut} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+          <LogOut size={16} /> {loggingOut ? 'Signing out…' : 'Log out'}
+        </button>
       </header>
 
-      <main className="flex-1 p-6 max-w-5xl mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Records</h1>
-          <p className="text-gray-500">View your encounter history and manage your consent preferences</p>
-        </div>
-
-        <div className="card p-5 bg-warning-50 border-warning-200 mb-8">
-          <div className="flex items-start gap-3">
-            <Shield size={20} className="text-warning-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-warning-800">Demo Environment</p>
-              <p className="text-sm text-warning-700 mt-1">This dashboard shows demo/synthetic records only. No real patient data is stored.</p>
-            </div>
+      <main className="max-w-5xl mx-auto w-full p-5 sm:p-8 space-y-6">
+        <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-primary-600">WELCOME BACK</p>
+            <h1 className="text-3xl font-bold text-gray-900 mt-1">{user.display_name || 'Patient'}</h1>
+            <p className="text-gray-500 mt-2">Start a new intake session or review your saved privacy choices.</p>
           </div>
-        </div>
+          <div className="flex items-center gap-2 text-xs text-success-700 bg-success-50 border border-success-200 rounded-full px-3 py-2 w-fit">
+            <CheckCircle2 size={15} /> Account signed in
+          </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card p-6 card-hover">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center mb-4">
-              <FileText size={28} className="text-primary-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Recent Encounters</h2>
-            <p className="text-gray-500 text-sm mb-4">
-              Your encounter summaries will appear here after your doctor signs off.
-              This is a demo — no real records are stored.
-            </p>
-            <button onClick={() => navigate('/kiosk/identify')}
-              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 rounded-xl font-medium shadow-md shadow-primary-200 transition-all flex items-center justify-center gap-2">
-              Start New Session
-              <ArrowRight size={18} />
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="card p-6 lg:col-span-2">
+            <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-4"><ClipboardList size={24} className="text-primary-600" /></div>
+            <h2 className="text-xl font-bold text-gray-900">Start a new intake</h2>
+            <p className="text-sm text-gray-500 mt-2 mb-5">Your saved consent choices will automatically be applied to the new session. You will not be prompted to consent again unless the consent notice requires an update.</p>
+            <label className="flex items-start gap-3 rounded-xl border border-gray-200 p-4 mb-5 cursor-pointer">
+              <input type="checkbox" checked={Boolean(kiosk.ayushMode)} onChange={event => update({ ayushMode: event.target.checked })} className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+              <span><strong className="block text-sm text-gray-800">AYUSH / Ayurveda consultation</strong><span className="block text-xs text-gray-500 mt-1">Enable additional questions about Prakriti, Agni, diet and lifestyle.</span></span>
+            </label>
+            {error && <div role="alert" className="rounded-xl border border-error-200 bg-error-50 p-3 text-sm text-error-700 mb-4">{error}</div>}
+            <button onClick={startSession} disabled={starting} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl px-6 py-3 font-semibold shadow-md disabled:opacity-50">
+              {starting ? 'Starting session…' : 'Start new intake'} <ArrowRight size={18} />
             </button>
           </div>
 
-          <div className="card p-6 card-hover">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center mb-4">
-              <Shield size={28} className="text-success-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Consent Management</h2>
-            <p className="text-gray-500 text-sm mb-4">
-              You can revoke any consent at any time. Revocation creates a new record — previous records are not modified.
-            </p>
-            <button className="w-full bg-white border-2 border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:border-primary-300 hover:text-primary-600 transition-all">
-              View Consent History
-            </button>
+          <div className="card p-6">
+            <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-4"><User size={24} className="text-gray-600" /></div>
+            <h2 className="text-lg font-bold text-gray-900">Account details</h2>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div><dt className="text-gray-500">Login ID type</dt><dd className="font-semibold text-gray-800 capitalize">{user.login_identifier_type || 'Username'}</dd></div>
+              <div><dt className="text-gray-500">Registered login ID</dt><dd className="font-mono text-gray-800 break-all">{maskLoginId(user.login_identifier, user.login_identifier_type)}</dd></div>
+              <div><dt className="text-gray-500">Preferred language</dt><dd className="font-semibold text-gray-800">{{ en: 'English', hi: 'Hindi', mr: 'Marathi' }[user.preferred_language] || 'English'}</dd></div>
+            </dl>
           </div>
+        </section>
 
-          <div className="card p-6 card-hover md:col-span-2">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-error-100 to-error-200 flex items-center justify-center flex-shrink-0">
-                <Trash2 size={28} className="text-error-600" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-800 mb-2">Delete My Demo Data</h2>
-                <p className="text-gray-500 text-sm mb-4">
-                  Remove all synthetic demo records associated with this session. This action cannot be undone.
-                </p>
-                <button className="px-6 py-3 bg-error-50 border border-error-200 text-error-600 rounded-xl font-medium hover:bg-error-100 transition-colors">
-                  Delete Demo Data
-                </button>
-              </div>
+        <section className="card p-6">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0"><Shield size={20} className="text-primary-600" /></div>
+              <div><h2 className="text-lg font-bold text-gray-900">Saved privacy choices</h2><p className="text-sm text-gray-500 mt-1">Your choices are saved to your account and applied to new sessions.</p></div>
             </div>
+            <Link to="/me/consent" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 shrink-0"><Settings2 size={16} /> Manage</Link>
           </div>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {consentEntries.map(([key, label]) => {
+              const granted = Boolean(user.consents?.[key]);
+              const Icon = granted ? CheckCircle2 : Circle;
+              return <div key={key} className="flex items-center gap-2 text-sm rounded-lg bg-gray-50 px-3 py-3">
+                <Icon size={17} className={granted ? 'text-success-600' : 'text-gray-400'} />
+                <span className="text-gray-700">{label}</span>
+                <span className={`ml-auto text-xs font-semibold ${granted ? 'text-success-700' : 'text-gray-500'}`}>{granted ? 'Allowed' : 'Declined'}</span>
+              </div>;
+            })}
+          </div>
+        </section>
+
+        <p className="text-xs leading-relaxed text-gray-400">MediKiosk is an academic prototype. Do not use real patient data in demonstrations. Login identifiers are not verified through OTP or the official ABHA/ABDM services.</p>
       </main>
-
-      <footer className="text-center text-xs text-gray-400 py-4 px-6 border-t border-gray-200/50 bg-white/50 backdrop-blur-sm">
-        MediKiosk is a student project prototype using synthetic data only. Not a medical device.
-      </footer>
     </div>
   );
 }

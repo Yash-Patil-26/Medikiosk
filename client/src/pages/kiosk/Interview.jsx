@@ -25,9 +25,11 @@ export default function Interview() {
   const [selected, setSelected] = useState([]);
   const [textInput, setTextInput] = useState('');
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
 
   const fetchNext = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     setVoiceResult(null);
     setVoiceError('');
     setSelected([]);
@@ -42,7 +44,7 @@ export default function Interview() {
         speak(r.data.text);
       }
     } catch {
-      setNode({ type: 'END' });
+      setLoadError('Could not load the next question. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -103,7 +105,7 @@ export default function Interview() {
             No active session. Please start from the beginning.
           </p>
           <button
-            onClick={() => navigate('/kiosk/identify')}
+            onClick={() => navigate('/me')}
             className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all"
           >
             Start Over
@@ -117,6 +119,30 @@ export default function Interview() {
     return (
       <KioskShell step="Interview">
         <LoadingSpinner />
+      </KioskShell>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <KioskShell step="Interview">
+        <div className="flex flex-col items-center gap-4 mt-10 text-center">
+          <p role="alert" className="text-error-700">{loadError}</p>
+          <button
+            type="button"
+            onClick={fetchNext}
+            className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/me')}
+            className="text-gray-500 text-sm font-medium hover:text-gray-700"
+          >
+            Start Over
+          </button>
+        </div>
       </KioskShell>
     );
   }
