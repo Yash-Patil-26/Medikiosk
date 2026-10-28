@@ -10,7 +10,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [form, setForm] = useState({ identifier_type: 'email', identifier: '', password: '' });
+  const [form, setForm] = useState({ identifier_type: 'username', identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -66,10 +66,10 @@ export default function Login() {
               Login ID type
               <select value={form.identifier_type} onChange={e => setField('identifier_type', e.target.value)}
                 className="mt-2 w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <option value="username">Staff username / legacy demo username</option>
                 <option value="email">Email address</option>
                 <option value="mobile">Mobile number</option>
                 <option value="abha">ABHA number</option>
-                <option value="username">Staff username / legacy demo username</option>
               </select>
             </label>
             <label className="block text-sm font-semibold text-gray-700">
