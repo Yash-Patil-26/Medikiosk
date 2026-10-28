@@ -99,6 +99,153 @@ export default function DoctorEncounter() {
     const a = document.createElement('a'); a.href = url; a.download = `fhir-encounter-${id}.json`; a.click();
   };
 
+  const downloadPrintableSummary = () => {
+    const summaryContent = `
+      <html>
+        <head>
+          <title>MediKiosk Encounter Summary - ${encounter?.token_no}</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+            .header h1 { margin: 0; color: #333; }
+            .header p { margin: 5px 0; color: #666; }
+            .section { margin-bottom: 20px; }
+            .section h2 { background: #f5f5f5; padding: 10px; margin: 0 0 10px 0; border-left: 4px solid #007bff; }
+            .field { margin: 10px 0; }
+            .field-label { font-weight: bold; color: #555; }
+            .field-value { margin-left: 10px; }
+            .footer { border-top: 2px solid #333; padding-top: 20px; margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background: #f5f5f5; }
+            .flag-warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 10px 0; }
+            .flag-critical { background: #f8d7da; border-left: 4px solid #dc3545; padding: 10px; margin: 10px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>MediKiosk Encounter Summary</h1>
+            <p>Token No: ${encounter?.token_no}</p>
+            <p>Date: ${new Date(encounter?.created_at).toLocaleString()}</p>
+            <p>Status: ${encounter?.status?.toUpperCase()}</p>
+          </div>
+
+          ${encounter?.red_flag_level && encounter?.red_flag_level !== 'none' ? `
+            <div class="${encounter?.red_flag_level === 'critical' ? 'flag-critical' : 'flag-warning'}">
+              <strong>⚠️ RED FLAG: ${encounter?.red_flag_level?.toUpperCase()}</strong>
+              <p>${Array.isArray(encounter?.red_flag_reasons) ? encounter.red_flag_reasons.join(', ') : encounter?.red_flag_reasons}</p>
+            </div>
+          ` : ''}
+
+          <div class="section">
+            <h2>Patient Summary</h2>
+            <div class="field">
+              <span class="field-label">Chief Complaint:</span>
+              <span class="field-value">${getFieldValue('chiefComplaint')}</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Language:</span>
+              <span class="field-value">${encounter?.language || 'en'}</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>History of Present Illness</h2>
+            ${hpiFields.map(field => `
+              <div class="field">
+                <span class="field-label">${field.label}:</span>
+                <span class="field-value">${getFieldValue(\`historyOfPresentIllness.\${field.key}\`)}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="section">
+            <h2>Past Medical History</h2>
+            <div class="field">
+              <span class="field-value">${getFieldValue('pastMedicalHistory')}</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Past Surgical History</h2>
+            <div class="field">
+              <span class="field-value">${getFieldValue('pastSurgicalHistory')}</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Drug History</h2>
+            <div class="field">
+              <span class="field-value">${getFieldValue('drugHistory')}</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Allergy History</h2>
+            <div class="field">
+              <span class="field-value">${getFieldValue('allergyHistory')}</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Family History</h2>
+            <div class="field">
+              <span class="field-value">${getFieldValue('familyHistory')}</span>
+            </div>
+          </div>
+
+          ${summary?.documentFindings?.length > 0 ? `
+            <div class="section">
+              <h2>Document Findings</h2>
+              ${summary.documentFindings.map(doc => `
+                <div style="margin: 15px 0; padding: 10px; background: #f9f9f9; border: 1px solid #ddd;">
+                  <p><strong>${doc.docType}</strong> - ${doc.date || 'Date not specified'} - ${doc.provider || 'Provider not specified'}</p>
+                  ${doc.verifiedByPatient ? '<p style="color: green;">✓ Verified by patient</p>' : '<p style="color: orange;">⚠ Not verified by patient</p>'}
+                  ${doc.labs?.length > 0 ? `
+                    <h3>Lab Results</h3>
+                    <table>
+                      <tr><th>Lab</th><th>Value</th><th>Reference</th></tr>
+                      ${doc.labs.map(lab => `<tr><td>${lab.name}</td><td>${lab.value} ${lab.unit}</td><td>${lab.referenceRange}</td></tr>`).join('')}
+                    </table>
+                  ` : ''}
+                  ${doc.medications?.length > 0 ? `
+                    <h3>Medications</h3>
+                    ${doc.medications.map(med => `<p>• ${med.name} ${med.dose} — ${med.frequency}</p>`).join('')}
+                  ` : ''}
+                  ${doc.diagnoses?.length > 0 ? `
+                    <h3>Diagnoses</h3>
+                    ${doc.diagnoses.map(diag => `<p>• ${typeof diag === 'string' ? diag : diag.text}</p>`).join('')}
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <div class="section">
+            <h2>Doctor Notes</h2>
+            <div class="field">
+              <span class="field-value">${notes || 'No notes provided'}</span>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Generated by MediKiosk - AI-Assisted Pre-Consultation Clinical Information System</p>
+            <p>This is a synthetic demo document. Not for actual clinical use.</p>
+            <p>Encounter ID: ${id} | Signed at: ${new Date().toLocaleString()}</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const blob = new Blob([summaryContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `encounter-summary-${encounter?.token_no || id}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex items-center justify-center">
       <LoadingSpinner />
@@ -150,9 +297,14 @@ export default function DoctorEncounter() {
         </div>
         <div className="flex items-center gap-3">
           {signed && (
-            <button onClick={downloadFhir} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
-              <Download size={16} /> Download FHIR
-            </button>
+            <>
+              <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
+                <Download size={16} /> Download Summary
+              </button>
+              <button onClick={downloadFhir} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
+                <Download size={16} /> Download FHIR
+              </button>
+            </>
           )}
           <div className="flex items-center gap-2 bg-primary-50 px-4 py-2 rounded-xl border border-primary-200">
             <Shield size={18} className="text-primary-600" />
