@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar, X, Check, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useKiosk } from '../context/KioskContext.jsx';
 import api from '../services/api.js';
+import i18n from '../i18n/i18n.js';
 
 function maskLoginId(value, type) {
   if (!value) return 'Not available';
@@ -18,6 +20,7 @@ function maskLoginId(value, type) {
 export default function PatientDashboard() {
   const { user, logout, updateUser } = useAuth();
   const { kiosk, update, reset } = useKiosk();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [starting, setStarting] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -40,6 +43,13 @@ export default function PatientDashboard() {
   const [editLoading, setEditLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  // Apply user's preferred language on mount
+  useEffect(() => {
+    if (user?.preferred_language) {
+      i18n.changeLanguage(user.preferred_language);
+    }
+  }, [user?.preferred_language]);
 
   const openEditModal = () => {
     setEditForm({
@@ -89,6 +99,12 @@ export default function PatientDashboard() {
 
       const response = await api.patch('/patients/me', updateData);
       updateUser(response.data);
+      
+      // Apply the new language preference immediately
+      if (editForm.preferred_language) {
+        i18n.changeLanguage(editForm.preferred_language);
+      }
+      
       closeEditModal();
     } catch (err) {
       setEditError(err.response?.data?.error || 'Failed to update account details. Please try again.');
@@ -114,6 +130,8 @@ export default function PatientDashboard() {
         slots: {},
         encounterId: null
       });
+      // Apply language preference to new session
+      i18n.changeLanguage(response.data.language || user.preferred_language || 'en');
       navigate('/kiosk/complaint');
     } catch (err) {
       setError(err.response?.data?.error || 'A new intake session could not be started. Please try again.');
