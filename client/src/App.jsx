@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { KioskProvider, useKiosk } from './context/KioskContext.jsx';
+import { ThemeProvider } from './context/ThemeContext.jsx';
 
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
@@ -89,11 +90,13 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <KioskProvider>
-          <AppRoutes />
-        </KioskProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <KioskProvider>
+            <AppRoutes />
+          </KioskProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

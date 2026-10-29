@@ -362,13 +362,33 @@ export default function PatientDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20">
       <header className="bg-white/90 backdrop-blur border-b border-gray-200 px-5 sm:px-8 py-4 flex items-center justify-between gap-4 sticky top-0 z-20">
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md"><Activity size={20} className="text-white" /></div>
           <div><strong className="block text-gray-900">MediKiosk</strong><span className="text-xs text-gray-500">Patient dashboard</span></div>
+        </Link>
+        <div className="flex items-center gap-3">
+          <select
+            value={user.preferred_language || 'en'}
+            onChange={async (e) => {
+              const newLang = e.target.value;
+              try {
+                await api.patch('/patients/me', { preferred_language: newLang });
+                updateUser({ ...user, preferred_language: newLang });
+                i18n.changeLanguage(newLang);
+              } catch (err) {
+                console.error('Failed to update language:', err);
+              }
+            }}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="en">English</option>
+            <option value="hi">हिंदी</option>
+            <option value="mr">मराठी</option>
+          </select>
+          <button onClick={signOut} disabled={loggingOut} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+            <LogOut size={16} /> {loggingOut ? 'Signing out…' : 'Log out'}
+          </button>
         </div>
-        <button onClick={signOut} disabled={loggingOut} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50">
-          <LogOut size={16} /> {loggingOut ? 'Signing out…' : 'Log out'}
-        </button>
       </header>
 
       <main className="max-w-5xl mx-auto w-full p-5 sm:p-8 space-y-6">
