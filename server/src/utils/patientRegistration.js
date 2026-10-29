@@ -63,51 +63,80 @@ function isValidPastOrTodayDate(value) {
 }
 
 export function validatePatientRegistration(body = {}) {
-  const allowed = new Set([
-    'display_name', 'date_of_birth', 'sex', 'preferred_language',
-    'identifier_type', 'identifier', 'password'
-  ]);
-  const unsupported = Object.keys(body).filter(key => !allowed.has(key));
-  if (unsupported.length) {
-    return { valid: false, error: 'Unsupported registration fields.', fields: unsupported };
-  }
-
-  const displayName = typeof body.display_name === 'string' ? body.display_name.trim() : '';
-  if (displayName.length < 2 || displayName.length > 100) {
-    return { valid: false, error: 'Enter your full name (2 to 100 characters).' };
-  }
-
-  if (!isValidPastOrTodayDate(body.date_of_birth)) {
-    return { valid: false, error: 'Enter a valid date of birth that is not in the future.' };
-  }
-
-  if (!ALLOWED_SEX_VALUES.includes(body.sex)) {
-    return { valid: false, error: 'Choose a valid sex option.' };
-  }
-
-  if (!ALLOWED_LANGUAGES.includes(body.preferred_language)) {
-    return { valid: false, error: 'Choose English, Hindi or Marathi.' };
-  }
-
-  const identifier = normalizePatientIdentifier(body.identifier_type, body.identifier);
-  if (!identifier.valid) return identifier;
-
-  if (typeof body.password !== 'string' || body.password.length < 10 || body.password.length > 128) {
-    return { valid: false, error: 'Use a password between 10 and 128 characters.' };
-  }
-
-  return {
-    valid: true,
-    value: {
-      display_name: displayName,
-      date_of_birth: body.date_of_birth,
-      sex: body.sex,
-      preferred_language: body.preferred_language,
-      identifier_type: body.identifier_type,
-      identifier: identifier.value,
-      password: body.password
+  const role = body.role || 'patient';
+  
+  if (role === 'patient') {
+    const allowed = new Set([
+      'role', 'display_name', 'date_of_birth', 'sex', 'preferred_language',
+      'identifier_type', 'identifier', 'password'
+    ]);
+    const unsupported = Object.keys(body).filter(key => !allowed.has(key));
+    if (unsupported.length) {
+      return { valid: false, error: 'Unsupported registration fields.', fields: unsupported };
     }
-  };
+
+    const displayName = typeof body.display_name === 'string' ? body.display_name.trim() : '';
+    if (displayName.length < 2 || displayName.length > 100) {
+      return { valid: false, error: 'Enter your full name (2 to 100 characters).' };
+    }
+
+    if (!isValidPastOrTodayDate(body.date_of_birth)) {
+      return { valid: false, error: 'Enter a valid date of birth that is not in the future.' };
+    }
+
+    if (!ALLOWED_SEX_VALUES.includes(body.sex)) {
+      return { valid: false, error: 'Choose a valid sex option.' };
+    }
+
+    if (!ALLOWED_LANGUAGES.includes(body.preferred_language)) {
+      return { valid: false, error: 'Choose English, Hindi or Marathi.' };
+    }
+
+    const identifier = normalizePatientIdentifier(body.identifier_type, body.identifier);
+    if (!identifier.valid) return identifier;
+
+    if (typeof body.password !== 'string' || body.password.length < 10 || body.password.length > 128) {
+      return { valid: false, error: 'Use a password between 10 and 128 characters.' };
+    }
+
+    return {
+      valid: true,
+      value: {
+        display_name: displayName,
+        date_of_birth: body.date_of_birth,
+        sex: body.sex,
+        preferred_language: body.preferred_language,
+        identifier_type: body.identifier_type,
+        identifier: identifier.value,
+        password: body.password
+      }
+    };
+  } else if (role === 'doctor' || role === 'staff') {
+    const allowed = new Set(['role', 'display_name', 'password']);
+    const unsupported = Object.keys(body).filter(key => !allowed.has(key));
+    if (unsupported.length) {
+      return { valid: false, error: 'Unsupported registration fields.', fields: unsupported };
+    }
+
+    const displayName = typeof body.display_name === 'string' ? body.display_name.trim() : '';
+    if (displayName.length < 2 || displayName.length > 100) {
+      return { valid: false, error: 'Enter your full name (2 to 100 characters).' };
+    }
+
+    if (typeof body.password !== 'string' || body.password.length < 10 || body.password.length > 128) {
+      return { valid: false, error: 'Use a password between 10 and 128 characters.' };
+    }
+
+    return {
+      valid: true,
+      value: {
+        display_name: displayName,
+        password: body.password
+      }
+    };
+  } else {
+    return { valid: false, error: 'Invalid role. Allowed roles: patient, doctor, staff' };
+  }
 }
 
 export function validateConsentPreferences(body = {}) {
