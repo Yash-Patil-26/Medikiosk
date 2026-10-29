@@ -35,7 +35,7 @@ Doctors in OPD settings have limited time per patient. Patients often provide un
 - Full audit logging
 - Multilingual UI (English, Hindi, Marathi)
 - Accessibility controls (high contrast, large text, audio guided)
-- Role-based access: Patient, Doctor, Triage, Admin
+- Role-based access: Patient, Doctor, Staff, Admin
 
 ---
 
@@ -44,7 +44,7 @@ Doctors in OPD settings have limited time per patient. Patients often provide un
 ```
 Patient Kiosk (React) → REST API (Express) → MySQL (XAMPP)
 Doctor Portal (React) → REST API (Express) → MySQL (XAMPP)
-Triage Console        → REST API (Express) → MySQL (XAMPP)
+Staff Console          → REST API (Express) → MySQL (XAMPP)
 Admin Panel           → REST API (Express) → MySQL (XAMPP)
                                 ↓
                          Mock HIS Viewer
@@ -186,10 +186,10 @@ This starts both:
 | Role    | Username | Password    |
 |---------|----------|-------------|
 | Doctor  | doctor   | Doctor@123  |
-| Triage  | triage   | Triage@123  |
+| Staff  | staff   | Staff@123  |
 | Admin   | admin    | Admin@123   |
 
-Staff accounts are used to access the doctor queue, triage dashboard, and admin panels.
+Staff accounts are used to access the doctor queue, staff dashboard, and admin panels.
 
 ### Patient Registration
 
@@ -224,8 +224,8 @@ All accounts are **demo accounts with synthetic data only**.
 | POST   | /api/consents/:id/revoke          | Revoke consent           |
 | GET    | /api/dialogue/:sessionId/next     | Get next question        |
 | POST   | /api/dialogue/:sessionId/answer   | Save answer              |
-| GET    | /api/triage/alerts                | Get red flag alerts      |
-| POST   | /api/triage/alerts/:id/acknowledge| Acknowledge alert        |
+| GET    | /api/staff/alerts                | Get red flag alerts      |
+| POST   | /api/staff/alerts/:id/acknowledge| Acknowledge alert        |
 | POST   | /api/documents/extract            | Upload & extract doc     |
 | POST   | /api/documents/:id/verify         | Patient verify doc       |
 | DELETE | /api/documents/:id                | Delete extracted document |
@@ -259,7 +259,7 @@ All accounts are **demo accounts with synthetic data only**.
 | /kiosk/done               | Completion + purge proof |
 | /doctor                   | Doctor queue             |
 | /doctor/encounter/:id     | Encounter view           |
-| /triage                   | Triage dashboard         |
+| /staff                   | Staff dashboard         |
 | /his                      | Mock HIS viewer          |
 | /admin/audit              | Audit logs               |
 | /admin/purge-proof        | Purge proof              |
