@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History } from 'lucide-react';
+import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useKiosk } from '../context/KioskContext.jsx';
 import api from '../services/api.js';
@@ -22,6 +22,8 @@ export default function PatientDashboard() {
   const [starting, setStarting] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [error, setError] = useState('');
+  const [encounters, setEncounters] = useState([]);
+  const [loadingEncounters, setLoadingEncounters] = useState(false);
 
   const startSession = async () => {
     setStarting(true);
@@ -58,6 +60,130 @@ export default function PatientDashboard() {
       reset();
       setLoggingOut(false);
       navigate('/', { replace: true });
+    }
+  };
+
+  useEffect(() => {
+    const loadEncounters = async () => {
+      setLoadingEncounters(true);
+      try {
+        const r = await api.get('/patients/my-encounters');
+        setEncounters(r.data || []);
+      } catch {
+        // No encounters yet or error loading
+      } finally {
+        setLoadingEncounters(false);
+      }
+    };
+    loadEncounters();
+  }, []);
+
+  const downloadEncounterSummary = async (encounterId, tokenNo) => {
+    try {
+      const r = await api.get(`/encounters/${encounterId}/summary`);
+      const encounter = r.data;
+      const summary = encounter.summary_draft_json || encounter.summary_final_json || {};
+      
+      const summaryContent = `
+        <html>
+          <head>
+            <title>MediKiosk Encounter Summary - ${tokenNo}</title>
+            <style>
+              body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+              .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+              .header h1 { margin: 0; color: #333; }
+              .header p { margin: 5px 0; color: #666; }
+              .section { margin-bottom: 20px; }
+              .section h2 { background: #f5f5f5; padding: 10px; margin: 0 0 10px 0; border-left: 4px solid #007bff; }
+              .field { margin: 10px 0; }
+              .field-label { font-weight: bold; color: #555; }
+              .field-value { margin-left: 10px; }
+              .footer { border-top: 2px solid #333; padding-top: 20px; margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>MediKiosk Encounter Summary</h1>
+              <p>Token No: ${tokenNo}</p>
+              <p>Date: ${new Date(encounter.created_at).toLocaleString()}</p>
+              <p>Status: ${encounter.status?.toUpperCase()}</p>
+            </div>
+
+            <div class="section">
+              <h2>Patient Summary</h2>
+              <div class="field">
+                <span class="field-label">Chief Complaint:</span>
+                <span class="field-value">${summary.chiefComplaint?.text || 'Not specified'}</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Language:</span>
+                <span class="field-value">${encounter.language || 'en'}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>History of Present Illness</h2>
+              ${summary.historyOfPresentIllness ? Object.entries(summary.historyOfPresentIllness).filter(([k,v]) => v && k !== 'source' && k !== 'confirmedBy').map(([key, value]) => `
+                <div class="field">
+                  <span class="field-label">${key}:</span>
+                  <span class="field-value">${value}</span>
+                </div>
+              `).join('') : '<p>No information recorded</p>'}
+            </div>
+
+            <div class="section">
+              <h2>Past Medical History</h2>
+              <div class="field">
+                <span class="field-value">${summary.pastMedicalHistory?.text || 'None'}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Past Surgical History</h2>
+              <div class="field">
+                <span class="field-value">${summary.pastSurgicalHistory?.text || 'None'}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Drug History</h2>
+              <div class="field">
+                <span class="field-value">${summary.drugHistory?.text || 'None'}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Allergy History</h2>
+              <div class="field">
+                <span class="field-value">${summary.allergyHistory?.text || 'None'}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Family History</h2>
+              <div class="field">
+                <span class="field-value">${summary.familyHistory?.text || 'None'}</span>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Generated by MediKiosk - AI-Assisted Pre-Consultation Clinical Information System</p>
+              <p>This is a synthetic demo document. Not for actual clinical use.</p>
+              <p>Encounter ID: ${encounterId} | Downloaded by Patient</p>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const blob = new Blob([summaryContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `encounter-summary-${tokenNo}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download failed:', err);
     }
   };
 
@@ -142,12 +268,51 @@ export default function PatientDashboard() {
         <section className="card p-6">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0"><History size={20} className="text-gray-600" /></div>
-            <div><h2 className="text-lg font-bold text-gray-900">Patient Profile & History</h2><p className="text-sm text-gray-500 mt-1">View your interview answers and encounter summaries from previous sessions.</p></div>
+            <div><h2 className="text-lg font-bold text-gray-900">Patient Profile & History</h2><p className="text-sm text-gray-500 mt-1">View and download your encounter summaries from completed sessions.</p></div>
           </div>
-          <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
-            <p>Patient history and encounter summaries will be available here after completing kiosk sessions and doctor reviews.</p>
-            <p className="mt-2 text-xs text-gray-400">Feature coming soon: Download complete patient profile with all interview answers and signed summaries.</p>
-          </div>
+          
+          {loadingEncounters ? (
+            <div className="text-center py-8 text-gray-500">Loading your history...</div>
+          ) : encounters.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No completed encounters yet.</p>
+              <p className="text-sm mt-2">Complete a kiosk session and have the doctor sign it to see your history here.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {encounters.map(enc => (
+                <div key={enc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
+                      <FileText size={18} className="text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">{enc.token_no}</p>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar size={12} /> {new Date(enc.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                      enc.status === 'signed' ? 'bg-success-100 text-success-700' : 'bg-warning-100 text-warning-700'
+                    }`}>
+                      {enc.status}
+                    </span>
+                    {enc.status === 'signed' && (
+                      <button 
+                        onClick={() => downloadEncounterSummary(enc.id, enc.token_no)}
+                        className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg"
+                        title="Download summary"
+                      >
+                        <Download size={18} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         <p className="text-xs leading-relaxed text-gray-400">MediKiosk is an academic prototype. Do not use real patient data in demonstrations. Login identifiers are not verified through OTP or the official ABHA/ABDM services.</p>

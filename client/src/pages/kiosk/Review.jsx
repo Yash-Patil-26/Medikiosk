@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { CheckCircle, ArrowRight, Loader2, Edit2, X, Save } from 'lucide-react';
 
 import KioskShell from '../../components/KioskShell.jsx';
 import ProvenanceChip from '../../components/ProvenanceChip.jsx';
@@ -18,6 +18,9 @@ export default function Review() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [editingSlot, setEditingSlot] = useState(null);
+  const [editValue, setEditValue] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const loadSession = useCallback(async () => {
     if (!kiosk.sessionId) return;
@@ -34,6 +37,42 @@ export default function Review() {
       setLoading(false);
     }
   }, [kiosk.sessionId]);
+
+  const startEdit = (slot) => {
+    setEditingSlot(slot.id);
+    setEditValue(slot.value);
+  };
+
+  const cancelEdit = () => {
+    setEditingSlot(null);
+    setEditValue('');
+  };
+
+  const saveEdit = async () => {
+    if (!editingSlot) return;
+    setSaving(true);
+    setError('');
+    try {
+      await api.post(`/dialogue/${kiosk.sessionId}/answer`, {
+        node_id: editingSlot.node_id || editingSlot.slot_id,
+        slot_id: editingSlot.slot_id,
+        value: editValue,
+        source: 'touch',
+        raw_text: editValue,
+        confidence: 1.0,
+        confirmed_by: 'touch'
+      });
+      // Reload session to get updated data
+      const r = await api.get('/sessions/' + kiosk.sessionId);
+      setSession(r.data);
+      setEditingSlot(null);
+      setEditValue('');
+    } catch {
+      setError('Failed to update. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   useEffect(() => {
     loadSession();
@@ -129,12 +168,36 @@ export default function Review() {
             </div>
           )}
           {slots.map((slot, i) => (
-            <div key={i} className="p-5 flex flex-col gap-2 hover:bg-gray-50 transition-colors">
+            <div key={i} className="p-4 flex flex-col gap-2 hover:bg-gray-50 transition-colors">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-400 uppercase tracking-wide font-semibold">{slot.slot_id.replace(/_/g, ' ')}</span>
-                <ProvenanceChip source={slot.source} confirmedBy={slot.confirmed_by} />
+                <div className="flex items-center gap-2">
+                  <ProvenanceChip source={slot.source} confirmedBy={slot.confirmed_by} />
+                  {editingSlot === slot.id ? (
+                    <button onClick={cancelEdit} className="p-1 text-gray-400 hover:text-gray-600 rounded">
+                      <X size={16} />
+                    </button>
+                  ) : (
+                    <button onClick={() => startEdit(slot)} className="p-1 text-primary-500 hover:bg-primary-50 rounded">
+                      <Edit2 size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
-              <p className="font-medium text-gray-800 text-lg">{slot.value}</p>
+              {editingSlot === slot.id ? (
+                <div className="flex gap-2">
+                  <input
+                    value={editValue}
+                    onChange={e => setEditValue(e.target.value)}
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                  />
+                  <button onClick={saveEdit} disabled={saving} className="px-3 py-2 bg-success-500 text-white rounded-lg text-sm font-medium hover:bg-success-600 disabled:opacity-50 flex items-center gap-1">
+                    {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                  </button>
+                </div>
+              ) : (
+                <p className="font-medium text-gray-800 text-lg">{slot.value}</p>
+              )}
             </div>
           ))}
         </div>
