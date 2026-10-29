@@ -8,11 +8,16 @@ const ROLE_REDIRECTS = { doctor: '/doctor', staff: '/staff', admin: '/admin/audi
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ identifier_type: 'username', identifier: '', password: '' });
+  const [form, setForm] = useState({ role: 'patient', identifier_type: 'mobile', identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const setField = (field, value) => setForm(previous => ({ ...previous, [field]: value }));
+  const setField = (field, value) => {
+    setForm(previous => ({ ...previous, [field]: value }));
+    if (field === 'role' && value !== 'patient') {
+      setForm(previous => ({ ...previous, role: value, identifier_type: 'username', identifier: '' }));
+    }
+  };
 
   const submit = async event => {
     event.preventDefault();
@@ -59,22 +64,35 @@ export default function Login() {
 
           <form onSubmit={submit} className="flex flex-col gap-4">
             <label className="block text-sm font-semibold text-gray-700">
-              Login ID Type
-              <select value={form.identifier_type} onChange={e => setField('identifier_type', e.target.value)}
+              Account Type
+              <select value={form.role} onChange={e => setField('role', e.target.value)}
                 className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                <option value="username">Username (Staff/Doctor)</option>
-                <option value="email">Email Address</option>
-                <option value="mobile">Mobile Number</option>
-                <option value="abha">ABHA Number</option>
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+                <option value="staff">Staff</option>
               </select>
             </label>
+
+            {form.role === 'patient' && (
+              <label className="block text-sm font-semibold text-gray-700">
+                Login ID Type
+                <select value={form.identifier_type} onChange={e => setField('identifier_type', e.target.value)}
+                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                  <option value="mobile">Mobile Number</option>
+                  <option value="email">Email Address</option>
+                  <option value="abha">ABHA Number</option>
+                </select>
+              </label>
+            )}
+
             <label className="block text-sm font-semibold text-gray-700">
-              {identifierLabel}
+              {form.role === 'patient' ? identifierLabel : 'Username'}
               <div className="relative mt-1.5">
                 <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input value={form.identifier} onChange={e => setField('identifier', e.target.value)}
                   autoComplete="username" maxLength={254} required
                   type={form.identifier_type === 'email' ? 'email' : 'text'}
+                  placeholder={form.role === 'patient' ? (form.identifier_type === 'abha' ? '14 digits' : form.identifier_type === 'mobile' ? '10 digits' : 'you@example.com') : 'Your full name'}
                   className="w-full border border-gray-200 rounded-lg px-4 py-2.5 pl-10 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white" />
               </div>
             </label>
