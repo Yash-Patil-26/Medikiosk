@@ -20,9 +20,11 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
   const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogoClick = () => {
+    // Only show warning if there's an active kiosk session
     if (kiosk.sessionId) {
       setShowHomeWarning(true);
     } else {
+      // Normal navigation for non-kiosk pages
       navigate('/');
     }
   };
