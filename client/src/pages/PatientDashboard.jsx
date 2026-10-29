@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar } from 'lucide-react';
+import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar, X, Check, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useKiosk } from '../context/KioskContext.jsx';
 import api from '../services/api.js';
@@ -16,7 +16,7 @@ function maskLoginId(value, type) {
 }
 
 export default function PatientDashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { kiosk, update, reset } = useKiosk();
   const navigate = useNavigate();
   const [starting, setStarting] = useState(false);
@@ -24,6 +24,78 @@ export default function PatientDashboard() {
   const [error, setError] = useState('');
   const [encounters, setEncounters] = useState([]);
   const [loadingEncounters, setLoadingEncounters] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    display_name: '',
+    date_of_birth: '',
+    sex: '',
+    preferred_language: '',
+    identifier_type: '',
+    identifier: '',
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
+  });
+  const [editError, setEditError] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  const openEditModal = () => {
+    setEditForm({
+      display_name: user.display_name || '',
+      date_of_birth: user.date_of_birth || '',
+      sex: user.sex || 'prefer_not_to_say',
+      preferred_language: user.preferred_language || 'en',
+      identifier_type: user.login_identifier_type || 'mobile',
+      identifier: user.login_identifier || '',
+      current_password: '',
+      new_password: '',
+      confirm_password: ''
+    });
+    setEditError('');
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditError('');
+  };
+
+  const saveAccountDetails = async (e) => {
+    e.preventDefault();
+    setEditError('');
+    setEditLoading(true);
+
+    try {
+      const updateData = {
+        display_name: editForm.display_name,
+        date_of_birth: editForm.date_of_birth,
+        sex: editForm.sex,
+        preferred_language: editForm.preferred_language,
+        identifier_type: editForm.identifier_type,
+        identifier: editForm.identifier
+      };
+
+      if (editForm.new_password) {
+        if (editForm.new_password !== editForm.confirm_password) {
+          setEditError('New passwords do not match.');
+          setEditLoading(false);
+          return;
+        }
+        updateData.current_password = editForm.current_password;
+        updateData.new_password = editForm.new_password;
+      }
+
+      const response = await api.patch('/patients/me', updateData);
+      updateUser(response.data);
+      closeEditModal();
+    } catch (err) {
+      setEditError(err.response?.data?.error || 'Failed to update account details. Please try again.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
 
   const startSession = async () => {
     setStarting(true);
@@ -309,7 +381,10 @@ export default function PatientDashboard() {
           </div>
 
           <div className="card p-6">
-            <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-4"><User size={24} className="text-gray-600" /></div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center"><User size={24} className="text-gray-600" /></div>
+              <button onClick={openEditModal} className="text-sm font-semibold text-primary-600 hover:text-primary-700">Edit</button>
+            </div>
             <h2 className="text-lg font-bold text-gray-900">Account details</h2>
             <dl className="mt-4 space-y-3 text-sm">
               <div><dt className="text-gray-500">Login ID type</dt><dd className="font-semibold text-gray-800 capitalize">{user.login_identifier_type || 'Username'}</dd></div>
@@ -392,6 +467,168 @@ export default function PatientDashboard() {
 
         <p className="text-xs leading-relaxed text-gray-400">MediKiosk is an academic prototype. Do not use real patient data in demonstrations. Login identifiers are not verified through OTP or the official ABHA/ABDM services.</p>
       </main>
+
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Edit Account Details</h2>
+              <button onClick={closeEditModal} className="text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={saveAccountDetails} className="space-y-4">
+              <label className="block text-sm font-semibold text-gray-700">
+                Full Name
+                <input
+                  value={editForm.display_name}
+                  onChange={e => setEditForm({ ...editForm, display_name: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  required
+                />
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700">
+                Date of Birth
+                <input
+                  type="date"
+                  value={editForm.date_of_birth}
+                  onChange={e => setEditForm({ ...editForm, date_of_birth: e.target.value })}
+                  max={new Date().toISOString().slice(0, 10)}
+                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  required
+                />
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700">
+                Sex
+                <select
+                  value={editForm.sex}
+                  onChange={e => setEditForm({ ...editForm, sex: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700">
+                Preferred Language
+                <select
+                  value={editForm.preferred_language}
+                  onChange={e => setEditForm({ ...editForm, preferred_language: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="mr">Marathi</option>
+                </select>
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700">
+                Login ID Type
+                <select
+                  value={editForm.identifier_type}
+                  onChange={e => setEditForm({ ...editForm, identifier_type: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="mobile">Mobile Number</option>
+                  <option value="email">Email Address</option>
+                  <option value="abha">ABHA Number</option>
+                </select>
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700">
+                {editForm.identifier_type === 'abha' ? 'ABHA Number' : editForm.identifier_type === 'mobile' ? 'Mobile Number' : 'Email Address'}
+                <input
+                  value={editForm.identifier}
+                  onChange={e => setEditForm({ ...editForm, identifier: e.target.value })}
+                  type={editForm.identifier_type === 'email' ? 'email' : 'text'}
+                  inputMode={editForm.identifier_type === 'email' ? 'email' : 'numeric'}
+                  maxLength={editForm.identifier_type === 'abha' ? 14 : editForm.identifier_type === 'mobile' ? 10 : 254}
+                  placeholder={editForm.identifier_type === 'abha' ? '14 digits' : editForm.identifier_type === 'mobile' ? '10 digits' : 'you@example.com'}
+                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  required
+                />
+              </label>
+
+              <div className="border-t border-gray-200 pt-4">
+                <p className="text-sm font-semibold text-gray-700 mb-3">Change Password (Optional)</p>
+                
+                <label className="block text-sm font-semibold text-gray-700">
+                  Current Password
+                  <div className="relative mt-1.5">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={editForm.current_password}
+                      onChange={e => setEditForm({ ...editForm, current_password: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </label>
+
+                <label className="block text-sm font-semibold text-gray-700">
+                  New Password
+                  <div className="relative mt-1.5">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={editForm.new_password}
+                      onChange={e => setEditForm({ ...editForm, new_password: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </label>
+
+                <label className="block text-sm font-semibold text-gray-700">
+                  Confirm New Password
+                  <input
+                    type="password"
+                    value={editForm.confirm_password}
+                    onChange={e => setEditForm({ ...editForm, confirm_password: e.target.value })}
+                    className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                </label>
+              </div>
+
+              {editError && <div role="alert" className="rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-700">{editError}</div>}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editLoading}
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg font-semibold disabled:opacity-50"
+                >
+                  {editLoading ? 'Saving…' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
