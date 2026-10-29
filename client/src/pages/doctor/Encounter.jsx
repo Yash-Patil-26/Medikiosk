@@ -308,10 +308,6 @@ export default function DoctorEncounter() {
               </button>
             </>
           )}
-          <div className="flex items-center gap-2 bg-primary-50 px-4 py-2 rounded-xl border border-primary-200">
-            <Shield size={18} className="text-primary-600" />
-            <span className="text-sm font-bold text-primary-700">{encounter?.token_no}</span>
-          </div>
         </div>
       </header>
 

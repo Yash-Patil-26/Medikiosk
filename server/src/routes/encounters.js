@@ -236,9 +236,11 @@ router.get(
     try {
       const [rows] = await pool.query(
         `SELECT e.id, e.token_no, e.status, e.red_flag_level,
-                e.language, e.created_at, e.summary_draft_json, p.sex
+                e.language, e.created_at, e.summary_draft_json, p.sex,
+                u.display_name, u.login_identifier, u.login_identifier_type
          FROM encounters e
          LEFT JOIN patients p ON p.id = e.patient_id
+         LEFT JOIN users u ON u.id = p.user_id
          ORDER BY e.created_at DESC
          LIMIT 50`
       );

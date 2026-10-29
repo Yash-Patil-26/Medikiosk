@@ -85,14 +85,14 @@ export default function DoctorQueue() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  {['Token', 'Complaint', 'Red Flag', 'Status', 'Time', 'Action'].map(h => (
+                  {['Patient Name', 'Mobile Number', 'Token', 'Complaint', 'Red Flag', 'Status', 'Time'].map(h => (
                     <th key={h} className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {encounters.length === 0 && (
-                  <tr><td colSpan={6} className="px-6 py-16 text-center">
+                  <tr><td colSpan={7} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
                         <Activity size={32} className="text-gray-300" />
@@ -103,19 +103,18 @@ export default function DoctorQueue() {
                   </td></tr>
                 )}
                 {encounters.map(enc => (
-                  <tr key={enc.id} className={`hover:bg-gray-50 transition-colors ${enc.red_flag_level === 'critical' ? 'bg-error-50' : enc.red_flag_level === 'warning' ? 'bg-warning-50' : ''}`}>
+                  <tr key={enc.id} className={`hover:bg-gray-50 transition-colors cursor-pointer ${enc.red_flag_level === 'critical' ? 'bg-error-50' : enc.red_flag_level === 'warning' ? 'bg-warning-50' : ''}`}
+                    onClick={() => navigate(`/doctor/encounter/${enc.id}`)}>
+                    <td className="px-6 py-4 font-medium text-gray-800">{enc.display_name || 'Anonymous'}</td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {enc.login_identifier_type === 'mobile' ? enc.login_identifier : '—'}
+                    </td>
                     <td className="px-6 py-4 font-bold text-gray-800">{enc.token_no}</td>
                     <td className="px-6 py-4 text-gray-700">{getChiefComplaint(enc)}</td>
                     <td className="px-6 py-4"><FlagBadge level={enc.red_flag_level} /></td>
                     <td className="px-6 py-4"><StatusBadge status={enc.status} /></td>
                     <td className="px-6 py-4 text-gray-500 text-sm flex items-center gap-1">
                       <Clock size={12} /> {new Date(enc.created_at).toLocaleTimeString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <button onClick={() => navigate(`/doctor/encounter/${enc.id}`)}
-                        className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg text-sm font-medium hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all">
-                        Review
-                      </button>
                     </td>
                   </tr>
                 ))}
