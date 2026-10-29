@@ -8,7 +8,7 @@ const router = Router();
 router.get(
   '/alerts',
   authenticate,
-  requireRole('triage', 'doctor', 'admin'),
+  requireRole('staff', 'doctor', 'admin'),
   async (req, res, next) => {
     try {
       const [rows] = await pool.query(
@@ -44,7 +44,7 @@ router.get(
 router.post(
   '/alerts/:id/acknowledge',
   authenticate,
-  requireRole('triage', 'doctor'),
+  requireRole('staff', 'doctor'),
   async (req, res, next) => {
     const alertId = Number(req.params.id);
 

@@ -14,7 +14,7 @@ import KioskDone from './pages/kiosk/Done.jsx';
 
 import DoctorQueue from './pages/doctor/Queue.jsx';
 import DoctorEncounter from './pages/doctor/Encounter.jsx';
-import Triage from './pages/Triage.jsx';
+import Staff from './pages/Staff.jsx';
 import HIS from './pages/HIS.jsx';
 import AuditLogs from './pages/admin/AuditLogs.jsx';
 import PurgeProof from './pages/admin/PurgeProof.jsx';
@@ -77,7 +77,7 @@ function AppRoutes() {
 
       <Route path="/doctor" element={<ProtectedRoute roles={['doctor']}><DoctorQueue /></ProtectedRoute>} />
       <Route path="/doctor/encounter/:id" element={<ProtectedRoute roles={['doctor']}><DoctorEncounter /></ProtectedRoute>} />
-      <Route path="/triage" element={<ProtectedRoute roles={['triage', 'doctor']}><Triage /></ProtectedRoute>} />
+      <Route path="/staff" element={<ProtectedRoute roles={['staff', 'doctor']}><Staff /></ProtectedRoute>} />
       <Route path="/his" element={<ProtectedRoute roles={['doctor', 'admin']}><HIS /></ProtectedRoute>} />
       <Route path="/admin/audit" element={<ProtectedRoute roles={['admin']}><AuditLogs /></ProtectedRoute>} />
       <Route path="/admin/purge-proof" element={<ProtectedRoute roles={['admin', 'doctor']}><PurgeProof /></ProtectedRoute>} />

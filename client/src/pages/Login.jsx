@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Activity, Lock, User, ArrowLeft } from 'lucide-react';
 
-const ROLE_REDIRECTS = { doctor: '/doctor', triage: '/triage', admin: '/admin/audit' };
+const ROLE_REDIRECTS = { doctor: '/doctor', staff: '/staff', admin: '/admin/audit' };
 
 export default function Login() {
   const { login } = useAuth();

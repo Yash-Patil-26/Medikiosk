@@ -51,7 +51,7 @@
   "fhir_download": "Download FHIR JSON",
   "his_title": "Mock Hospital Information System",
   "audit_title": "Audit Logs",
-  "triage_title": "Triage Dashboard",
+  "triage_title": "Staff Dashboard",
   "acknowledge": "Acknowledge",
   "open_encounter": "Open Encounter",
   "red_flag_alerts": "Red Flag Alerts",

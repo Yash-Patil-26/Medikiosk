@@ -51,7 +51,7 @@
   "fhir_download": "FHIR JSON डाउनलोड करें",
   "his_title": "मॉक अस्पताल सूचना प्रणाली",
   "audit_title": "ऑडिट लॉग",
-  "triage_title": "ट्राइएज डैशबोर्ड",
+  "triage_title": "स्टाफ़ डैशबोर्ड",
   "acknowledge": "स्वीकार करें",
   "open_encounter": "एनकाउंटर खोलें",
   "red_flag_alerts": "रेड फ्लैग अलर्ट",

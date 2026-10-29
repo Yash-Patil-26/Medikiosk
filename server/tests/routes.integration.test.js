@@ -290,17 +290,17 @@ test(
         `INSERT INTO patients (sex, preferred_language)
          VALUES ('prefer_not_to_say', 'en')`
       );
-      const triagePatientId = Number(testPatient.insertId);
-      patientIds.push(triagePatientId);
+      const staffPatientId = Number(testPatient.insertId);
+      patientIds.push(staffPatientId);
       assert.ok(
-        Number.isSafeInteger(triagePatientId) && triagePatientId > 0,
+        Number.isSafeInteger(staffPatientId) && staffPatientId > 0,
         'A dedicated synthetic test patient must be created'
       );
-      const noConsentSession = await seedSession(false, triagePatientId);
+      const noConsentSession = await seedSession(false, staffPatientId);
 
       const mismatch = await createEncounter(
         noConsentSession,
-        triagePatientId + 1000000
+        staffPatientId + 1000000
       );
       assert.equal(mismatch.status, 403);
 
@@ -477,7 +477,7 @@ test(
       // Signing without sharing consent must not write to mock HIS.
       const deniedCreate = await createEncounter(
         noConsentSession,
-        triagePatientId
+        staffPatientId
       );
       assert.equal(
         deniedCreate.status, 201,
@@ -500,7 +500,7 @@ test(
       assert.equal(await hisCount(deniedId), 0);
 
       // A later revocation must override an earlier grant.
-      const revokedSession = await seedSession(true, triagePatientId);
+      const revokedSession = await seedSession(true, staffPatientId);
 
       const [initialGrantRows] = await pool.query(
         `SELECT id FROM consents
@@ -522,7 +522,7 @@ test(
 
       const revokedCreate = await createEncounter(
         revokedSession,
-        triagePatientId
+        staffPatientId
       );
       assert.equal(
         revokedCreate.status,
@@ -551,10 +551,10 @@ test(
       assert.equal(latestRevocation[0].action, 'revoke');
 
       // With consent, sign-off should create exactly one mock receipt.
-      const consentSession = await seedSession(true, triagePatientId);
+      const consentSession = await seedSession(true, staffPatientId);
       const allowedCreate = await createEncounter(
         consentSession,
-        triagePatientId
+        staffPatientId
       );
       assert.equal(
         allowedCreate.status, 201,
@@ -576,7 +576,7 @@ test(
       );
       redFlagIds.push(Number(alertInsert.insertId));
 
-      const alertList = await api.get('/api/triage/alerts')
+      const alertList = await api.get('/api/staff/alerts')
         .set('Authorization', auth);
       assert.equal(
         alertList.status,
@@ -596,7 +596,7 @@ test(
       assert.equal(Number(linkedAlertRows[0].encounter_id), deniedId);
 
       const acknowledge = await api.post(
-        `/api/triage/alerts/${alertInsert.insertId}/acknowledge`
+        `/api/staff/alerts/${alertInsert.insertId}/acknowledge`
       ).set('Authorization', auth).send({});
       assert.equal(
         acknowledge.status,
@@ -605,7 +605,7 @@ test(
       );
 
       const acknowledgeAgain = await api.post(
-        `/api/triage/alerts/${alertInsert.insertId}/acknowledge`
+        `/api/staff/alerts/${alertInsert.insertId}/acknowledge`
       ).set('Authorization', auth).send({});
       assert.equal(acknowledgeAgain.status, 409);
 

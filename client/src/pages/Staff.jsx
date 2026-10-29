@@ -48,7 +48,7 @@ function AlertCard({ alert, onAck }) {
   );
 }
 
-export default function Triage() {
+export default function Staff() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [alerts, setAlerts] = useState([]);
@@ -56,7 +56,7 @@ export default function Triage() {
   const intervalRef = useRef(null);
 
   const fetchAlerts = () => {
-    api.get('/triage/alerts').then(r => setAlerts(r.data)).catch(() => {});
+    api.get('/staff/alerts').then(r => setAlerts(r.data)).catch(() => {});
   };
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function Triage() {
     setActionError('');
 
     try {
-      await api.post(`/triage/alerts/${id}/acknowledge`);
+      await api.post(`/staff/alerts/${id}/acknowledge`);
     } catch (error) {
       setActionError(
         error.response?.data?.error || 'Could not acknowledge the alert. Please retry.'
@@ -90,7 +90,7 @@ export default function Triage() {
           </div>
           <div>
             <span className="font-bold text-gray-800 text-lg leading-tight">MediKiosk</span>
-            <span className="text-xs text-gray-500 font-medium block">Triage Console</span>
+            <span className="text-xs text-gray-500 font-medium block">Staff Console</span>
           </div>
         </div>
         <div className="flex items-center gap-4">

@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity, Mic, FileText, ClipboardList, Shield, Database, Bell, FileJson, Building2, Trash2, BookOpen, ArrowRight, CheckCircle, Users } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Landing() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   const HOW_IT_WORKS = [
     { n: 1, title: t('step_identify'), desc: t('step_identify_desc') },
@@ -78,9 +80,15 @@ export default function Landing() {
               Create Patient Account
               <ArrowRight size={20} />
             </button>
-            <button onClick={() => navigate('/login')}
+            <button onClick={() => {
+              if (user && user.role === 'patient') {
+                navigate('/me');
+              } else {
+                navigate('/login', { state: { loginType: 'patient' } });
+              }
+            }}
               className="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 hover:border-primary-300 hover:text-primary-600 rounded-2xl text-lg font-bold transition-all shadow-sm hover:shadow-md">
-              {t('staff_login')}
+              Patient Login
             </button>
           </div>
         </div>

@@ -102,13 +102,28 @@ async function getPublicUser(userId, executor = pool) {
 }
 
 router.post('/register', async (req, res, next) => {
-  const validation = validatePatientRegistration(req.body || {});
-  if (!validation.valid) {
-    return res.status(400).json({ error: validation.error, ...(validation.fields ? { fields: validation.fields } : {}) });
+  const body = req.body || {};
+  const role = body.role || 'patient';
+  
+  // Validate based on role
+  if (role === 'patient') {
+    const validation = validatePatientRegistration(body);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error, ...(validation.fields ? { fields: validation.fields } : {}) });
+    }
+  } else if (role === 'doctor' || role === 'staff') {
+    // Basic validation for doctor/staff
+    if (!body.display_name || !body.display_name.trim()) {
+      return res.status(400).json({ error: 'Display name is required.' });
+    }
+    if (!body.password || body.password.length < 10) {
+      return res.status(400).json({ error: 'Password must be at least 10 characters.' });
+    }
+  } else {
+    return res.status(400).json({ error: 'Invalid role. Allowed roles: patient, doctor, staff' });
   }
 
-  const registration = validation.value;
-  const internalUsername = `patient_${randomUUID().replace(/-/g, '').slice(0, 24)}`;
+  const registration = role === 'patient' ? validatePatientRegistration(body).value : body;
   let passwordHash;
   let connection;
   let transactionOpen = false;
@@ -119,47 +134,82 @@ router.post('/register', async (req, res, next) => {
     await connection.beginTransaction();
     transactionOpen = true;
 
-    const [duplicateRows] = await connection.query(
-      `SELECT id FROM users
-       WHERE login_identifier_type = ? AND login_identifier = ?
-       LIMIT 1 FOR UPDATE`,
-      [registration.identifier_type, registration.identifier]
-    );
-    if (duplicateRows.length) {
-      await connection.rollback();
-      transactionOpen = false;
-      return res.status(409).json({ error: 'An account already uses this login ID. Sign in instead or use another ID.' });
+    let userId;
+    let patientId = null;
+
+    if (role === 'patient') {
+      const internalUsername = `patient_${randomUUID().replace(/-/g, '').slice(0, 24)}`;
+      
+      const [duplicateRows] = await connection.query(
+        `SELECT id FROM users
+         WHERE login_identifier_type = ? AND login_identifier = ?
+         LIMIT 1 FOR UPDATE`,
+        [registration.identifier_type, registration.identifier]
+      );
+      if (duplicateRows.length) {
+        await connection.rollback();
+        transactionOpen = false;
+        return res.status(409).json({ error: 'An account already uses this login ID. Sign in instead or use another ID.' });
+      }
+
+      const [userResult] = await connection.query(
+        `INSERT INTO users
+         (role, username, login_identifier_type, login_identifier,
+          password_hash, display_name)
+         VALUES ('patient', ?, ?, ?, ?, ?)`,
+        [
+          internalUsername,
+          registration.identifier_type,
+          registration.identifier,
+          passwordHash,
+          registration.display_name
+        ]
+      );
+      userId = Number(userResult.insertId);
+
+      const [patientResult] = await connection.query(
+        `INSERT INTO patients
+         (sex, preferred_language, user_id, date_of_birth)
+         VALUES (?, ?, ?, ?)`,
+        [registration.sex, registration.preferred_language, userId, registration.date_of_birth]
+      );
+      patientId = Number(patientResult.insertId);
+
+      await connection.query(
+        `INSERT INTO audit_logs
+         (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
+         VALUES ('patient', ?, 'PATIENT_REGISTERED', 'patient', ?, ?)`,
+        [userId, String(patientId), JSON.stringify({ identifier_type: registration.identifier_type })]
+      );
+    } else {
+      // Doctor or Staff - use display_name as username
+      const username = registration.display_name.trim().toLowerCase().replace(/\s+/g, '_');
+      
+      const [duplicateRows] = await connection.query(
+        `SELECT id FROM users WHERE username = ? LIMIT 1 FOR UPDATE`,
+        [username]
+      );
+      if (duplicateRows.length) {
+        await connection.rollback();
+        transactionOpen = false;
+        return res.status(409).json({ error: 'An account with this name already exists. Please use a different name.' });
+      }
+
+      const [userResult] = await connection.query(
+        `INSERT INTO users
+         (role, username, password_hash, display_name)
+         VALUES (?, ?, ?, ?)`,
+        [role, username, passwordHash, registration.display_name]
+      );
+      userId = Number(userResult.insertId);
+
+      await connection.query(
+        `INSERT INTO audit_logs
+         (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
+         VALUES (?, ?, 'STAFF_REGISTERED', 'user', ?, ?)`,
+        [role, userId, String(userId), JSON.stringify({ display_name: registration.display_name })]
+      );
     }
-
-    const [userResult] = await connection.query(
-      `INSERT INTO users
-       (role, username, login_identifier_type, login_identifier,
-        password_hash, display_name)
-       VALUES ('patient', ?, ?, ?, ?, ?)`,
-      [
-        internalUsername,
-        registration.identifier_type,
-        registration.identifier,
-        passwordHash,
-        registration.display_name
-      ]
-    );
-    const userId = Number(userResult.insertId);
-
-    const [patientResult] = await connection.query(
-      `INSERT INTO patients
-       (sex, preferred_language, user_id, date_of_birth)
-       VALUES (?, ?, ?, ?)`,
-      [registration.sex, registration.preferred_language, userId, registration.date_of_birth]
-    );
-    const patientId = Number(patientResult.insertId);
-
-    await connection.query(
-      `INSERT INTO audit_logs
-       (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
-       VALUES ('patient', ?, 'PATIENT_REGISTERED', 'patient', ?, ?)`,
-      [userId, String(patientId), JSON.stringify({ identifier_type: registration.identifier_type })]
-    );
 
     await connection.commit();
     transactionOpen = false;
@@ -172,7 +222,7 @@ router.post('/register', async (req, res, next) => {
       try { await connection.rollback(); } catch { /* Preserve original error. */ }
     }
     if (err?.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ error: 'An account already uses this login ID. Sign in instead or use another ID.' });
+      return res.status(409).json({ error: 'An account already exists with these details. Please sign in instead.' });
     }
     return next(err);
   } finally {
