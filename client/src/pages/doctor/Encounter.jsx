@@ -151,12 +151,14 @@ export default function DoctorEncounter() {
 
           <div class="section">
             <h2>History of Present Illness</h2>
-            ${hpiFields.map(field => `
+            ${hpiFields.map(field => {
+              const fieldValue = getFieldValue(`historyOfPresentIllness.${field.key}`);
+              return `
               <div class="field">
                 <span class="field-label">${field.label}:</span>
-                <span class="field-value">${getFieldValue(\`historyOfPresentIllness.\${field.key}\`)}</span>
+                <span class="field-value">${fieldValue}</span>
               </div>
-            `).join('')}
+            `}).join('')}
           </div>
 
           <div class="section">
