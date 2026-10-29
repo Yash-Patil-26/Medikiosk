@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity, Mic, FileText, ClipboardList, Shield, Database, Bell, FileJson, Building2, Trash2, BookOpen, ArrowRight, CheckCircle, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import UniversalHeader from '../components/UniversalHeader.jsx';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -40,22 +41,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-            <Activity size={20} className="text-white" />
-          </div>
-          <div>
-            <span className="font-bold text-gray-800 text-lg leading-tight">MediKiosk</span>
-            <span className="text-xs text-gray-500 font-medium block">Clinical Intake System</span>
-          </div>
-        </div>
-        <button onClick={() => navigate('/login')}
-          className="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 shadow-md transition-all flex items-center gap-2">
-          {t('staff_login')}
-          <ArrowRight size={16} />
-        </button>
-      </header>
+      <UniversalHeader />
 
       {/* Hero */}
       <section className="flex flex-col items-center justify-center text-center px-6 py-24 relative overflow-hidden">

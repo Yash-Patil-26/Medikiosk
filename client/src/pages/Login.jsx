@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Activity, Lock, User, ArrowLeft } from 'lucide-react';
+import { Lock, User } from 'lucide-react';
+import UniversalHeader from '../components/UniversalHeader.jsx';
 
 const ROLE_REDIRECTS = { doctor: '/doctor', staff: '/staff', admin: '/admin/audit' };
 
@@ -47,18 +48,13 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
+      <UniversalHeader />
       <div className="flex-1 flex items-center justify-center p-5">
         <main className="card w-full max-w-md p-7 sm:p-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 text-sm font-medium">
-            <ArrowLeft size={16} /> Back
-          </Link>
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-              <Activity size={24} className="text-white" />
-            </div>
             <div>
-              <span className="text-2xl font-bold text-gray-800">MediKiosk</span>
-              <span className="text-sm text-gray-500 block">Sign In</span>
+              <span className="text-2xl font-bold text-gray-800">Sign In</span>
+              <span className="text-sm text-gray-500 block">to your account</span>
             </div>
           </div>
 

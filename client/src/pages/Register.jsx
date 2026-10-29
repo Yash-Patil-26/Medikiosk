@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Activity, ArrowLeft, UserPlus, Check, X } from 'lucide-react';
+import { UserPlus, Check, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import UniversalHeader from '../components/UniversalHeader.jsx';
 
 const EMPTY_FORM = {
   role: 'patient',
@@ -116,14 +117,9 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 px-4 py-10 flex items-center justify-center">
-      <main className="card w-full max-w-md p-6 sm:p-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6">
-          <ArrowLeft size={16} /> Back
-        </Link>
+      <UniversalHeader />
+      <main className="card w-full max-w-md p-6 sm:p-8 mt-20">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-            <Activity size={24} className="text-white" />
-          </div>
           <div>
             <div className="text-2xl font-bold text-gray-900">Create Account</div>
           </div>
