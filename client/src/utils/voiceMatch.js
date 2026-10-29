@@ -122,6 +122,35 @@ export function resolveVoiceAnswer(node, transcript) {
   if (!transcript || !transcript.trim()) return null;
 
   if (node.inputType === 'choice') {
+    // Special handling for onset time questions (when did this start)
+    if (node.slotId === 'onset_type' || node.id === 'general_onset') {
+      const lower = transcript.toLowerCase();
+      
+      // Match "today"
+      if (/\btoday\b/.test(lower)) {
+        const option = (node.options || []).find(o => o.value === 'today');
+        if (option) return { value: option.value, label: option.label };
+      }
+      
+      // Match "yesterday"
+      if (/\byesterday\b/.test(lower)) {
+        const option = (node.options || []).find(o => o.value === 'yesterday');
+        if (option) return { value: option.value, label: option.label };
+      }
+      
+      // Match "2-3 days ago" or similar
+      if (/\b(?:two|2|three|3)\s*(?:to|and|-)?\s*(?:two|2|three|3)?\s*days?\s*ago\b/.test(lower)) {
+        const option = (node.options || []).find(o => o.value === '2_3_days');
+        if (option) return { value: option.value, label: option.label };
+      }
+      
+      // Match "more than a week" or similar
+      if (/\b(?:more\s+than|over|a\s*week|weeks?\s*ago)\b/.test(lower)) {
+        const option = (node.options || []).find(o => o.value === 'week_plus');
+        if (option) return { value: option.value, label: option.label };
+      }
+    }
+    
     const match = bestOptionMatch(transcript, node.options || []);
     return match ? { value: match.value, label: match.label } : null;
   }

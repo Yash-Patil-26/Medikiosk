@@ -83,16 +83,16 @@ export default function Complaint() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4 w-full mb-6" role="listbox" aria-label="Select your complaint">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 w-full mb-6" role="listbox" aria-label="Select your complaint">
           {COMPLAINTS.map(c => (
             <button key={c.value} onClick={() => select(c.value, c.label)} disabled={loading}
-              className="card card-hover flex flex-col items-center gap-3 p-6 text-center transition-all touch-target-lg group disabled:opacity-50"
+              className="card card-hover flex flex-col items-center gap-2 p-4 text-center transition-all touch-target group disabled:opacity-50"
               role="option" aria-label={`${c.label}: ${c.desc}`}>
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <c.icon size={32} className={c.color} aria-hidden="true" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <c.icon size={24} className={c.color} aria-hidden="true" />
               </div>
-              <p className="font-bold text-gray-800">{c.label}</p>
-              <p className="text-sm text-gray-500">{c.desc}</p>
+              <p className="font-bold text-gray-800 text-sm">{c.label}</p>
+              <p className="text-xs text-gray-500 line-clamp-2">{c.desc}</p>
             </button>
           ))}
         </div>

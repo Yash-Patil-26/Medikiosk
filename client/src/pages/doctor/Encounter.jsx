@@ -282,28 +282,28 @@ export default function DoctorEncounter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-3 py-2 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-2">
           <button onClick={() => navigate('/doctor')} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
             <ArrowLeft size={22} className="text-gray-600" />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-              <Activity size={20} className="text-white" />
+              <Activity size={18} className="text-white" />
             </div>
             <div>
-              <span className="font-bold text-gray-800 text-lg leading-tight">MediKiosk</span>
+              <span className="font-bold text-gray-800 text-base leading-tight">MediKiosk</span>
               <span className="text-xs text-gray-500 font-medium block">Encounter Review</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {signed && (
             <>
-              <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
+              <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
                 <Download size={16} /> Download Summary
               </button>
-              <button onClick={downloadFhir} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
+              <button onClick={downloadFhir} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
                 <Download size={16} /> Download FHIR
               </button>
             </>
@@ -311,34 +311,34 @@ export default function DoctorEncounter() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <main className="flex-1 p-3 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
           {/* Left: Patient info */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="card p-6">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center shadow-lg">
-                  <User size={32} className="text-primary-600" />
+          <div className="lg:col-span-1 space-y-4">
+            <div className="card p-3">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-12 h-10 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                  <User size={20} className="text-primary-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Anonymous</h2>
-                  <p className="text-sm text-gray-500 mt-1">ID: {encounter?.patient_id || '—'}</p>
+                  <h2 className="text-base font-bold text-gray-900">Anonymous</h2>
+                  <p className="text-xs text-gray-500">ID: {encounter?.patient_id || '—'}</p>
                 </div>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm">
                   <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-600">Time</span>
+                    <Clock size={14} className="text-gray-400" />
+                    <span className="text-gray-600">Time</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-800">{new Date(encounter?.created_at).toLocaleString()}</span>
+                  <span className="font-medium text-gray-800">{new Date(encounter?.created_at).toLocaleTimeString()}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm">
                   <div className="flex items-center gap-2">
-                    <FileText size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-600">Language</span>
+                    <FileText size={14} className="text-gray-400" />
+                    <span className="text-gray-600">Language</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-800 capitalize">{encounter?.language || 'en'}</span>
+                  <span className="font-medium text-gray-800 capitalize">{encounter?.language || 'en'}</span>
                 </div>
               </div>
             </div>
@@ -349,16 +349,16 @@ export default function DoctorEncounter() {
           </div>
 
           {/* Center: Summary Table */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-4">
             {error && (
-              <div className="bg-error-50 border border-error-200 rounded-xl p-4 text-sm text-error-700 flex items-center gap-2">
+              <div className="bg-error-50 border border-error-200 rounded-xl p-3 text-sm text-error-700 flex items-center gap-2">
                 <AlertTriangle size={16} />
                 {error}
               </div>
             )}
             {!signed && (
-              <div className="bg-warning-50 border border-warning-200 rounded-xl p-4 text-sm text-warning-800 flex items-center gap-3">
-                <AlertTriangle size={20} />
+              <div className="bg-warning-50 border border-warning-200 rounded-xl p-3 text-sm text-warning-800 flex items-center gap-2">
+                <AlertTriangle size={18} />
                 <div>
                   <p className="font-semibold">This summary is a draft and requires physician verification.</p>
                   <p className="text-xs mt-1">Review all sections below and sign to finalize the encounter.</p>
@@ -368,30 +368,30 @@ export default function DoctorEncounter() {
 
             {summary && (
               <div className="card overflow-hidden">
-                <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200">
-                  <h3 className="font-bold text-gray-900 text-lg">Patient Summary</h3>
+                <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-3 py-2 border-b border-primary-200">
+                  <h3 className="font-bold text-gray-900">Patient Summary</h3>
                 </div>
                 
                 <div className="divide-y divide-gray-100">
                   {/* Chief Complaint */}
-                  <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Activity size={18} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-40">Chief Complaint</span>
+                      <div className="flex items-center gap-2">
+                        <Activity size={16} className="text-primary-500" />
+                        <span className="font-semibold text-gray-700 text-sm w-32">Chief Complaint</span>
                       </div>
-                      <div className="flex-1 flex items-center justify-between gap-4">
+                      <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'chiefComplaint' ? (
                           <div className="flex-1 flex items-center gap-2">
                             <input
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
-                              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                              className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
                             />
-                            <button onClick={saveEdit} className="p-2 bg-success-500 text-white rounded-lg hover:bg-success-600">
-                              <CheckCircle size={16} />
+                            <button onClick={saveEdit} className="p-1 bg-success-500 text-white rounded hover:bg-success-600">
+                              <CheckCircle size={14} />
                             </button>
-                            <button onClick={cancelEdit} className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300">
+                            <button onClick={cancelEdit} className="p-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300">
                               <X size={16} />
                             </button>
                           </div>
@@ -411,12 +411,12 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* History of Present Illness */}
-                  <div className="p-4 bg-gray-50/50">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Stethoscope size={18} className="text-primary-500" />
+                  <div className="p-3 bg-gray-50/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Stethoscope size={16} className="text-primary-500" />
                       <span className="font-semibold text-gray-700">History of Present Illness</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {hpiFields.map(field => (
                         <div key={field.key} className="flex items-center justify-between">
                           <span className="text-sm text-gray-500">{field.label}</span>
@@ -451,13 +451,13 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Past Medical History */}
-                  <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Stethoscope size={18} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-40">Past Medical History</span>
+                      <div className="flex items-center gap-2">
+                        <Stethoscope size={16} className="text-primary-500" />
+                        <span className="font-semibold text-gray-700 w-28">Past Medical History</span>
                       </div>
-                      <div className="flex-1 flex items-center justify-between gap-4">
+                      <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'pastMedicalHistory' ? (
                           <div className="flex-1 flex items-center gap-2">
                             <input
@@ -488,13 +488,13 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Past Surgical History */}
-                  <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <FileCheck size={18} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-40">Past Surgical History</span>
+                      <div className="flex items-center gap-2">
+                        <FileCheck size={16} className="text-primary-500" />
+                        <span className="font-semibold text-gray-700 w-28">Past Surgical History</span>
                       </div>
-                      <div className="flex-1 flex items-center justify-between gap-4">
+                      <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'pastSurgicalHistory' ? (
                           <div className="flex-1 flex items-center gap-2">
                             <input
@@ -525,13 +525,13 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Drug History */}
-                  <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Pill size={18} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-40">Drug History</span>
+                      <div className="flex items-center gap-2">
+                        <Pill size={16} className="text-primary-500" />
+                        <span className="font-semibold text-gray-700 w-28">Drug History</span>
                       </div>
-                      <div className="flex-1 flex items-center justify-between gap-4">
+                      <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'drugHistory' ? (
                           <div className="flex-1 flex items-center gap-2">
                             <input
@@ -562,13 +562,13 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Allergy History */}
-                  <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <AlertCircle size={18} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-40">Allergy History</span>
+                      <div className="flex items-center gap-2">
+                        <AlertCircle size={16} className="text-primary-500" />
+                        <span className="font-semibold text-gray-700 w-28">Allergy History</span>
                       </div>
-                      <div className="flex-1 flex items-center justify-between gap-4">
+                      <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'allergyHistory' ? (
                           <div className="flex-1 flex items-center gap-2">
                             <input
@@ -599,13 +599,13 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Family History */}
-                  <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Heart size={18} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-40">Family History</span>
+                      <div className="flex items-center gap-2">
+                        <Heart size={16} className="text-primary-500" />
+                        <span className="font-semibold text-gray-700 w-28">Family History</span>
                       </div>
-                      <div className="flex-1 flex items-center justify-between gap-4">
+                      <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'familyHistory' ? (
                           <div className="flex-1 flex items-center gap-2">
                             <input
@@ -641,18 +641,18 @@ export default function DoctorEncounter() {
             {/* Document Findings */}
             {summary?.documentFindings?.length > 0 ? (
               <div className="card overflow-hidden">
-                <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200">
-                  <div className="flex items-center gap-3">
-                    <FileCheck size={20} className="text-primary-600" />
-                    <h3 className="font-bold text-gray-900 text-lg">Document Findings</h3>
+                <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-3 py-2 border-b border-primary-200">
+                  <div className="flex items-center gap-2">
+                    <FileCheck size={18} className="text-primary-600" />
+                    <h3 className="font-bold text-gray-900 text-base">Document Findings</h3>
                   </div>
                 </div>
                 <div className="divide-y divide-gray-100">
                   {summary.documentFindings.map((doc, i) => (
-                    <div key={i} className="p-4">
+                    <div key={i} className="p-3">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
-                          <FileText size={18} className="text-primary-500" />
+                          <FileText size={16} className="text-primary-500" />
                           <p className="font-semibold text-gray-800">{doc.docType}</p>
                         </div>
                         {doc.verifiedByPatient ? (
@@ -728,23 +728,23 @@ export default function DoctorEncounter() {
                 </div>
               </div>
             ) : (
-              <div className="card p-6 text-center">
+              <div className="card p-4 text-center">
                 <FileText size={48} className="text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-400">No documents uploaded</p>
               </div>
             )}
 
             {/* Doctor Notes */}
-            <div className="card p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <FileText size={20} className="text-primary-600" />
-                <h3 className="font-bold text-gray-900 text-lg">Doctor Notes</h3>
+            <div className="card p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText size={18} className="text-primary-600" />
+                <h3 className="font-bold text-gray-900 text-base">Doctor Notes</h3>
               </div>
               <textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 disabled={signed}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white resize-none"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white resize-none"
                 rows={4}
                 placeholder="Add your clinical notes here..."
               />
@@ -752,18 +752,18 @@ export default function DoctorEncounter() {
 
             {!signed ? (
               <button onClick={sign} disabled={signing}
-                className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-4 rounded-2xl font-bold text-lg disabled:opacity-50 shadow-lg shadow-primary-200 transition-all hover:shadow-xl flex items-center justify-center gap-3">
+                className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-2 rounded-2xl font-bold text-base disabled:opacity-50 shadow-lg shadow-primary-200 transition-all hover:shadow-xl flex items-center justify-center gap-2">
                 {signing ? 'Signing...' : 'Sign & Complete Encounter'}
-                <CheckCircle size={24} />
+                <CheckCircle size={20} />
               </button>
             ) : (
-              <div className="card p-6 bg-gradient-to-br from-success-50 to-success-100 border-success-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center shadow-lg">
-                    <CheckCircle size={32} className="text-success-600" />
+              <div className="card p-4 bg-gradient-to-br from-success-50 to-success-100 border-success-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-16 h-10 rounded-2xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center shadow-lg">
+                    <CheckCircle size={24} className="text-success-600" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-success-800 text-xl">Encounter Signed</h3>
+                    <h3 className="font-bold text-success-800 text-lg">Encounter Signed</h3>
                     <p className="text-sm text-success-700 mt-1">FHIR bundle generated successfully and ready for download</p>
                   </div>
                 </div>
