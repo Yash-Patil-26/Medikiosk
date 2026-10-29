@@ -83,7 +83,33 @@ export default function PatientDashboard() {
       const r = await api.get(`/encounters/${encounterId}/summary`);
       const encounter = r.data;
       const summary = encounter.summary_draft_json || encounter.summary_final_json || {};
-      
+      const docs = encounter.documents || [];
+      const flags = Array.isArray(encounter.red_flag_reasons)
+        ? encounter.red_flag_reasons
+        : (encounter.red_flag_reasons ? JSON.parse(encounter.red_flag_reasons) : []);
+
+      const hpiFields = [
+        { key: 'site', label: 'Location' },
+        { key: 'onset', label: 'Onset' },
+        { key: 'character', label: 'Character' },
+        { key: 'radiation', label: 'Radiation' },
+        { key: 'severity', label: 'Severity' },
+        { key: 'duration', label: 'Duration' },
+        { key: 'breathingDifficulty', label: 'Breathing Difficulty' }
+      ];
+
+      const getFieldValue = (path) => {
+        const parts = path.split('.');
+        let value = summary;
+        for (const part of parts) {
+          value = value?.[part];
+        }
+        if (typeof value === 'object' && value !== null) {
+          return value?.text || JSON.stringify(value);
+        }
+        return value || '—';
+      };
+
       const summaryContent = `
         <html>
           <head>
@@ -99,6 +125,11 @@ export default function PatientDashboard() {
               .field-label { font-weight: bold; color: #555; }
               .field-value { margin-left: 10px; }
               .footer { border-top: 2px solid #333; padding-top: 20px; margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+              table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background: #f5f5f5; }
+              .flag-warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 10px 0; }
+              .flag-critical { background: #f8d7da; border-left: 4px solid #dc3545; padding: 10px; margin: 10px 0; }
             </style>
           </head>
           <body>
@@ -109,11 +140,18 @@ export default function PatientDashboard() {
               <p>Status: ${encounter.status?.toUpperCase()}</p>
             </div>
 
+            ${encounter.red_flag_level && encounter.red_flag_level !== 'none' ? `
+              <div class="${encounter.red_flag_level === 'critical' ? 'flag-critical' : 'flag-warning'}">
+                <strong>⚠️ RED FLAG: ${encounter.red_flag_level?.toUpperCase()}</strong>
+                <p>${flags.join(', ')}</p>
+              </div>
+            ` : ''}
+
             <div class="section">
               <h2>Patient Summary</h2>
               <div class="field">
                 <span class="field-label">Chief Complaint:</span>
-                <span class="field-value">${summary.chiefComplaint?.text || 'Not specified'}</span>
+                <span class="field-value">${getFieldValue('chiefComplaint')}</span>
               </div>
               <div class="field">
                 <span class="field-label">Language:</span>
@@ -123,53 +161,87 @@ export default function PatientDashboard() {
 
             <div class="section">
               <h2>History of Present Illness</h2>
-              ${summary.historyOfPresentIllness ? Object.entries(summary.historyOfPresentIllness).filter(([k,v]) => v && k !== 'source' && k !== 'confirmedBy').map(([key, value]) => `
+              ${hpiFields.map(field => `
                 <div class="field">
-                  <span class="field-label">${key}:</span>
-                  <span class="field-value">${value}</span>
+                  <span class="field-label">${field.label}:</span>
+                  <span class="field-value">${getFieldValue(\`historyOfPresentIllness.\${field.key}\`)}</span>
                 </div>
-              `).join('') : '<p>No information recorded</p>'}
+              `).join('')}
             </div>
 
             <div class="section">
               <h2>Past Medical History</h2>
               <div class="field">
-                <span class="field-value">${summary.pastMedicalHistory?.text || 'None'}</span>
+                <span class="field-value">${getFieldValue('pastMedicalHistory')}</span>
               </div>
             </div>
 
             <div class="section">
               <h2>Past Surgical History</h2>
               <div class="field">
-                <span class="field-value">${summary.pastSurgicalHistory?.text || 'None'}</span>
+                <span class="field-value">${getFieldValue('pastSurgicalHistory')}</span>
               </div>
             </div>
 
             <div class="section">
               <h2>Drug History</h2>
               <div class="field">
-                <span class="field-value">${summary.drugHistory?.text || 'None'}</span>
+                <span class="field-value">${getFieldValue('drugHistory')}</span>
               </div>
             </div>
 
             <div class="section">
               <h2>Allergy History</h2>
               <div class="field">
-                <span class="field-value">${summary.allergyHistory?.text || 'None'}</span>
+                <span class="field-value">${getFieldValue('allergyHistory')}</span>
               </div>
             </div>
 
             <div class="section">
               <h2>Family History</h2>
               <div class="field">
-                <span class="field-value">${summary.familyHistory?.text || 'None'}</span>
+                <span class="field-value">${getFieldValue('familyHistory')}</span>
+              </div>
+            </div>
+
+            ${summary.documentFindings?.length > 0 ? `
+              <div class="section">
+                <h2>Document Findings</h2>
+                ${summary.documentFindings.map(doc => `
+                  <div style="margin: 15px 0; padding: 10px; background: #f9f9f9; border: 1px solid #ddd;">
+                    <p><strong>${doc.docType}</strong> - ${doc.date || 'Date not specified'} - ${doc.provider || 'Provider not specified'}</p>
+                    ${doc.verifiedByPatient ? '<p style="color: green;">✓ Verified by patient</p>' : '<p style="color: orange;">⚠ Not verified by patient</p>'}
+                    ${doc.labs?.length > 0 ? `
+                      <h3>Lab Results</h3>
+                      <table>
+                        <tr><th>Lab</th><th>Value</th><th>Reference</th></tr>
+                        ${doc.labs.map(lab => `<tr><td>${lab.name}</td><td>${lab.value} ${lab.unit}</td><td>${lab.referenceRange}</td></tr>`).join('')}
+                      </table>
+                    ` : ''}
+                    ${doc.medications?.length > 0 ? `
+                      <h3>Medications</h3>
+                      ${doc.medications.map(med => `<p>• ${med.name} ${med.dose} — ${med.frequency}</p>`).join('')}
+                    ` : ''}
+                    ${doc.diagnoses?.length > 0 ? `
+                      <h3>Diagnoses</h3>
+                      ${doc.diagnoses.map(diag => `<p>• ${typeof diag === 'string' ? diag : diag.text}</p>`).join('')}
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <div class="section">
+              <h2>Doctor Notes</h2>
+              <div class="field">
+                <span class="field-value">${encounter.doctor_notes || 'No notes provided'}</span>
               </div>
             </div>
 
             <div class="footer">
               <p>Generated by MediKiosk - AI-Assisted Pre-Consultation Clinical Information System</p>
               <p>This is a synthetic demo document. Not for actual clinical use.</p>
-              <p>Encounter ID: ${encounterId} | Downloaded by Patient</p>
+              <p>Encounter ID: ${encounterId} | Signed at: ${new Date().toLocaleString()}</p>
             </div>
           </body>
         </html>

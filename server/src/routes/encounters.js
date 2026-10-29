@@ -255,7 +255,6 @@ router.get(
 router.get(
   '/:id/summary',
   authenticate,
-  requireRole('doctor', 'admin'),
   async (req, res, next) => {
     try {
       const [rows] = await pool.query(
@@ -268,6 +267,14 @@ router.get(
       }
 
       const enc = rows[0];
+
+      // Allow patients to access their own encounters, doctors/admins access all
+      if (req.user.role === 'patient' && enc.patient_id !== req.user.patient_id) {
+        return res.status(403).json({ error: 'You can only access your own encounters' });
+      }
+      if (req.user.role !== 'patient' && req.user.role !== 'doctor' && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Access denied' });
+      }
 
       // Only show documents belonging to this encounter's source session.
       let docs = [];
