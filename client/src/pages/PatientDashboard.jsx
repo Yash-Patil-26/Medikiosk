@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2 } from 'lucide-react';
+import { Activity, Shield, User, LogOut, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useKiosk } from '../context/KioskContext.jsx';
 import api from '../services/api.js';
@@ -136,6 +136,17 @@ export default function PatientDashboard() {
                 <span className={`ml-auto text-xs font-semibold ${granted ? 'text-success-700' : 'text-gray-500'}`}>{granted ? 'Allowed' : 'Declined'}</span>
               </div>;
             })}
+          </div>
+        </section>
+
+        <section className="card p-6">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0"><History size={20} className="text-gray-600" /></div>
+            <div><h2 className="text-lg font-bold text-gray-900">Patient Profile & History</h2><p className="text-sm text-gray-500 mt-1">View your interview answers and encounter summaries from previous sessions.</p></div>
+          </div>
+          <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-4">
+            <p>Patient history and encounter summaries will be available here after completing kiosk sessions and doctor reviews.</p>
+            <p className="mt-2 text-xs text-gray-400">Feature coming soon: Download complete patient profile with all interview answers and signed summaries.</p>
           </div>
         </section>
 
