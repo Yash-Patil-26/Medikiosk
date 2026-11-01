@@ -417,10 +417,10 @@ export default function PatientDashboard() {
             {consentEntries.map(([key, label]) => {
               const granted = Boolean(user.consents?.[key]);
               const Icon = granted ? CheckCircle2 : Circle;
-              return <div key={key} className="flex items-center gap-2 text-sm rounded-lg bg-gray-50 px-3 py-3">
-                <Icon size={17} className={granted ? 'text-success-600' : 'text-gray-400'} />
-                <span className="text-gray-700">{label}</span>
-                <span className={`ml-auto text-xs font-semibold ${granted ? 'text-success-700' : 'text-gray-500'}`}>{granted ? 'Allowed' : 'Declined'}</span>
+              return <div key={key} className="flex items-center gap-2 text-sm rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-3">
+                <Icon size={17} className={granted ? 'text-success-600 dark:text-success-400' : 'text-gray-400 dark:text-gray-500'} />
+                <span className="text-gray-700 dark:text-gray-300">{label}</span>
+                <span className={`ml-auto text-xs font-semibold ${granted ? 'text-success-700 dark:text-success-400' : 'text-gray-500 dark:text-gray-400'}`}>{granted ? 'Allowed' : 'Declined'}</span>
               </div>;
             })}
           </div>
@@ -428,35 +428,35 @@ export default function PatientDashboard() {
 
         <section className="card p-6">
           <div className="flex items-start gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0"><History size={20} className="text-gray-600" /></div>
-            <div><h2 className="text-lg font-bold text-gray-900">Patient Profile & History</h2><p className="text-sm text-gray-500 mt-1">View and download your encounter summaries from completed sessions.</p></div>
+            <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center shrink-0"><History size={20} className="text-gray-600 dark:text-gray-400" /></div>
+            <div><h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Patient Profile & History</h2><p className="text-sm text-gray-500 dark:text-gray-400 mt-1">View and download your encounter summaries from completed sessions.</p></div>
           </div>
           
           {loadingEncounters ? (
-            <div className="text-center py-8 text-gray-500">Loading your history...</div>
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading your history...</div>
           ) : encounters.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <p>No completed encounters yet.</p>
               <p className="text-sm mt-2">Complete a kiosk session and have the doctor sign it to see your history here.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {encounters.map(enc => (
-                <div key={enc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div key={enc.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-                      <FileText size={18} className="text-primary-600" />
+                    <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                      <FileText size={18} className="text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">{enc.token_no}</p>
-                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">{enc.token_no}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                         <Calendar size={12} /> {new Date(enc.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                      enc.status === 'signed' ? 'bg-success-100 text-success-700' : 'bg-warning-100 text-warning-700'
+                      enc.status === 'signed' ? 'bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400' : 'bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400'
                     }`}>
                       {enc.status}
                     </span>
