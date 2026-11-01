@@ -82,8 +82,8 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
             <Activity size={20} className="text-white" />
           </div>
           <div>
-            <strong className="block text-gray-900 text-lg">MediKiosk</strong>
-            <span className="text-xs text-gray-500">Clinical Intake System</span>
+            <strong className={`block text-lg ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>MediKiosk</strong>
+            <span className={`text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Clinical Intake System</span>
           </div>
         </Link>
 
@@ -114,16 +114,16 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
 
           <button 
             onClick={toggleDarkMode}
-            className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors touch-target group" 
+            className={`p-2.5 rounded-xl transition-colors touch-target group ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
             aria-label="Toggle dark mode"
             title="Dark/Light Mode"
           >
-            {darkMode ? <Sun size={20} className="text-gray-600 group-hover:text-primary-600 transition-colors" /> : <Moon size={20} className="text-gray-600 group-hover:text-primary-600 transition-colors" />}
+            {darkMode ? <Sun size={20} className="text-gray-300 group-hover:text-primary-400 transition-colors" /> : <Moon size={20} className="text-gray-600 group-hover:text-primary-600 transition-colors" />}
           </button>
 
           <button 
             onClick={toggleTextSize}
-            className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors touch-target group font-bold text-gray-600"
+            className={`p-2.5 rounded-xl transition-colors touch-target group font-bold ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}
             aria-label="Toggle text size"
             title="Text Size"
           >
@@ -132,15 +132,15 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
 
           <button 
             onClick={() => setShowHelpModal(true)}
-            className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors touch-target group" 
+            className={`p-2.5 rounded-xl transition-colors touch-target group ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
             aria-label="Help"
             title="Help"
           >
-            <HelpCircle size={20} className="text-gray-400 group-hover:text-primary-600 transition-colors" />
+            <HelpCircle size={20} className={darkMode ? "text-gray-400 group-hover:text-primary-400 transition-colors" : "text-gray-400 group-hover:text-primary-600 transition-colors"} />
           </button>
 
           {showLogout && (
-            <button onClick={handleLogout} disabled={loggingOut} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-50">
+            <button onClick={handleLogout} disabled={loggingOut} className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium disabled:opacity-50 ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}>
               <LogOut size={16} /> {loggingOut ? 'Signing out…' : 'Log out'}
             </button>
           )}
@@ -149,16 +149,16 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
 
       {showHomeWarning && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-scale-in">
+          <div className={`rounded-3xl p-8 max-w-md w-full shadow-2xl animate-scale-in ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning-100 flex items-center justify-center">
               <Activity size={32} className="text-warning-600" />
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-3 text-center">{t('session_warning_title')}</h3>
-            <p className="text-gray-600 mb-6 text-center leading-relaxed">{t('session_warning_message')}</p>
+            <h3 className={`text-xl font-bold mb-3 text-center ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{t('session_warning_title')}</h3>
+            <p className={`mb-6 text-center leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{t('session_warning_message')}</p>
             <div className="flex gap-3">
               <button
                 onClick={cancelHomeNavigation}
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                className={`flex-1 px-4 py-3 border rounded-xl font-semibold transition-colors ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}
               >
                 {t('cancel')}
               </button>
@@ -175,17 +175,17 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
 
       {showHelpModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-scale-in">
+          <div className={`rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-scale-in ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-800">{t('help_title')}</h3>
-              <button onClick={() => setShowHelpModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
-                <X size={24} className="text-gray-500" />
+              <h3 className={`text-xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{t('help_title')}</h3>
+              <button onClick={() => setShowHelpModal(false)} className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+                <X size={24} className={darkMode ? "text-gray-400" : "text-gray-500"} />
               </button>
             </div>
-            <div className="space-y-4 text-gray-600">
+            <div className={`space-y-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               <p>{t('help_introduction')}</p>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <h4 className="font-semibold text-gray-800 mb-2">{t('help_steps_title')}</h4>
+              <div className={`rounded-xl p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <h4 className={`font-semibold mb-2 ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{t('help_steps_title')}</h4>
                 <ol className="list-decimal list-inside space-y-2 text-sm">
                   <li>{t('help_step_1')}</li>
                   <li>{t('help_step_2')}</li>

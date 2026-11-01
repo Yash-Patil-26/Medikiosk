@@ -422,4 +422,114 @@ router.get('/me', authenticate, async (req, res, next) => {
   }
 });
 
+router.post('/forgot-password', async (req, res, next) => {
+  try {
+    const body = req.body || {};
+    const identifierType = body.identifier_type;
+    const identifier = body.identifier;
+
+    if (
+      typeof identifierType !== 'string' ||
+      !['abha', 'mobile', 'email'].includes(identifierType) ||
+      typeof identifier !== 'string' || !identifier.trim()
+    ) {
+      return res.status(400).json({ error: 'Identifier type and identifier are required.' });
+    }
+
+    const normalizedIdentifier = normalizePatientIdentifier(identifierType, identifier.trim());
+
+    const [rows] = await pool.query(
+      `SELECT id, role FROM users 
+       WHERE login_identifier_type = ? AND login_identifier = ? 
+       LIMIT 1`,
+      [identifierType, normalizedIdentifier]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'No account found with this identifier.' });
+    }
+
+    const user = rows[0];
+    if (user.role !== 'patient') {
+      return res.status(400).json({ error: 'Password reset is only available for patient accounts.' });
+    }
+
+    return res.json({ message: 'Identifier verified. You can now reset your password.' });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.post('/reset-password', async (req, res, next) => {
+  let connection;
+  let transactionOpen = false;
+  try {
+    const body = req.body || {};
+    const identifierType = body.identifier_type;
+    const identifier = body.identifier;
+    const newPassword = body.new_password;
+
+    if (
+      typeof identifierType !== 'string' ||
+      !['abha', 'mobile', 'email'].includes(identifierType) ||
+      typeof identifier !== 'string' || !identifier.trim() ||
+      typeof newPassword !== 'string' || !newPassword || newPassword.length < 10 || newPassword.length > 128
+    ) {
+      return res.status(400).json({ error: 'Identifier and new password are required. Password must be 10-128 characters.' });
+    }
+
+    const normalizedIdentifier = normalizePatientIdentifier(identifierType, identifier.trim());
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    transactionOpen = true;
+
+    const [userRows] = await connection.query(
+      `SELECT id, role FROM users 
+       WHERE login_identifier_type = ? AND login_identifier = ? 
+       LIMIT 1 FOR UPDATE`,
+      [identifierType, normalizedIdentifier]
+    );
+
+    if (!userRows.length) {
+      await connection.rollback();
+      transactionOpen = false;
+      return res.status(404).json({ error: 'No account found with this identifier.' });
+    }
+
+    const user = userRows[0];
+    if (user.role !== 'patient') {
+      await connection.rollback();
+      transactionOpen = false;
+      return res.status(400).json({ error: 'Password reset is only available for patient accounts.' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    await connection.query(
+      `UPDATE users SET password_hash = ? WHERE id = ?`,
+      [passwordHash, user.id]
+    );
+
+    await connection.query(
+      `INSERT INTO audit_logs
+       (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
+       VALUES ('patient', ?, 'PASSWORD_RESET', 'user', ?, ?)`,
+      [user.id, String(user.id), JSON.stringify({ identifier_type: identifierType })]
+    );
+
+    await connection.commit();
+    transactionOpen = false;
+
+    return res.json({ message: 'Password reset successfully.' });
+  } catch (err) {
+    if (connection && transactionOpen) {
+      try { await connection.rollback(); } catch { /* Preserve original error. */ }
+    }
+    return next(err);
+  } finally {
+    connection?.release();
+  }
+});
+
 export default router;

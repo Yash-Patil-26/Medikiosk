@@ -116,14 +116,16 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 px-4 py-10 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
       <UniversalHeader />
-      <main className="card w-full max-w-md p-6 sm:p-8 mt-20">
-        <div className="flex items-center gap-3 mb-6">
-          <div>
-            <div className="text-2xl font-bold text-gray-900">Create Account</div>
+      <div className="flex-1 flex items-center justify-center p-5">
+        <main className="card w-full max-w-md p-7 sm:p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div>
+              <span className="text-2xl font-bold text-gray-800">Create Account</span>
+              <span className="text-sm text-gray-500 block">to get started</span>
+            </div>
           </div>
-        </div>
 
         <form onSubmit={submit} className="space-y-4" noValidate>
           <label className="block text-sm font-semibold text-gray-700">
@@ -214,6 +216,7 @@ export default function Register() {
 
         <p className="text-sm text-center text-gray-500 mt-6">Already registered? <Link to="/login" className="font-semibold text-primary-600 hover:text-primary-700">Sign in</Link></p>
       </main>
+      </div>
     </div>
   );
 }

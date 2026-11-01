@@ -22,6 +22,67 @@
     @apply bg-gray-900 text-gray-100;
   }
   
+  .dark .card {
+    @apply bg-gray-800 border-gray-700 text-gray-100;
+  }
+  
+  .dark header,
+  .dark .bg-white {
+    @apply bg-gray-800 border-gray-700 text-gray-100;
+  }
+  
+  .dark .bg-white\/80 {
+    @apply bg-gray-800\/80 text-gray-100;
+  }
+  
+  .dark .bg-white\/50 {
+    @apply bg-gray-800\/50 text-gray-100;
+  }
+  
+  .dark .bg-gray-50 {
+    @apply bg-gray-700 text-gray-100;
+  }
+  
+  .dark .bg-gray-100 {
+    @apply bg-gray-700 text-gray-100;
+  }
+  
+  .dark .text-gray-900 {
+    @apply text-gray-100;
+  }
+  
+  .dark .text-gray-800 {
+    @apply text-gray-100;
+  }
+  
+  .dark .text-gray-700 {
+    @apply text-gray-300;
+  }
+  
+  .dark .text-gray-600 {
+    @apply text-gray-400;
+  }
+  
+  .dark .text-gray-500 {
+    @apply text-gray-400;
+  }
+  
+  .dark .text-gray-400 {
+    @apply text-gray-500;
+  }
+  
+  .dark .border-gray-200 {
+    @apply border-gray-700;
+  }
+  
+  .dark .border-gray-100 {
+    @apply border-gray-700;
+  }
+  
+  .dark .bg-gradient-to-br {
+    @apply from-gray-900 via-gray-800 to-gray-900;
+  }
+  
   .text-large body {
     font-size: 1.125rem;
   }

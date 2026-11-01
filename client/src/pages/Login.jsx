@@ -101,6 +101,9 @@ export default function Login() {
                   autoComplete="current-password" maxLength={128} required />
               </div>
             </label>
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 font-medium">Forgot password?</Link>
+            </div>
             {error && <div role="alert" className="rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-700">{error}</div>}
             <button type="submit" disabled={loading}
               className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 rounded-lg font-bold disabled:opacity-50 shadow-md">
