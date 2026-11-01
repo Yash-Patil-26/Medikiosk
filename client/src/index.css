@@ -9,11 +9,11 @@
   .high-contrast body {
     @apply bg-gray-950 text-white;
   }
-  
+
   * {
     @apply transition-colors duration-200 ease-in-out;
   }
-  
+
   button, a, input, textarea, select {
     @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
@@ -21,82 +21,71 @@
   .dark body {
     @apply bg-gray-900 text-gray-100;
   }
-  
+
   .dark .card {
     @apply bg-gray-800 border-gray-700 text-gray-100;
   }
-  
-  .dark header,
+
+  .dark header {
+    @apply bg-gray-800 border-gray-700 text-gray-100;
+  }
+
   .dark .bg-white {
     @apply bg-gray-800 border-gray-700 text-gray-100;
   }
 
-  .dark .bg-white\/80 {
-    background-color: rgba(31, 41, 55, 0.8);
-    @apply text-gray-100;
-  }
-
-  .dark .bg-white\/50 {
-    background-color: rgba(31, 41, 55, 0.5);
-    @apply text-gray-100;
-  }
-  
   .dark .bg-gray-50 {
     @apply bg-gray-700 text-gray-100;
   }
-  
+
   .dark .bg-gray-100 {
     @apply bg-gray-700 text-gray-100;
   }
-  
+
   .dark .text-gray-900 {
     @apply text-gray-100;
   }
-  
+
   .dark .text-gray-800 {
     @apply text-gray-100;
   }
-  
+
   .dark .text-gray-700 {
     @apply text-gray-300;
   }
-  
+
   .dark .text-gray-600 {
     @apply text-gray-400;
   }
-  
+
   .dark .text-gray-500 {
     @apply text-gray-400;
   }
-  
+
   .dark .text-gray-400 {
     @apply text-gray-500;
   }
-  
+
   .dark .border-gray-200 {
     @apply border-gray-700;
   }
-  
+
   .dark .border-gray-100 {
     @apply border-gray-700;
   }
 
-  .dark .bg-gradient-to-br {
-    background: linear-gradient(to bottom right, #111827, #1f2937, #111827);
-  }
-  
   .text-large body {
     font-size: 1.125rem;
   }
-  
+
   .text-large body .text-base {
     font-size: 1.25rem;
   }
-  
+
   .text-large body .text-sm {
     font-size: 1rem;
   }
-  
+
   .text-large body .text-xs {
     font-size: 0.875rem;
   }
@@ -106,11 +95,11 @@
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20;
   }
-  
+
   .card {
     @apply bg-white rounded-2xl shadow-soft border border-gray-100;
   }
-  
+
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:border-primary-200;
   }
