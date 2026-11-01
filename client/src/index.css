@@ -19,59 +19,68 @@
   }
 
   .dark body {
-    @apply bg-gray-900 text-gray-100;
+    background-color: #111827;
+    color: #f3f4f6;
   }
 
   .dark .card {
-    @apply bg-gray-800 border-gray-700 text-gray-100;
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
   }
 
   .dark header {
-    @apply bg-gray-800 border-gray-700 text-gray-100;
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
   }
 
   .dark .bg-white {
-    @apply bg-gray-800 border-gray-700 text-gray-100;
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
   }
 
   .dark .bg-gray-50 {
-    @apply bg-gray-700 text-gray-100;
+    background-color: #374151;
+    color: #f3f4f6;
   }
 
   .dark .bg-gray-100 {
-    @apply bg-gray-700 text-gray-100;
+    background-color: #374151;
+    color: #f3f4f6;
   }
 
   .dark .text-gray-900 {
-    @apply text-gray-100;
+    color: #f3f4f6;
   }
 
   .dark .text-gray-800 {
-    @apply text-gray-100;
+    color: #f3f4f6;
   }
 
   .dark .text-gray-700 {
-    @apply text-gray-300;
+    color: #d1d5db;
   }
 
   .dark .text-gray-600 {
-    @apply text-gray-400;
+    color: #9ca3af;
   }
 
   .dark .text-gray-500 {
-    @apply text-gray-400;
+    color: #9ca3af;
   }
 
   .dark .text-gray-400 {
-    @apply text-gray-500;
+    color: #6b7280;
   }
 
   .dark .border-gray-200 {
-    @apply border-gray-700;
+    border-color: #374151;
   }
 
   .dark .border-gray-100 {
-    @apply border-gray-700;
+    border-color: #374151;
   }
 
   .text-large body {
