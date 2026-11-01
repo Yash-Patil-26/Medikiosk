@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, PenLine, AlertTriangle, Download, CheckCircle, User, Clock, FileText, Activity, Stethoscope, Shield, FileCheck, Heart, Pill, AlertCircle, Edit2, X } from 'lucide-react';
+import { ArrowLeft, Save, PenLine, AlertTriangle, Download, CheckCircle, User, Clock, FileText, Stethoscope, Shield, FileCheck, Heart, Pill, AlertCircle, Edit2, X } from 'lucide-react';
 import RedFlagBanner from '../../components/RedFlagBanner.jsx';
 import ProvenanceChip from '../../components/ProvenanceChip.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
+import UniversalHeader from '../../components/UniversalHeader.jsx';
 import api from '../../services/api.js';
 
 export default function DoctorEncounter() {
@@ -282,20 +283,12 @@ export default function DoctorEncounter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-3 py-2 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/doctor')} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
-            <ArrowLeft size={22} className="text-gray-600" />
-          </button>
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-              <Activity size={18} className="text-white" />
-            </div>
-            <div>
-              <span className="font-bold text-gray-800 text-base leading-tight">MediKiosk</span>
-              <span className="text-xs text-gray-500 font-medium block">Encounter Review</span>
-            </div>
-          </div>
+      <UniversalHeader showLogout={true} />
+      <div className="px-3 py-2 flex items-center">
+        <button onClick={() => navigate('/doctor')} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+          <ArrowLeft size={22} className="text-gray-600" />
+        </button>
+      </div>
         </div>
         <div className="flex items-center gap-2">
           {signed && (

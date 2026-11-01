@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Shield, Volume2, FileText, Database } from 'lucide-react';
+import { Check, Shield, Volume2, FileText, Database } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import UniversalHeader from '../components/UniversalHeader.jsx';
 import api from '../services/api.js';
 
 const CONSENT_ITEMS = [
@@ -54,20 +55,19 @@ export default function ConsentPreferences({ mode = 'initial' }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 px-4 py-10 flex items-center justify-center">
-      <main className="card w-full max-w-3xl p-6 sm:p-9">
-        <Link to={isManageMode ? '/me' : '/'} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6">
-          <ArrowLeft size={16} /> {isManageMode ? 'Back to dashboard' : 'Back to home'}
-        </Link>
-        <div className="flex items-start gap-3 mb-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center shrink-0">
-            <Shield size={24} className="text-primary-700" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20">
+      <UniversalHeader />
+      <div className="px-4 py-10 flex items-center justify-center">
+        <main className="card w-full max-w-3xl p-6 sm:p-9 mt-20">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center shrink-0">
+              <Shield size={24} className="text-primary-700" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{isManageMode ? 'Manage consent preferences' : 'Your privacy and consent choices'}</h1>
+              <p className="text-gray-500 mt-2">Choose which uses of information you allow. Each choice can be allowed or declined separately.</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{isManageMode ? 'Manage consent preferences' : 'Your privacy and consent choices'}</h1>
-            <p className="text-gray-500 mt-2">Choose which uses of information you allow. Each choice can be allowed or declined separately.</p>
-          </div>
-        </div>
 
         <div className="rounded-xl bg-primary-50 border border-primary-200 p-4 mt-5 mb-6 text-sm text-primary-900">
           {isManageMode

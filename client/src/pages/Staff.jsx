@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, LogOut, AlertOctagon, AlertTriangle, CheckCircle, User, Clock } from 'lucide-react';
+import { AlertOctagon, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import UniversalHeader from '../components/UniversalHeader.jsx';
 import api from '../services/api.js';
 
 function AlertCard({ alert, onAck }) {
@@ -83,28 +84,7 @@ export default function Staff() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-            <Activity size={20} className="text-white" />
-          </div>
-          <div>
-            <span className="font-bold text-gray-800 text-lg leading-tight">MediKiosk</span>
-            <span className="text-xs text-gray-500 font-medium block">Staff Console</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-              <User size={16} className="text-primary-600" />
-            </div>
-            <span className="text-sm font-medium text-gray-700">{user?.display_name}</span>
-          </div>
-          <button onClick={handleLogout} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-            <LogOut size={16} /> Logout
-          </button>
-        </div>
-      </header>
+      <UniversalHeader showLogout={true} />
 
       <main className="flex-1 p-6 max-w-4xl mx-auto w-full">
         <div className="flex items-center justify-between mb-8">
