@@ -23,19 +23,19 @@
   }
   
   .text-large body {
-    @apply text-lg;
+    font-size: 1.125rem;
   }
   
   .text-large body .text-base {
-    @apply text-xl;
+    font-size: 1.25rem;
   }
   
   .text-large body .text-sm {
-    @apply text-base;
+    font-size: 1rem;
   }
   
   .text-large body .text-xs {
-    @apply text-sm;
+    font-size: 0.875rem;
   }
 }
 
