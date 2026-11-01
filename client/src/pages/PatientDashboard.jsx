@@ -361,31 +361,31 @@ export default function PatientDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <UniversalHeader showLogout={true} showLanguageSelector={true} />
 
       <main className="max-w-5xl mx-auto w-full p-5 sm:p-8 space-y-6">
         <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-primary-600">WELCOME BACK</p>
-            <h1 className="text-3xl font-bold text-gray-900 mt-1">{user.display_name || 'Patient'}</h1>
-            <p className="text-gray-500 mt-2">Start a new intake session or review your saved privacy choices.</p>
+            <p className="text-sm font-semibold text-primary-600 dark:text-primary-400">WELCOME BACK</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{user.display_name || 'Patient'}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">Start a new intake session or review your saved privacy choices.</p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-success-700 bg-success-50 border border-success-200 rounded-full px-3 py-2 w-fit">
+          <div className="flex items-center gap-2 text-xs text-success-700 dark:text-success-400 bg-success-50 dark:bg-success-900/30 border border-success-200 dark:border-success-800 rounded-full px-3 py-2 w-fit">
             <CheckCircle2 size={15} /> Account signed in
           </div>
         </section>
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="card p-6 lg:col-span-2">
-            <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-4"><ClipboardList size={24} className="text-primary-600" /></div>
-            <h2 className="text-xl font-bold text-gray-900">Start a new intake</h2>
-            <p className="text-sm text-gray-500 mt-2 mb-5">Your saved consent choices will automatically be applied to the new session. You will not be prompted to consent again unless the consent notice requires an update.</p>
-            <label className="flex items-start gap-3 rounded-xl border border-gray-200 p-4 mb-5 cursor-pointer">
-              <input type="checkbox" checked={Boolean(kiosk.ayushMode)} onChange={event => update({ ayushMode: event.target.checked })} className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-              <span><strong className="block text-sm text-gray-800">AYUSH / Ayurveda consultation</strong><span className="block text-xs text-gray-500 mt-1">Enable additional questions about Prakriti, Agni, diet and lifestyle.</span></span>
+            <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center mb-4"><ClipboardList size={24} className="text-primary-600 dark:text-primary-400" /></div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Start a new intake</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-5">Your saved consent choices will automatically be applied to the new session. You will not be prompted to consent again unless the consent notice requires an update.</p>
+            <label className="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-600 p-4 mb-5 cursor-pointer">
+              <input type="checkbox" checked={Boolean(kiosk.ayushMode)} onChange={event => update({ ayushMode: event.target.checked })} className="mt-1 h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500" />
+              <span><strong className="block text-sm text-gray-800 dark:text-gray-200">AYUSH / Ayurveda consultation</strong><span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">Enable additional questions about Prakriti, Agni, diet and lifestyle.</span></span>
             </label>
-            {error && <div role="alert" className="rounded-xl border border-error-200 bg-error-50 p-3 text-sm text-error-700 mb-4">{error}</div>}
+            {error && <div role="alert" className="rounded-xl border border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-900/20 p-3 text-sm text-error-700 dark:text-error-400 mb-4">{error}</div>}
             <button onClick={startSession} disabled={starting} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl px-6 py-3 font-semibold shadow-md disabled:opacity-50">
               {starting ? 'Starting session…' : 'Start new intake'} <ArrowRight size={18} />
             </button>
@@ -393,14 +393,14 @@ export default function PatientDashboard() {
 
           <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center"><User size={24} className="text-gray-600" /></div>
-              <button onClick={openEditModal} className="text-sm font-semibold text-primary-600 hover:text-primary-700">Edit</button>
+              <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center"><User size={24} className="text-gray-600 dark:text-gray-400" /></div>
+              <button onClick={openEditModal} className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">Edit</button>
             </div>
-            <h2 className="text-lg font-bold text-gray-900">Account details</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Account details</h2>
             <dl className="mt-4 space-y-3 text-sm">
-              <div><dt className="text-gray-500">Login ID type</dt><dd className="font-semibold text-gray-800 capitalize">{user.login_identifier_type || 'Username'}</dd></div>
-              <div><dt className="text-gray-500">Registered login ID</dt><dd className="font-mono text-gray-800 break-all">{maskLoginId(user.login_identifier, user.login_identifier_type)}</dd></div>
-              <div><dt className="text-gray-500">Preferred language</dt><dd className="font-semibold text-gray-800">{{ en: 'English', hi: 'Hindi', mr: 'Marathi' }[user.preferred_language] || 'English'}</dd></div>
+              <div><dt className="text-gray-500 dark:text-gray-400">Login ID type</dt><dd className="font-semibold text-gray-800 dark:text-gray-200 capitalize">{user.login_identifier_type || 'Username'}</dd></div>
+              <div><dt className="text-gray-500 dark:text-gray-400">Registered login ID</dt><dd className="font-mono text-gray-800 dark:text-gray-200 break-all">{maskLoginId(user.login_identifier, user.login_identifier_type)}</dd></div>
+              <div><dt className="text-gray-500 dark:text-gray-400">Preferred language</dt><dd className="font-semibold text-gray-800 dark:text-gray-200">{{ en: 'English', hi: 'Hindi', mr: 'Marathi' }[user.preferred_language] || 'English'}</dd></div>
             </dl>
           </div>
         </section>
@@ -408,10 +408,10 @@ export default function PatientDashboard() {
         <section className="card p-6">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0"><Shield size={20} className="text-primary-600" /></div>
-              <div><h2 className="text-lg font-bold text-gray-900">Saved privacy choices</h2><p className="text-sm text-gray-500 mt-1">Your choices are saved to your account and applied to new sessions.</p></div>
+              <div className="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center shrink-0"><Shield size={20} className="text-primary-600 dark:text-primary-400" /></div>
+              <div><h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Saved privacy choices</h2><p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Your choices are saved to your account and applied to new sessions.</p></div>
             </div>
-            <Link to="/me/consent" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 shrink-0"><Settings2 size={16} /> Manage</Link>
+            <Link to="/me/consent" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 shrink-0"><Settings2 size={16} /> Manage</Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {consentEntries.map(([key, label]) => {
