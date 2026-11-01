@@ -19,7 +19,7 @@ export default function HIS() {
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
       <UniversalHeader showLogout={true} />
 
       <main className="flex-1 p-6 max-w-5xl mx-auto w-full">
@@ -28,17 +28,17 @@ export default function HIS() {
             <Building2 size={24} className="text-primary-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Hospital Information System</h1>
-            <p className="text-gray-500">View received FHIR bundles from MediKiosk</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Hospital Information System</h1>
+            <p className="text-gray-500 dark:text-gray-400">View received FHIR bundles from MediKiosk</p>
           </div>
         </div>
 
-        <div className="card p-5 bg-warning-50 border-warning-200 mb-8">
+        <div className="card p-5 bg-warning-50 dark:bg-warning-900/20 border-warning-200 dark:border-warning-800 mb-8">
           <div className="flex items-start gap-3">
             <Building2 size={20} className="text-warning-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-warning-800">MOCK Integration</p>
-              <p className="text-sm text-warning-700 mt-1">This is a simulated Hospital Information System. Not connected to any real HIS or ABDM.</p>
+              <p className="font-semibold text-warning-800 dark:text-warning-200">MOCK Integration</p>
+              <p className="text-sm text-warning-700 dark:text-warning-300 mt-1">This is a simulated Hospital Information System. Not connected to any real HIS or ABDM.</p>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@ export default function HIS() {
         {loading ? <LoadingSpinner /> : (
           <div className="card overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                 <tr>
                   {['HIS Record ID', 'Encounter ID', 'Received At', 'Status'].map(h => (
                     <th key={h} className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>

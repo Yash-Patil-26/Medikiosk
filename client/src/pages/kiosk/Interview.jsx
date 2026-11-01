@@ -155,11 +155,11 @@ export default function Interview() {
             <CheckCircle size={40} className="text-success-600" />
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Interview Complete
           </h2>
 
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             Thank you for answering all questions.
           </p>
 
@@ -181,24 +181,24 @@ export default function Interview() {
         {error && (
           <div
             role="alert"
-            className="bg-error-50 border border-error-200 rounded-xl p-3 text-sm text-error-700 flex items-center gap-2"
+            className="bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 rounded-xl p-3 text-sm text-error-700 dark:text-error-400 flex items-center gap-2"
           >
-            <span className="w-5 h-5 rounded-full bg-error-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-error-700 text-xs font-bold">!</span>
+            <span className="w-5 h-5 rounded-full bg-error-200 dark:bg-error-800 flex items-center justify-center flex-shrink-0">
+              <span className="text-error-700 dark:text-error-400 text-xs font-bold">!</span>
             </span>
             {error}
           </div>
         )}
 
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-2xl font-bold text-gray-900 flex-1">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex-1">
             {node.text}
           </h2>
 
           <button
             onClick={() => speak(node.text)}
             aria-label="Read question aloud"
-            className="p-2.5 text-primary-500 hover:bg-primary-50 rounded-xl shrink-0 transition-colors"
+            className="p-2.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl shrink-0 transition-colors"
           >
             <Volume2 size={22} />
           </button>
@@ -307,7 +307,7 @@ export default function Interview() {
                   ))}
                 </div>
 
-                <div className="flex justify-between text-xs text-gray-400 px-4 mt-3">
+                <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 px-4 mt-3">
                   <span>Mild</span>
                   <span>Moderate</span>
                   <span>Severe</span>
@@ -321,7 +321,7 @@ export default function Interview() {
                   value={textInput}
                   onChange={e => setTextInput(e.target.value)}
                   placeholder={node.placeholder || 'Type here...'}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-900 text-gray-900 dark:text-gray-100"
                 />
 
                 <div className="flex gap-3 mt-4">
@@ -352,7 +352,7 @@ export default function Interview() {
                       saveAnswer('none', 'touch', node.noneLabel, 'touch')
                     }
                     disabled={saving}
-                    className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                    className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
                   >
                     {node.noneLabel || 'None'}
                   </button>
@@ -381,8 +381,8 @@ export default function Interview() {
               </button>
             )}
 
-            <div className="flex flex-col items-center gap-3 pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500">Or answer by voice</p>
+            <div className="flex flex-col items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Or answer by voice</p>
               <MicButton onResult={handleVoiceResult} />
 
               {voiceError && (

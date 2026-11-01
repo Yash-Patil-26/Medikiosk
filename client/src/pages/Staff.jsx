@@ -83,23 +83,23 @@ export default function Staff() {
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
       <UniversalHeader showLogout={true} />
 
       <main className="flex-1 p-6 max-w-4xl mx-auto w-full">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Red Flag Alerts</h1>
-            <p className="text-gray-500">Monitor and respond to critical patient indicators</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Red Flag Alerts</h1>
+            <p className="text-gray-500 dark:text-gray-400">Monitor and respond to critical patient indicators</p>
           </div>
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border shadow-sm">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
             <Clock size={18} className="text-primary-500" />
-            <span className="text-sm font-medium text-gray-600">Live polling</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Live polling</span>
           </div>
         </div>
 
         {actionError && (
-          <p role="alert" className="mb-4 rounded-xl border border-error-200 bg-error-50 p-4 text-sm text-error-700 flex items-center gap-2">
+          <p role="alert" className="mb-4 rounded-xl border border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-900/20 p-4 text-sm text-error-700 dark:text-error-400 flex items-center gap-2">
             <AlertTriangle size={16} />
             {actionError}
           </p>
@@ -107,11 +107,11 @@ export default function Staff() {
 
         {alerts.length === 0 ? (
           <div className="card p-12 text-center">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-success-200">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-success-100 to-success-200 dark:from-success-900/30 dark:to-success-800/30 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-success-200">
               <CheckCircle size={40} className="text-success-600" />
             </div>
-            <p className="text-gray-400 font-medium text-lg">No alerts</p>
-            <p className="text-gray-300 text-sm mt-2">All systems normal</p>
+            <p className="text-gray-400 dark:text-gray-500 font-medium text-lg">No alerts</p>
+            <p className="text-gray-300 dark:text-gray-600 text-sm mt-2">All systems normal</p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">

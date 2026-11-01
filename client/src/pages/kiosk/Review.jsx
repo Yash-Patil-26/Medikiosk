@@ -145,40 +145,40 @@ export default function Review() {
     <KioskShell step="Review" backTo="/kiosk/documents">
       <div className="w-full flex flex-col gap-6 animate-slide-up">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('review_title')}</h1>
-          <p className="text-gray-500 text-lg">{t('review_note')}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('review_title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-lg">{t('review_note')}</p>
         </div>
 
         {error && (
-          <div className="bg-error-50 border border-error-200 rounded-xl p-3 text-sm text-error-700 flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-error-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-error-700 text-xs font-bold">!</span>
+          <div className="bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 rounded-xl p-3 text-sm text-error-700 dark:text-error-400 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-error-200 dark:bg-error-800 flex items-center justify-center flex-shrink-0">
+              <span className="text-error-700 dark:text-error-400 text-xs font-bold">!</span>
             </span>
             {error}
           </div>
         )}
 
-        <div className="card divide-y divide-gray-100">
+        <div className="card divide-y divide-gray-100 dark:divide-gray-700">
           {slots.length === 0 && (
             <div className="p-8 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                <CheckCircle size={32} className="text-gray-300" />
+              <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3">
+                <CheckCircle size={32} className="text-gray-300 dark:text-gray-500" />
               </div>
-              <p className="text-gray-400">{t('no_answers')}</p>
+              <p className="text-gray-400 dark:text-gray-500">{t('no_answers')}</p>
             </div>
           )}
           {slots.map((slot, i) => (
-            <div key={i} className="p-4 flex flex-col gap-2 hover:bg-gray-50 transition-colors">
+            <div key={i} className="p-4 flex flex-col gap-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400 uppercase tracking-wide font-semibold">{slot.slot_id.replace(/_/g, ' ')}</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide font-semibold">{slot.slot_id.replace(/_/g, ' ')}</span>
                 <div className="flex items-center gap-2">
                   <ProvenanceChip source={slot.source} confirmedBy={slot.confirmed_by} />
                   {editingSlot === slot.id ? (
-                    <button onClick={cancelEdit} className="p-1 text-gray-400 hover:text-gray-600 rounded">
+                    <button onClick={cancelEdit} className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded">
                       <X size={16} />
                     </button>
                   ) : (
-                    <button onClick={() => startEdit(slot)} className="p-1 text-primary-500 hover:bg-primary-50 rounded">
+                    <button onClick={() => startEdit(slot)} className="p-1 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded">
                       <Edit2 size={16} />
                     </button>
                   )}
@@ -189,14 +189,14 @@ export default function Review() {
                   <input
                     value={editValue}
                     onChange={e => setEditValue(e.target.value)}
-                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                    className="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   />
                   <button onClick={saveEdit} disabled={saving} className="px-3 py-2 bg-success-500 text-white rounded-lg text-sm font-medium hover:bg-success-600 disabled:opacity-50 flex items-center gap-1">
                     {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                   </button>
                 </div>
               ) : (
-                <p className="font-medium text-gray-800 text-lg">{slot.value}</p>
+                <p className="font-medium text-gray-800 dark:text-gray-200 text-lg">{slot.value}</p>
               )}
             </div>
           ))}

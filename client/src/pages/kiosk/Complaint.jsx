@@ -70,14 +70,14 @@ export default function Complaint() {
     <KioskShell step="Complaint" backTo="/register/consent">
       <div className="w-full flex flex-col gap-6 animate-slide-up">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('complaint_title')}</h1>
-          <p className="text-gray-500 text-lg">{t('complaint_subtitle')}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('complaint_title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-lg">{t('complaint_subtitle')}</p>
         </div>
 
         {error && (
-          <div className="bg-error-50 border border-error-200 rounded-xl p-3 text-sm text-error-700 flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full bg-error-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-error-700 text-xs font-bold">!</span>
+          <div className="bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 rounded-xl p-3 text-sm text-error-700 dark:text-error-400 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-error-200 dark:bg-error-800 flex items-center justify-center flex-shrink-0">
+              <span className="text-error-700 dark:text-error-400 text-xs font-bold">!</span>
             </span>
             {error}
           </div>
@@ -88,33 +88,33 @@ export default function Complaint() {
             <button key={c.value} onClick={() => select(c.value, c.label)} disabled={loading}
               className="card card-hover flex flex-col items-center gap-2 p-4 text-center transition-all touch-target group disabled:opacity-50"
               role="option" aria-label={`${c.label}: ${c.desc}`}>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <c.icon size={24} className={c.color} aria-hidden="true" />
               </div>
-              <p className="font-bold text-gray-800 text-sm">{c.label}</p>
-              <p className="text-xs text-gray-500 line-clamp-2">{c.desc}</p>
+              <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{c.label}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{c.desc}</p>
             </button>
           ))}
         </div>
 
-        <div className="w-full border-t border-gray-200 pt-6 flex flex-col gap-4">
-          <p className="text-sm text-gray-500 text-center">{t('or_describe')}</p>
+        <div className="w-full border-t border-gray-200 dark:border-gray-700 pt-6 flex flex-col gap-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 text-center">{t('or_describe')}</p>
           <div className="flex gap-3">
             <input value={typed} onChange={e => setTyped(e.target.value)}
               placeholder={t('complaint_type')}
-              className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white" />
+              className="flex-1 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-900 text-gray-900 dark:text-gray-100" />
             <button onClick={() => typed.trim() && select(classifyComplaint(typed), typed)} disabled={!typed || loading}
               className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium disabled:opacity-50 shadow-md shadow-primary-200 transition-all">
               Go
             </button>
           </div>
           <div className="flex flex-col items-center gap-3">
-            <p className="text-sm text-gray-500">{t('complaint_speak')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('complaint_speak')}</p>
             <MicButton onResult={handleVoice} />
             {voiceText && (
-              <div className="w-full card p-4 text-center bg-primary-50 border-primary-200">
-                <p className="text-sm text-gray-500">{t('i_heard')}</p>
-                <p className="font-semibold text-gray-800">"{voiceText}"</p>
+              <div className="w-full card p-4 text-center bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800">
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('i_heard')}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200">"{voiceText}"</p>
                 <button onClick={() => select(classifyComplaint(voiceText), voiceText)}
                   className="mt-3 px-5 py-2.5 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 transition-all">
                   {t('use_this')}

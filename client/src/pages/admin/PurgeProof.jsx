@@ -19,7 +19,7 @@ export default function PurgeProof() {
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
       <UniversalHeader showLogout={true} />
 
       <main className="flex-1 p-6 max-w-5xl mx-auto w-full">
@@ -28,17 +28,17 @@ export default function PurgeProof() {
             <Trash2 size={24} className="text-primary-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Session Purge Proof</h1>
-            <p className="text-gray-500">Verified records of temporary data deletion</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Session Purge Proof</h1>
+            <p className="text-gray-500 dark:text-gray-400">Verified records of temporary data deletion</p>
           </div>
         </div>
 
-        <div className="card p-5 bg-success-50 border-success-200 mb-8">
+        <div className="card p-5 bg-success-50 dark:bg-success-900/20 border-success-200 dark:border-success-800 mb-8">
           <div className="flex items-start gap-3">
             <Shield size={20} className="text-success-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-success-800">Privacy Guarantee</p>
-              <p className="text-sm text-success-700 mt-1">Each record below confirms that a kiosk session's temporary data was deleted after submission. This ensures patient privacy compliance.</p>
+              <p className="font-semibold text-success-800 dark:text-success-200">Privacy Guarantee</p>
+              <p className="text-sm text-success-700 dark:text-success-300 mt-1">Each record below confirms that a kiosk session's temporary data was deleted after submission. This ensures patient privacy compliance.</p>
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@ export default function PurgeProof() {
           <div className="space-y-4">
             {records.length === 0 && (
               <div className="card p-12 text-center">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center mx-auto mb-4">
                   <Trash2 size={40} className="text-gray-300" />
                 </div>
                 <p className="text-gray-400 font-medium text-lg">No purge records yet</p>

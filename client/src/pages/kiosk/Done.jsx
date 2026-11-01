@@ -90,30 +90,30 @@ export default function Done() {
     <KioskShell step="Done" showBack={false}>
       <div className="w-full flex flex-col items-center gap-6 text-center animate-scale-in">
         {purgeStatus === 'success' ? (
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center shadow-lg shadow-success-200">
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-success-100 to-success-200 dark:from-success-900/30 dark:to-success-800/30 flex items-center justify-center shadow-lg shadow-success-200">
             <CheckCircle size={48} className="text-success-600" />
           </div>
         ) : purgeStatus === 'failed' ? (
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-error-100 to-error-200 flex items-center justify-center shadow-lg shadow-error-200">
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-error-100 to-error-200 dark:from-error-900/30 dark:to-error-800/30 flex items-center justify-center shadow-lg shadow-error-200">
             <AlertTriangle size={48} className="text-error-600" />
           </div>
         ) : (
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center shadow-lg shadow-primary-200">
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg shadow-primary-200">
             <Loader2 size={48} className="text-primary-600 animate-spin" />
           </div>
         )}
 
         <div>
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-3">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-3">
             {t('done_title')}
           </h1>
-          <p className="text-gray-500 text-lg max-w-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-lg max-w-sm">
             {t('session_complete_desc')}
           </p>
         </div>
 
         {purgeStatus === 'purging' && (
-          <div role="status" className="card p-5 text-sm text-gray-600 w-full max-w-md">
+          <div role="status" className="card p-5 text-sm text-gray-600 dark:text-gray-400 w-full max-w-md">
             <div className="flex items-center gap-3">
               <Loader2 size={20} className="text-primary-500 animate-spin" />
               <span>{t('purge_pending')}</span>
@@ -122,15 +122,15 @@ export default function Done() {
         )}
 
         {purgeStatus === 'failed' && (
-          <div role="alert" className="card p-5 text-left w-full max-w-md border-error-200 bg-error-50">
+          <div role="alert" className="card p-5 text-left w-full max-w-md border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-900/20">
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle size={20} className="text-error-600" />
-              <h2 className="font-bold text-error-800">
+              <h2 className="font-bold text-error-800 dark:text-error-200">
                 {t('purge_failed')}
               </h2>
             </div>
-            <p className="text-sm text-error-700 mb-2">{purgeError}</p>
-            <p className="text-sm text-error-700">
+            <p className="text-sm text-error-700 dark:text-error-300 mb-2">{purgeError}</p>
+            <p className="text-sm text-error-700 dark:text-error-300">
               {t('purge_error')}
             </p>
           </div>
@@ -139,17 +139,17 @@ export default function Done() {
         {purgeStatus === 'success' && (
           <div className="card p-6 w-full max-w-md">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success-100 to-success-200 dark:from-success-900/30 dark:to-success-800/30 flex items-center justify-center">
                 <Trash2 size={24} className="text-success-600" />
               </div>
-              <h2 className="font-bold text-gray-800 text-xl">
+              <h2 className="font-bold text-gray-800 dark:text-gray-200 text-xl">
                 {t('session_purged')}
               </h2>
             </div>
 
             <div className="flex flex-col gap-3 mb-5">
               {items.map((item, index) => (
-                <div key={index} className="flex items-start gap-3 text-sm text-gray-700 p-3 bg-success-50 rounded-xl">
+                <div key={index} className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300 p-3 bg-success-50 dark:bg-success-900/20 rounded-xl">
                   <CheckCircle size={18} className="text-success-600 shrink-0 mt-0.5" />
                   <span>{item}</span>
                 </div>
@@ -158,12 +158,12 @@ export default function Done() {
 
             {retained.length > 0 && (
               <>
-                <h3 className="font-semibold text-gray-800 mb-3">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">
                   {t('purge_retained_title')}
                 </h3>
                 <div className="flex flex-col gap-3 mb-5">
                   {retained.map((item, index) => (
-                    <div key={index} className="flex items-start gap-3 text-sm text-gray-600 p-3 bg-primary-50 rounded-xl">
+                    <div key={index} className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl">
                       <CheckCircle size={18} className="text-primary-500 shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </div>
@@ -172,7 +172,7 @@ export default function Done() {
               </>
             )}
 
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
               {t('purge_note')}
             </p>
           </div>
@@ -193,7 +193,7 @@ export default function Done() {
 
             <button
               onClick={leaveScreen}
-              className="w-full bg-gray-100 text-gray-700 py-3.5 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              className="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3.5 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               {t('purge_leave')}
             </button>

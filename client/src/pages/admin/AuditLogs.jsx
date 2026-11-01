@@ -19,14 +19,14 @@ export default function AuditLogs() {
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
       <UniversalHeader showLogout={true} />
 
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Audit Logs</h1>
-            <p className="text-gray-500">Complete system activity trail</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Audit Logs</h1>
+            <p className="text-gray-500 dark:text-gray-400">Complete system activity trail</p>
           </div>
           <button onClick={() => navigate('/admin/purge-proof')}
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all">
@@ -38,14 +38,14 @@ export default function AuditLogs() {
         {loading ? <LoadingSpinner /> : (
           <div className="card overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                 <tr>
                   {['Time', 'Actor', 'Role', 'Action', 'Resource', 'Resource ID'].map(h => (
-                    <th key={h} className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                    <th key={h} className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {logs.length === 0 && (
                   <tr><td colSpan={6} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-4">

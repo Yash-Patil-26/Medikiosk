@@ -250,7 +250,7 @@ export default function DoctorEncounter() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
       <LoadingSpinner />
     </div>
   );
@@ -282,11 +282,11 @@ export default function DoctorEncounter() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
       <UniversalHeader showLogout={true} />
       <div className="px-3 py-2 flex items-center justify-between">
-        <button onClick={() => navigate('/doctor')} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
-          <ArrowLeft size={22} className="text-gray-600" />
+        <button onClick={() => navigate('/doctor')} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <ArrowLeft size={22} className="text-gray-600 dark:text-gray-300" />
         </button>
         <div className="flex items-center gap-2">
           {signed && (
@@ -312,24 +312,24 @@ export default function DoctorEncounter() {
                   <User size={20} className="text-primary-600" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-gray-900">Anonymous</h2>
-                  <p className="text-xs text-gray-500">ID: {encounter?.patient_id || '—'}</p>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">Anonymous</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">ID: {encounter?.patient_id || '—'}</p>
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm">
+                <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm">
                   <div className="flex items-center gap-2">
-                    <Clock size={14} className="text-gray-400" />
-                    <span className="text-gray-600">Time</span>
+                    <Clock size={14} className="text-gray-400 dark:text-gray-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Time</span>
                   </div>
-                  <span className="font-medium text-gray-800">{new Date(encounter?.created_at).toLocaleTimeString()}</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200">{new Date(encounter?.created_at).toLocaleTimeString()}</span>
                 </div>
-                <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm">
+                <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm">
                   <div className="flex items-center gap-2">
-                    <FileText size={14} className="text-gray-400" />
-                    <span className="text-gray-600">Language</span>
+                    <FileText size={14} className="text-gray-400 dark:text-gray-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Language</span>
                   </div>
-                  <span className="font-medium text-gray-800 capitalize">{encounter?.language || 'en'}</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200 capitalize">{encounter?.language || 'en'}</span>
                 </div>
               </div>
             </div>
@@ -359,17 +359,17 @@ export default function DoctorEncounter() {
 
             {summary && (
               <div className="card overflow-hidden">
-                <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-3 py-2 border-b border-primary-200">
-                  <h3 className="font-bold text-gray-900">Patient Summary</h3>
+                <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/30 px-3 py-2 border-b border-primary-200 dark:border-primary-700">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100">Patient Summary</h3>
                 </div>
                 
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-100 dark:divide-gray-700">
                   {/* Chief Complaint */}
-                  <div className="p-3 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Activity size={16} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 text-sm w-32">Chief Complaint</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 text-sm w-32">Chief Complaint</span>
                       </div>
                       <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'chiefComplaint' ? (
@@ -377,20 +377,20 @@ export default function DoctorEncounter() {
                             <input
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
-                              className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                              className="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             />
                             <button onClick={saveEdit} className="p-1 bg-success-500 text-white rounded hover:bg-success-600">
                               <CheckCircle size={14} />
                             </button>
-                            <button onClick={cancelEdit} className="p-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300">
+                            <button onClick={cancelEdit} className="p-1 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
                               <X size={16} />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <span className="text-gray-800 flex-1">{getFieldValue('chiefComplaint')}</span>
+                            <span className="text-gray-800 dark:text-gray-200 flex-1">{getFieldValue('chiefComplaint')}</span>
                             {!signed && (
-                              <button onClick={() => startEdit('chiefComplaint', getFieldValue('chiefComplaint'))} className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                              <button onClick={() => startEdit('chiefComplaint', getFieldValue('chiefComplaint'))} className="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
                                 <Edit2 size={16} />
                               </button>
                             )}
@@ -402,34 +402,34 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* History of Present Illness */}
-                  <div className="p-3 bg-gray-50/50">
+                  <div className="p-3 bg-gray-50/50 dark:bg-gray-800/50">
                     <div className="flex items-center gap-2 mb-3">
                       <Stethoscope size={16} className="text-primary-500" />
-                      <span className="font-semibold text-gray-700">History of Present Illness</span>
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">History of Present Illness</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       {hpiFields.map(field => (
                         <div key={field.key} className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">{field.label}</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">{field.label}</span>
                           {editingField === `historyOfPresentIllness.${field.key}` ? (
                             <div className="flex items-center gap-2">
                               <input
                                 value={editValue}
                                 onChange={e => setEditValue(e.target.value)}
-                                className="w-32 border border-gray-200 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                                className="w-32 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                               />
                               <button onClick={saveEdit} className="p-1 bg-success-500 text-white rounded hover:bg-success-600">
                                 <CheckCircle size={14} />
                               </button>
-                              <button onClick={cancelEdit} className="p-1 bg-gray-200 text-gray-600 rounded hover:bg-gray-300">
+                              <button onClick={cancelEdit} className="p-1 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
                                 <X size={14} />
                               </button>
                             </div>
                           ) : (
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-gray-800">{getFieldValue(`historyOfPresentIllness.${field.key}`)}</span>
+                              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{getFieldValue(`historyOfPresentIllness.${field.key}`)}</span>
                               {!signed && (
-                                <button onClick={() => startEdit(`historyOfPresentIllness.${field.key}`, getFieldValue(`historyOfPresentIllness.${field.key}`))} className="p-1 text-primary-500 hover:bg-primary-50 rounded transition-colors">
+                                <button onClick={() => startEdit(`historyOfPresentIllness.${field.key}`, getFieldValue(`historyOfPresentIllness.${field.key}`))} className="p-1 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded transition-colors">
                                   <Edit2 size={12} />
                                 </button>
                               )}
@@ -442,11 +442,11 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Past Medical History */}
-                  <div className="p-3 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Stethoscope size={16} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-28">Past Medical History</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 w-28">Past Medical History</span>
                       </div>
                       <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'pastMedicalHistory' ? (
@@ -454,7 +454,7 @@ export default function DoctorEncounter() {
                             <input
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
-                              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                              className="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             />
                             <button onClick={saveEdit} className="p-2 bg-success-500 text-white rounded-lg hover:bg-success-600">
                               <CheckCircle size={16} />
