@@ -284,22 +284,22 @@ export default function DoctorEncounter() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
       <UniversalHeader showLogout={true} />
-      <div className="px-3 py-2 flex items-center">
+      <div className="px-3 py-2 flex items-center justify-between">
         <button onClick={() => navigate('/doctor')} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
           <ArrowLeft size={22} className="text-gray-600" />
         </button>
-      </div>
-      <div className="flex items-center gap-2 px-3">
-        {signed && (
-          <>
-            <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
-              <Download size={16} /> Download Summary
-            </button>
-            <button onClick={downloadFhir} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
-              <Download size={16} /> Download FHIR
-            </button>
-          </>
-        )}
+        <div className="flex items-center gap-2">
+          {signed && (
+            <>
+              <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
+                <Download size={16} /> Download Summary
+              </button>
+              <button onClick={downloadFhir} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
+                <Download size={16} /> Download FHIR
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <main className="flex-1 p-3 max-w-7xl mx-auto w-full">

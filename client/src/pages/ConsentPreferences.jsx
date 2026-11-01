@@ -111,6 +111,7 @@ export default function ConsentPreferences({ mode = 'initial' }) {
         </form>
         <p className="text-xs text-gray-400 mt-5">Consent choices are recorded for traceability. This academic prototype does not provide legal advice or verify external health identifiers.</p>
       </main>
+      </div>
     </div>
   );
 }
