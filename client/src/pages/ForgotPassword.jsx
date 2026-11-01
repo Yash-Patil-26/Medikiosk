@@ -123,17 +123,17 @@ export default function ForgotPassword() {
       : 'Email Address';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
       <UniversalHeader />
       <div className="flex-1 flex items-center justify-center p-5">
         <main className="card w-full max-w-md p-7 sm:p-8">
           <div className="flex items-center gap-3 mb-6">
-            <button onClick={() => navigate('/login')} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
-              <ArrowLeft size={20} className="text-gray-600" />
+            <button onClick={() => navigate('/login')} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <ArrowLeft size={20} className="text-gray-600 dark:text-gray-400" />
             </button>
             <div>
-              <span className="text-2xl font-bold text-gray-800">Reset Password</span>
-              <span className="text-sm text-gray-500 block">
+              <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">Reset Password</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 block">
                 {step === 1 ? 'Verify your identity' : 'Set new password'}
               </span>
             </div>
@@ -141,7 +141,7 @@ export default function ForgotPassword() {
 
           {step === 1 ? (
             <form onSubmit={handleIdentifierSubmit} className="flex flex-col gap-4">
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Login ID Type
                 <select
                   value={identifierType}
@@ -150,7 +150,7 @@ export default function ForgotPassword() {
                     setIdentifier('');
                     setIdentifierError('');
                   }}
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                 >
                   <option value="mobile">Mobile Number</option>
                   <option value="email">Email Address</option>
@@ -158,7 +158,7 @@ export default function ForgotPassword() {
                 </select>
               </label>
 
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 {identifierLabel}
                 <input
                   value={identifier}
@@ -170,13 +170,13 @@ export default function ForgotPassword() {
                   placeholder={identifierType === 'abha' ? '14 digits' : identifierType === 'mobile' ? '10 digits' : 'you@example.com'}
                   maxLength={identifierType === 'abha' ? 14 : identifierType === 'mobile' ? 10 : 254}
                   required
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                 />
-                {identifierError && <p className="text-xs text-error-600 mt-1">{identifierError}</p>}
+                {identifierError && <p className="text-xs text-error-600 dark:text-error-400 mt-1">{identifierError}</p>}
               </label>
 
-              {error && <div role="alert" className="rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-700">{error}</div>}
-              {success && <div role="alert" className="rounded-lg border border-success-200 bg-success-50 p-3 text-sm text-success-700">{success}</div>}
+              {error && <div role="alert" className="rounded-lg border border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-900/20 p-3 text-sm text-error-700 dark:text-error-400">{error}</div>}
+              {success && <div role="alert" className="rounded-lg border border-success-200 dark:border-success-800 bg-success-50 dark:bg-success-900/20 p-3 text-sm text-success-700 dark:text-success-400">{success}</div>}
 
               <button
                 type="submit"
@@ -188,7 +188,7 @@ export default function ForgotPassword() {
             </form>
           ) : (
             <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 New Password
                 <input
                   type="password"
@@ -196,21 +196,21 @@ export default function ForgotPassword() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   maxLength={128}
                   required
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                 />
                 {newPassword && (
                   <div className="mt-2 space-y-1">
                     {getPasswordStrength(newPassword).map(rule => (
                       <div key={rule.name} className="flex items-center gap-2 text-xs">
-                        {rule.test ? <Check size={12} className="text-success-600" /> : <X size={12} className="text-gray-400" />}
-                        <span className={rule.test ? 'text-success-700' : 'text-gray-500'}>{rule.name}</span>
+                        {rule.test ? <Check size={12} className="text-success-600 dark:text-success-400" /> : <X size={12} className="text-gray-400 dark:text-gray-500" />}
+                        <span className={rule.test ? 'text-success-700 dark:text-success-400' : 'text-gray-500 dark:text-gray-400'}>{rule.name}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </label>
 
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Confirm New Password
                 <input
                   type="password"
@@ -218,13 +218,13 @@ export default function ForgotPassword() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   maxLength={128}
                   required
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                 />
-                {passwordError && <p className="text-xs text-error-600 mt-1">{passwordError}</p>}
+                {passwordError && <p className="text-xs text-error-600 dark:text-error-400 mt-1">{passwordError}</p>}
               </label>
 
-              {error && <div role="alert" className="rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-700">{error}</div>}
-              {success && <div role="alert" className="rounded-lg border border-success-200 bg-success-50 p-3 text-sm text-success-700">{success}</div>}
+              {error && <div role="alert" className="rounded-lg border border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-900/20 p-3 text-sm text-error-700 dark:text-error-400">{error}</div>}
+              {success && <div role="alert" className="rounded-lg border border-success-200 dark:border-success-800 bg-success-50 dark:bg-success-900/20 p-3 text-sm text-success-700 dark:text-success-400">{success}</div>}
 
               <button
                 type="submit"
@@ -236,8 +236,8 @@ export default function ForgotPassword() {
             </form>
           )}
 
-          <p className="text-sm text-center text-gray-500 mt-6">
-            Remember your password? <Link to="/login" className="font-semibold text-primary-600 hover:text-primary-700">Sign in</Link>
+          <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-6">
+            Remember your password? <Link to="/login" className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">Sign in</Link>
           </p>
         </main>
       </div>

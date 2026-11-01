@@ -76,14 +76,14 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
 
   return (
     <>
-      <header className={`bg-white/90 backdrop-blur border-b border-gray-200 px-5 sm:px-8 py-4 flex items-center justify-between gap-4 sticky top-0 z-20 ${darkMode ? 'dark:bg-gray-800 dark:border-gray-700' : ''}`}>
+      <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur border-b border-gray-200 dark:border-gray-700 px-5 sm:px-8 py-4 flex items-center justify-between gap-4 sticky top-0 z-20">
         <Link to="/" onClick={(e) => { e.preventDefault(); handleLogoClick(); }} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
             <Activity size={20} className="text-white" />
           </div>
           <div>
-            <strong className={`block text-lg ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>MediKiosk</strong>
-            <span className={`text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Clinical Intake System</span>
+            <strong className="block text-lg text-gray-900 dark:text-gray-100">MediKiosk</strong>
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Clinical Intake System</span>
           </div>
         </Link>
 
@@ -104,7 +104,7 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
                   console.error('Failed to update language:', err);
                 }
               }}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="text-sm border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
             >
               <option value="en">English</option>
               <option value="hi">हिंदी</option>
@@ -112,35 +112,35 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
             </select>
           )}
 
-          <button 
+          <button
             onClick={toggleDarkMode}
-            className={`p-2.5 rounded-xl transition-colors touch-target group ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+            className="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-target group"
             aria-label="Toggle dark mode"
             title="Dark/Light Mode"
           >
             {darkMode ? <Sun size={20} className="text-gray-300 group-hover:text-primary-400 transition-colors" /> : <Moon size={20} className="text-gray-600 group-hover:text-primary-600 transition-colors" />}
           </button>
 
-          <button 
+          <button
             onClick={toggleTextSize}
-            className={`p-2.5 rounded-xl transition-colors touch-target group font-bold ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}
+            className="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-target group font-bold text-gray-600 dark:text-gray-300"
             aria-label="Toggle text size"
             title="Text Size"
           >
             T
           </button>
 
-          <button 
+          <button
             onClick={() => setShowHelpModal(true)}
-            className={`p-2.5 rounded-xl transition-colors touch-target group ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+            className="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-target group"
             aria-label="Help"
             title="Help"
           >
-            <HelpCircle size={20} className={darkMode ? "text-gray-400 group-hover:text-primary-400 transition-colors" : "text-gray-400 group-hover:text-primary-600 transition-colors"} />
+            <HelpCircle size={20} className="text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors" />
           </button>
 
           {showLogout && (
-            <button onClick={handleLogout} disabled={loggingOut} className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium disabled:opacity-50 ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}>
+            <button onClick={handleLogout} disabled={loggingOut} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50">
               <LogOut size={16} /> {loggingOut ? 'Signing out…' : 'Log out'}
             </button>
           )}
@@ -149,16 +149,16 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
 
       {showHomeWarning && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className={`rounded-3xl p-8 max-w-md w-full shadow-2xl animate-scale-in ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl animate-scale-in">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning-100 flex items-center justify-center">
               <Activity size={32} className="text-warning-600" />
             </div>
-            <h3 className={`text-xl font-bold mb-3 text-center ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{t('session_warning_title')}</h3>
-            <p className={`mb-6 text-center leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{t('session_warning_message')}</p>
+            <h3 className="text-xl font-bold mb-3 text-center text-gray-800 dark:text-gray-100">{t('session_warning_title')}</h3>
+            <p className="mb-6 text-center leading-relaxed text-gray-600 dark:text-gray-300">{t('session_warning_message')}</p>
             <div className="flex gap-3">
               <button
                 onClick={cancelHomeNavigation}
-                className={`flex-1 px-4 py-3 border rounded-xl font-semibold transition-colors ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+                className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 {t('cancel')}
               </button>
@@ -175,17 +175,17 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
 
       {showHelpModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className={`rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-scale-in ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-scale-in">
             <div className="flex items-center justify-between mb-6">
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{t('help_title')}</h3>
-              <button onClick={() => setShowHelpModal(false)} className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
-                <X size={24} className={darkMode ? "text-gray-400" : "text-gray-500"} />
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">{t('help_title')}</h3>
+              <button onClick={() => setShowHelpModal(false)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <X size={24} className="text-gray-500 dark:text-gray-400" />
               </button>
             </div>
-            <div className={`space-y-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            <div className="space-y-4 text-gray-600 dark:text-gray-300">
               <p>{t('help_introduction')}</p>
-              <div className={`rounded-xl p-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                <h4 className={`font-semibold mb-2 ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>{t('help_steps_title')}</h4>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                <h4 className="font-semibold mb-2 text-gray-800 dark:text-gray-100">{t('help_steps_title')}</h4>
                 <ol className="list-decimal list-inside space-y-2 text-sm">
                   <li>{t('help_step_1')}</li>
                   <li>{t('help_step_2')}</li>
