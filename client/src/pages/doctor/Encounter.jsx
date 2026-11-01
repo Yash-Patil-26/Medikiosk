@@ -289,20 +289,18 @@ export default function DoctorEncounter() {
           <ArrowLeft size={22} className="text-gray-600" />
         </button>
       </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {signed && (
-            <>
-              <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
-                <Download size={16} /> Download Summary
-              </button>
-              <button onClick={downloadFhir} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
-                <Download size={16} /> Download FHIR
-              </button>
-            </>
-          )}
-        </div>
-      </header>
+      <div className="flex items-center gap-2 px-3">
+        {signed && (
+          <>
+            <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
+              <Download size={16} /> Download Summary
+            </button>
+            <button onClick={downloadFhir} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
+              <Download size={16} /> Download FHIR
+            </button>
+          </>
+        )}
+      </div>
 
       <main className="flex-1 p-3 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
