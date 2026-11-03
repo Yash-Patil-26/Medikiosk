@@ -735,7 +735,7 @@ export default function DoctorEncounter() {
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 disabled={signed}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white resize-none"
+                className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-900 text-gray-900 dark:text-gray-100 resize-none"
                 rows={4}
                 placeholder="Add your clinical notes here..."
               />

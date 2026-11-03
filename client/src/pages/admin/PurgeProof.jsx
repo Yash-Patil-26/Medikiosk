@@ -68,8 +68,8 @@ export default function PurgeProof() {
                     </span>
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                  <p className="text-sm text-gray-600">Session ID: <span className="font-mono text-gray-800">{r.resource_id}</span></p>
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Session ID: <span className="font-mono text-gray-800 dark:text-gray-200">{r.resource_id}</span></p>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[

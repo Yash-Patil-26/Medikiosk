@@ -57,18 +57,18 @@ export default function HIS() {
                 {records.length === 0 && (
                   <tr><td colSpan={4} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
-                        <FileText size={32} className="text-gray-300" />
+                      <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <FileText size={32} className="text-gray-300 dark:text-gray-500" />
                       </div>
-                      <p className="text-gray-400 font-medium">No records received yet</p>
-                      <p className="text-xs text-gray-300">FHIR bundles will appear here after encounters are signed</p>
+                      <p className="text-gray-400 dark:text-gray-500 font-medium">No records received yet</p>
+                      <p className="text-xs text-gray-300 dark:text-gray-600">FHIR bundles will appear here after encounters are signed</p>
                     </div>
                   </td></tr>
                 )}
                 {records.map(r => (
-                  <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <td className="px-6 py-4">
-                      <span className="font-mono text-sm text-gray-700 bg-gray-100 px-3 py-1 rounded-lg">HIS-{r.id}</span>
+                      <span className="font-mono text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">HIS-{r.id}</span>
                     </td>
                     <td className="px-6 py-4 text-gray-600">ENC-{r.encounter_id}</td>
                     <td className="px-6 py-4 text-gray-500">{new Date(r.received_at).toLocaleString()}</td>

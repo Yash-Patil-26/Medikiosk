@@ -49,27 +49,27 @@ export default function AuditLogs() {
                 {logs.length === 0 && (
                   <tr><td colSpan={6} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
-                        <FileText size={32} className="text-gray-300" />
+                      <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <FileText size={32} className="text-gray-300 dark:text-gray-500" />
                       </div>
-                      <p className="text-gray-400 font-medium">No audit logs yet</p>
-                      <p className="text-xs text-gray-300">Audit logs will appear here as users interact with the system</p>
+                      <p className="text-gray-400 dark:text-gray-500 font-medium">No audit logs yet</p>
+                      <p className="text-xs text-gray-300 dark:text-gray-600">Audit logs will appear here as users interact with the system</p>
                     </div>
                   </td></tr>
                 )}
                 {logs.map(log => (
-                  <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-gray-500 whitespace-nowrap flex items-center gap-2">
-                      <Clock size={14} className="text-gray-400" />
+                  <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400 whitespace-nowrap flex items-center gap-2">
+                      <Clock size={14} className="text-gray-400 dark:text-gray-500" />
                       {new Date(log.timestamp).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-gray-700 font-medium">{log.actor_id}</td>
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700">{log.actor_role}</span>
                     </td>
-                    <td className="px-6 py-4 font-mono text-xs text-gray-700 bg-gray-50 rounded-lg px-3 py-1">{log.action}</td>
-                    <td className="px-6 py-4 text-gray-600">{log.resource_type}</td>
-                    <td className="px-6 py-4 font-mono text-xs text-gray-500">{log.resource_id}</td>
+                    <td className="px-6 py-4 font-mono text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-1">{log.action}</td>
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{log.resource_type}</td>
+                    <td className="px-6 py-4 font-mono text-xs text-gray-500 dark:text-gray-400">{log.resource_id}</td>
                   </tr>
                 ))}
               </tbody>

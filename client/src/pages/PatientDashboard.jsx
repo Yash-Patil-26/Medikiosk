@@ -495,7 +495,7 @@ export default function PatientDashboard() {
                 <input
                   value={editForm.display_name}
                   onChange={e => setEditForm({ ...editForm, display_name: e.target.value })}
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                   required
                 />
               </label>
@@ -507,7 +507,7 @@ export default function PatientDashboard() {
                   value={editForm.date_of_birth}
                   onChange={e => setEditForm({ ...editForm, date_of_birth: e.target.value })}
                   max={new Date().toISOString().slice(0, 10)}
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                   required
                 />
               </label>
@@ -517,7 +517,7 @@ export default function PatientDashboard() {
                 <select
                   value={editForm.sex}
                   onChange={e => setEditForm({ ...editForm, sex: e.target.value })}
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                 >
                   <option value="prefer_not_to_say">Prefer not to say</option>
                   <option value="female">Female</option>
@@ -531,7 +531,7 @@ export default function PatientDashboard() {
                 <select
                   value={editForm.preferred_language}
                   onChange={e => setEditForm({ ...editForm, preferred_language: e.target.value })}
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                 >
                   <option value="en">English</option>
                   <option value="hi">Hindi</option>
@@ -544,7 +544,7 @@ export default function PatientDashboard() {
                 <select
                   value={editForm.identifier_type}
                   onChange={e => setEditForm({ ...editForm, identifier_type: e.target.value })}
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                 >
                   <option value="mobile">Mobile Number</option>
                   <option value="email">Email Address</option>
@@ -561,7 +561,7 @@ export default function PatientDashboard() {
                   inputMode={editForm.identifier_type === 'email' ? 'email' : 'numeric'}
                   maxLength={editForm.identifier_type === 'abha' ? 14 : editForm.identifier_type === 'mobile' ? 10 : 254}
                   placeholder={editForm.identifier_type === 'abha' ? '14 digits' : editForm.identifier_type === 'mobile' ? '10 digits' : 'you@example.com'}
-                  className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                   required
                 />
               </label>
@@ -576,7 +576,7 @@ export default function PatientDashboard() {
                       type={showPassword ? 'text' : 'password'}
                       value={editForm.current_password}
                       onChange={e => setEditForm({ ...editForm, current_password: e.target.value })}
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                     />
                     <button
                       type="button"
@@ -595,7 +595,7 @@ export default function PatientDashboard() {
                       type={showNewPassword ? 'text' : 'password'}
                       value={editForm.new_password}
                       onChange={e => setEditForm({ ...editForm, new_password: e.target.value })}
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                     />
                     <button
                       type="button"
@@ -613,7 +613,7 @@ export default function PatientDashboard() {
                     type="password"
                     value={editForm.confirm_password}
                     onChange={e => setEditForm({ ...editForm, confirm_password: e.target.value })}
-                    className="mt-1.5 w-full border border-gray-200 rounded-lg px-4 py-2.5 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
                   />
                 </label>
               </div>
@@ -624,7 +624,7 @@ export default function PatientDashboard() {
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg font-semibold text-gray-700 hover:bg-gray-50"
+                  className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </button>

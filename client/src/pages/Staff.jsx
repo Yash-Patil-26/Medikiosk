@@ -38,7 +38,7 @@ function AlertCard({ alert, onAck }) {
       <div className="flex gap-2">
         {!alert.acknowledged_at ? (
           <button onClick={() => onAck(alert.id)}
-            className="flex items-center gap-2 px-4 py-2 bg-white border rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
             <CheckCircle size={14} /> Acknowledge
           </button>
         ) : (

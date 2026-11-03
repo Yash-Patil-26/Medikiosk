@@ -100,10 +100,10 @@ export default function Review() {
     return (
       <KioskShell step="Review">
         <div className="flex flex-col items-center gap-4 mt-10 text-center animate-scale-in">
-          <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
-            <CheckCircle size={32} className="text-gray-400" />
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            <CheckCircle size={32} className="text-gray-300 dark:text-gray-500" />
           </div>
-          <p className="text-gray-500">{t('no_session')}</p>
+          <p className="text-gray-500 dark:text-gray-400">{t('no_session')}</p>
           <button onClick={() => navigate('/me')}
             className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-200 transition-all">
             {t('start_over')}
