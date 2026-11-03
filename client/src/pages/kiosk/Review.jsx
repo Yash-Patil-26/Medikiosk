@@ -130,7 +130,7 @@ export default function Review() {
           <button
             type="button"
             onClick={() => navigate('/me')}
-            className="text-gray-500 text-sm font-medium hover:text-gray-700"
+            className="text-gray-500 dark:text-gray-400 text-sm font-medium hover:text-gray-700 dark:hover:text-gray-300"
           >
             Start Over
           </button>
