@@ -500,7 +500,7 @@ export default function PatientDashboard() {
                 />
               </label>
 
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Date of Birth
                 <input
                   type="date"
@@ -512,7 +512,7 @@ export default function PatientDashboard() {
                 />
               </label>
 
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Sex
                 <select
                   value={editForm.sex}
@@ -526,7 +526,7 @@ export default function PatientDashboard() {
                 </select>
               </label>
 
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Preferred Language
                 <select
                   value={editForm.preferred_language}
@@ -539,7 +539,7 @@ export default function PatientDashboard() {
                 </select>
               </label>
 
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Login ID Type
                 <select
                   value={editForm.identifier_type}
@@ -552,7 +552,7 @@ export default function PatientDashboard() {
                 </select>
               </label>
 
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                 {editForm.identifier_type === 'abha' ? 'ABHA Number' : editForm.identifier_type === 'mobile' ? 'Mobile Number' : 'Email Address'}
                 <input
                   value={editForm.identifier}
@@ -569,7 +569,7 @@ export default function PatientDashboard() {
               <div className="border-t border-gray-200 pt-4">
                 <p className="text-sm font-semibold text-gray-700 mb-3">Change Password (Optional)</p>
                 
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Current Password
                   <div className="relative mt-1.5">
                     <input
@@ -588,7 +588,7 @@ export default function PatientDashboard() {
                   </div>
                 </label>
 
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                   New Password
                   <div className="relative mt-1.5">
                     <input
@@ -607,7 +607,7 @@ export default function PatientDashboard() {
                   </div>
                 </label>
 
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Confirm New Password
                   <input
                     type="password"
