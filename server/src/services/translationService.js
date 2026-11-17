@@ -91,6 +91,13 @@ const HINDI_TRANSLATIONS = {
   'Moderate': 'मध्यम',
   'Severe': 'गंभीर',
   // Fever specific
+  'When did the fever start?': 'बुखार कब से शुरू हुआ?',
+  'Do you know your temperature reading?': 'क्या आपको अपना तापमान पता है?',
+  'Low grade (99-100°F)': 'कम तापमान (99-100°F)',
+  'Moderate (100-102°F)': 'सामान्य (100-102°F)',
+  'High (above 102°F)': 'ज्यादा (102°F से ऊपर)',
+  'I don\'t know': 'मुझे पता नहीं',
+  'Do you have chills or shivering?': 'क्या आपको ठंड लग रही है या कांप आ रही है?',
   'Have you felt confused or had any change in awareness?': 'क्या आपको भ्रम हुआ है या जागरूकता में कोई बदलाव आया है?',
   'Yes': 'हां',
   'No': 'नहीं',
