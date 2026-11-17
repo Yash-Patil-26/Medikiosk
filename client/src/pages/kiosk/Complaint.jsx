@@ -8,13 +8,13 @@ import MicButton from '../../components/MicButton.jsx';
 import api from '../../services/api.js';
 
 const COMPLAINTS = [
-  { value: 'chest_discomfort', label: 'Chest Discomfort', desc: 'Pressure, pain, or tightness in chest', icon: Heart, color: 'text-rose-500' },
-  { value: 'fever', label: 'Fever', desc: 'High body temperature, chills', icon: Thermometer, color: 'text-orange-500' },
-  { value: 'cough', label: 'Cough', desc: 'Dry or productive cough', icon: Wind, color: 'text-blue-500' },
-  { value: 'headache', label: 'Headache', desc: 'Head pain or pressure', icon: Brain, color: 'text-purple-500' },
-  { value: 'abdominal_pain', label: 'Abdominal Pain', desc: 'Stomach or belly pain', icon: Activity, color: 'text-teal-500' },
-  { value: 'general_weakness', label: 'General Weakness', desc: 'Fatigue or low energy', icon: Zap, color: 'text-yellow-500' },
-  { value: 'other', label: 'Other', desc: 'Something else', icon: HelpCircle, color: 'text-gray-500' }
+  { value: 'chest_discomfort', labelKey: 'complaint_chest', descKey: 'complaint_chest_desc', icon: Heart, color: 'text-rose-500' },
+  { value: 'fever', labelKey: 'complaint_fever', descKey: 'complaint_fever_desc', icon: Thermometer, color: 'text-orange-500' },
+  { value: 'cough', labelKey: 'complaint_cough', descKey: 'complaint_cough_desc', icon: Wind, color: 'text-blue-500' },
+  { value: 'headache', labelKey: 'complaint_headache', descKey: 'complaint_headache_desc', icon: Brain, color: 'text-purple-500' },
+  { value: 'abdominal_pain', labelKey: 'complaint_abdominal', descKey: 'complaint_abdominal_desc', icon: Activity, color: 'text-teal-500' },
+  { value: 'general_weakness', labelKey: 'complaint_weakness', descKey: 'complaint_weakness_desc', icon: Zap, color: 'text-yellow-500' },
+  { value: 'other', labelKey: 'complaint_other', descKey: 'complaint_other_desc', icon: HelpCircle, color: 'text-gray-500' }
 ];
 
 const COMPLAINT_KEYWORDS = [
@@ -59,7 +59,7 @@ export default function Complaint() {
       update({ complaint: value });
       navigate('/kiosk/interview');
     } catch {
-      setError('Error saving complaint. Please try again.');
+      setError(t('error_saving_complaint'));
     }
     finally { setLoading(false); }
   };
@@ -84,17 +84,21 @@ export default function Complaint() {
         )}
 
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 w-full mb-6" role="listbox" aria-label="Select your complaint">
-          {COMPLAINTS.map(c => (
-            <button key={c.value} onClick={() => select(c.value, c.label)} disabled={loading}
-              className="card card-hover flex flex-col items-center gap-2 p-4 text-center transition-all touch-target group disabled:opacity-50"
-              role="option" aria-label={`${c.label}: ${c.desc}`}>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <c.icon size={24} className={c.color} aria-hidden="true" />
-              </div>
-              <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{c.label}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{c.desc}</p>
-            </button>
-          ))}
+          {COMPLAINTS.map(c => {
+            const label = t(c.labelKey);
+            const desc = t(c.descKey);
+            return (
+              <button key={c.value} onClick={() => select(c.value, label)} disabled={loading}
+                className="card card-hover flex flex-col items-center gap-2 p-4 text-center transition-all touch-target group disabled:opacity-50"
+                role="option" aria-label={`${label}: ${desc}`}>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <c.icon size={24} className={c.color} aria-hidden="true" />
+                </div>
+                <p className="font-bold text-gray-800 dark:text-gray-200 text-sm">{label}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{desc}</p>
+              </button>
+            );
+          })}
         </div>
 
         <div className="w-full border-t border-gray-200 dark:border-gray-700 pt-6 flex flex-col gap-4">
