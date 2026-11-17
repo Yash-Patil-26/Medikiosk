@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, PenLine, AlertTriangle, Download, CheckCircle, User, Clock, FileText, Stethoscope, Shield, FileCheck, Heart, Pill, AlertCircle, Edit2, X } from 'lucide-react';
+import { ArrowLeft, Save, PenLine, AlertTriangle, Download, CheckCircle, User, Clock, FileText, Stethoscope, Shield, FileCheck, Heart, Pill, AlertCircle, Edit2, X, Activity } from 'lucide-react';
 import RedFlagBanner from '../../components/RedFlagBanner.jsx';
 import ProvenanceChip from '../../components/ProvenanceChip.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
