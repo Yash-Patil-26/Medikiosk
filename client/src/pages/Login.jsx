@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { Lock, User } from 'lucide-react';
 import UniversalHeader from '../components/UniversalHeader.jsx';
 
-const ROLE_REDIRECTS = { doctor: '/doctor', staff: '/staff', admin: '/admin/audit' };
+const ROLE_REDIRECTS = { doctor: '/doctor', admin: '/admin/audit' };
 
 export default function Login() {
   const { login } = useAuth();
@@ -65,7 +65,6 @@ export default function Login() {
                 className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100">
                 <option value="patient">Patient</option>
                 <option value="doctor">Doctor</option>
-                <option value="staff">Staff</option>
               </select>
             </label>
 

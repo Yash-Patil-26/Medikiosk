@@ -10,7 +10,7 @@
         { "slotId": "breathing_difficulty", "value": "severe" }
       ]
     },
-    "reason": "Priority for staff review."
+    "reason": "Priority for doctor review."
   },
   {
     "ruleId": "RF002",
@@ -23,7 +23,7 @@
         { "slotId": "radiation", "value": "arm_or_jaw" }
       ]
     },
-    "reason": "Priority for staff review."
+    "reason": "Priority for doctor review."
   },
   {
     "ruleId": "RF003",
@@ -37,7 +37,7 @@
         { "slotId": "severity", "value": "severe" }
       ]
     },
-    "reason": "Priority for staff review."
+    "reason": "Priority for doctor review."
   },
   {
     "ruleId": "RF004",
@@ -50,7 +50,7 @@
         { "slotId": "altered_consciousness", "value": "yes" }
       ]
     },
-    "reason": "Priority for staff review."
+    "reason": "Priority for doctor review."
   },
   {
     "ruleId": "RF005",
@@ -63,6 +63,6 @@
         { "slotId": "severity_score", "operator": "gte", "value": "8" }
       ]
     },
-    "reason": "Priority for staff review."
+    "reason": "Priority for doctor review."
   }
 ]

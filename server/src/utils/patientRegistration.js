@@ -111,7 +111,7 @@ export function validatePatientRegistration(body = {}) {
         password: body.password
       }
     };
-  } else if (role === 'doctor' || role === 'staff') {
+  } else if (role === 'doctor') {
     const allowed = new Set(['role', 'display_name', 'password']);
     const unsupported = Object.keys(body).filter(key => !allowed.has(key));
     if (unsupported.length) {
@@ -135,7 +135,7 @@ export function validatePatientRegistration(body = {}) {
       }
     };
   } else {
-    return { valid: false, error: 'Invalid role. Allowed roles: patient, doctor, staff' };
+    return { valid: false, error: 'Invalid role. Allowed roles: patient, doctor' };
   }
 }
 

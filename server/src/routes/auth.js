@@ -111,8 +111,8 @@ router.post('/register', async (req, res, next) => {
     if (!validation.valid) {
       return res.status(400).json({ error: validation.error, ...(validation.fields ? { fields: validation.fields } : {}) });
     }
-  } else if (role === 'doctor' || role === 'staff') {
-    // Basic validation for doctor/staff
+  } else if (role === 'doctor') {
+    // Basic validation for doctor
     if (!body.display_name || !body.display_name.trim()) {
       return res.status(400).json({ error: 'Display name is required.' });
     }
@@ -120,7 +120,7 @@ router.post('/register', async (req, res, next) => {
       return res.status(400).json({ error: 'Password must be at least 10 characters.' });
     }
   } else {
-    return res.status(400).json({ error: 'Invalid role. Allowed roles: patient, doctor, staff' });
+    return res.status(400).json({ error: 'Invalid role. Allowed roles: patient, doctor' });
   }
 
   const registration = role === 'patient' ? validatePatientRegistration(body).value : body;
@@ -182,9 +182,9 @@ router.post('/register', async (req, res, next) => {
         [userId, String(patientId), JSON.stringify({ identifier_type: registration.identifier_type })]
       );
     } else {
-      // Doctor or Staff - use display_name as username
+      // Doctor - use display_name as username
       const username = registration.display_name.trim().toLowerCase().replace(/\s+/g, '_');
-      
+
       const [duplicateRows] = await connection.query(
         `SELECT id FROM users WHERE username = ? LIMIT 1 FOR UPDATE`,
         [username]
@@ -206,7 +206,7 @@ router.post('/register', async (req, res, next) => {
       await connection.query(
         `INSERT INTO audit_logs
          (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
-         VALUES (?, ?, 'STAFF_REGISTERED', 'user', ?, ?)`,
+         VALUES (?, ?, 'DOCTOR_REGISTERED', 'user', ?, ?)`,
         [role, userId, String(userId), JSON.stringify({ display_name: registration.display_name })]
       );
     }

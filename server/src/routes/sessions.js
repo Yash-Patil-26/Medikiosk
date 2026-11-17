@@ -254,7 +254,7 @@ router.delete('/:id', requireKioskSessionToken(req => req.params.id), async (req
 
   const retainedItems = [
     'Consent history retained for audit',
-    'Red-flag alerts retained for staff review',
+    'Red-flag alerts retained for doctor review',
     'Session metadata retained as a purged marker',
     'Encounter records and purge audit event retained'
   ];

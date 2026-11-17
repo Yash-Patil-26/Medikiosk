@@ -11,7 +11,6 @@ import consentRoutes from './routes/consents.js';
 import dialogueRoutes from './routes/dialogue.js';
 import documentRoutes from './routes/documents.js';
 import encounterRoutes from './routes/encounters.js';
-import staffRoutes from './routes/staff.js';
 import hisRoutes from './routes/his.js';
 import adminRoutes from './routes/admin.js';
 
@@ -35,7 +34,6 @@ app.use('/api/consents', consentRoutes);
 app.use('/api/dialogue', dialogueRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/encounters', encounterRoutes);
-app.use('/api/staff', staffRoutes);
 app.use('/api/his', hisRoutes);
 app.use('/api/admin', adminRoutes);
 

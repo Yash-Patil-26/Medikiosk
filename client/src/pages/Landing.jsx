@@ -36,7 +36,7 @@ export default function Landing() {
     { icon: Shield, value: '4', label: 'Consent Choices' },
     { icon: Users, value: '1', label: 'Login ID per Account' },
     { icon: ClipboardList, value: '5', label: 'Intake Workflow Stages' },
-    { icon: CheckCircle, value: 'Staff', label: 'Clinical Review Required' },
+    { icon: CheckCircle, value: 'Doctor', label: 'Clinical Review Required' },
   ];
 
   return (
