@@ -451,9 +451,9 @@ export default function DoctorEncounter() {
                           </div>
                         ) : (
                           <>
-                            <span className="text-gray-800 flex-1">{getFieldValue('pastMedicalHistory')}</span>
+                            <span className="text-gray-800 dark:text-gray-200 flex-1">{getFieldValue('pastMedicalHistory')}</span>
                             {!signed && (
-                              <button onClick={() => startEdit('pastMedicalHistory', getFieldValue('pastMedicalHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                              <button onClick={() => startEdit('pastMedicalHistory', getFieldValue('pastMedicalHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
                                 <Edit2 size={16} />
                               </button>
                             )}
@@ -465,11 +465,11 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Past Surgical History */}
-                  <div className="p-3 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <FileCheck size={16} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-28">Past Surgical History</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 w-28">Past Surgical History</span>
                       </div>
                       <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'pastSurgicalHistory' ? (
@@ -477,20 +477,20 @@ export default function DoctorEncounter() {
                             <input
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
-                              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                              className="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             />
                             <button onClick={saveEdit} className="p-2 bg-success-500 text-white rounded-lg hover:bg-success-600">
                               <CheckCircle size={16} />
                             </button>
-                            <button onClick={cancelEdit} className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300">
+                            <button onClick={cancelEdit} className="p-2 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
                               <X size={16} />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <span className="text-gray-800 flex-1">{getFieldValue('pastSurgicalHistory')}</span>
+                            <span className="text-gray-800 dark:text-gray-200 flex-1">{getFieldValue('pastSurgicalHistory')}</span>
                             {!signed && (
-                              <button onClick={() => startEdit('pastSurgicalHistory', getFieldValue('pastSurgicalHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                              <button onClick={() => startEdit('pastSurgicalHistory', getFieldValue('pastSurgicalHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
                                 <Edit2 size={16} />
                               </button>
                             )}
@@ -502,11 +502,11 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Drug History */}
-                  <div className="p-3 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Pill size={16} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-28">Drug History</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 w-28">Drug History</span>
                       </div>
                       <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'drugHistory' ? (
@@ -514,20 +514,20 @@ export default function DoctorEncounter() {
                             <input
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
-                              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                              className="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             />
                             <button onClick={saveEdit} className="p-2 bg-success-500 text-white rounded-lg hover:bg-success-600">
                               <CheckCircle size={16} />
                             </button>
-                            <button onClick={cancelEdit} className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300">
+                            <button onClick={cancelEdit} className="p-2 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
                               <X size={16} />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <span className="text-gray-800 flex-1">{getFieldValue('drugHistory')}</span>
+                            <span className="text-gray-800 dark:text-gray-200 flex-1">{getFieldValue('drugHistory')}</span>
                             {!signed && (
-                              <button onClick={() => startEdit('drugHistory', getFieldValue('drugHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                              <button onClick={() => startEdit('drugHistory', getFieldValue('drugHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
                                 <Edit2 size={16} />
                               </button>
                             )}
@@ -539,11 +539,11 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Allergy History */}
-                  <div className="p-3 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <AlertCircle size={16} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-28">Allergy History</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 w-28">Allergy History</span>
                       </div>
                       <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'allergyHistory' ? (
@@ -551,20 +551,20 @@ export default function DoctorEncounter() {
                             <input
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
-                              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                              className="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             />
                             <button onClick={saveEdit} className="p-2 bg-success-500 text-white rounded-lg hover:bg-success-600">
                               <CheckCircle size={16} />
                             </button>
-                            <button onClick={cancelEdit} className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300">
+                            <button onClick={cancelEdit} className="p-2 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
                               <X size={16} />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <span className="text-gray-800 flex-1">{getFieldValue('allergyHistory')}</span>
+                            <span className="text-gray-800 dark:text-gray-200 flex-1">{getFieldValue('allergyHistory')}</span>
                             {!signed && (
-                              <button onClick={() => startEdit('allergyHistory', getFieldValue('allergyHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                              <button onClick={() => startEdit('allergyHistory', getFieldValue('allergyHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
                                 <Edit2 size={16} />
                               </button>
                             )}
@@ -576,11 +576,11 @@ export default function DoctorEncounter() {
                   </div>
 
                   {/* Family History */}
-                  <div className="p-3 hover:bg-gray-50 transition-colors">
+                  <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Heart size={16} className="text-primary-500" />
-                        <span className="font-semibold text-gray-700 w-28">Family History</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 w-28">Family History</span>
                       </div>
                       <div className="flex-1 flex items-center justify-between gap-2">
                         {editingField === 'familyHistory' ? (
@@ -588,20 +588,20 @@ export default function DoctorEncounter() {
                             <input
                               value={editValue}
                               onChange={e => setEditValue(e.target.value)}
-                              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                              className="flex-1 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             />
                             <button onClick={saveEdit} className="p-2 bg-success-500 text-white rounded-lg hover:bg-success-600">
                               <CheckCircle size={16} />
                             </button>
-                            <button onClick={cancelEdit} className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300">
+                            <button onClick={cancelEdit} className="p-2 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
                               <X size={16} />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <span className="text-gray-800 flex-1">{getFieldValue('familyHistory')}</span>
+                            <span className="text-gray-800 dark:text-gray-200 flex-1">{getFieldValue('familyHistory')}</span>
                             {!signed && (
-                              <button onClick={() => startEdit('familyHistory', getFieldValue('familyHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors">
+                              <button onClick={() => startEdit('familyHistory', getFieldValue('familyHistory'))} className="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
                                 <Edit2 size={16} />
                               </button>
                             )}
