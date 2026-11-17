@@ -1,7 +1,7 @@
 ﻿import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { translateNode as apiTranslateNode } from './translationService.js';
+import { translateText } from './translationService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CONTENT_DIR = path.resolve(__dirname, '../../..', 'content', 'questions');
@@ -123,12 +123,12 @@ export async function getNextNode(session, slotMap) {
   const language = session.language || 'en';
 
   if (!complaint) {
-    const message = language === 'en' 
+    const message = language === 'en'
       ? 'Please select your complaint first.'
-      : await apiTranslateNode({ message: 'Please select your complaint first.' }, language);
+      : translateText('Please select your complaint first.', language);
     return {
       type: 'complaint_selection',
-      message: message.message || 'Please select your complaint first.'
+      message: message
     };
   }
 
@@ -176,15 +176,24 @@ export async function getNextNode(session, slotMap) {
   // Preserve the existing graph-array question order.
   for (const node of allNodes) {
     if (node.slotId && !slotMap[node.slotId]) {
-      // Translate the node using API for better accuracy
-      const translatedNode = await apiTranslateNode(node, language);
+      // Translate the node using hardcoded translations
+      const translatedNode = {
+        ...node,
+        message: node.message ? translateText(node.message, language) : node.message,
+        placeholder: node.placeholder ? translateText(node.placeholder, language) : node.placeholder,
+        noneLabel: node.noneLabel ? translateText(node.noneLabel, language) : node.noneLabel,
+        options: node.options ? node.options.map(opt => ({
+          ...opt,
+          label: opt.label ? translateText(opt.label, language) : opt.label
+        })) : node.options
+      };
       return { ...translatedNode, graphId };
     }
   }
 
   const endMessage = language === 'en'
     ? 'Interview complete.'
-    : (await apiTranslateNode({ message: 'Interview complete.' }, language)).message || 'Interview complete.';
+    : translateText('Interview complete.', language);
 
   return { 
     type: 'END', 
