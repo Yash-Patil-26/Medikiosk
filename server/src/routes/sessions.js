@@ -13,7 +13,7 @@ const router = Router();
 router.post('/', authenticate, requireRole('patient'), async (req, res, next) => {
   const body = req.body || {};
   const unsupported = Object.keys(body).filter(
-    key => !['language', 'ayush_mode', 'graph_id'].includes(key)
+    key => !['language', 'ayush_mode', 'graph_id', 'doctor_id'].includes(key)
   );
   if (unsupported.length) {
     return res.status(400).json({ error: 'Unsupported session fields', fields: unsupported });
@@ -32,6 +32,10 @@ router.post('/', authenticate, requireRole('patient'), async (req, res, next) =>
   const graphId = body.graph_id ?? null;
   if (graphId !== null && (typeof graphId !== 'string' || graphId.length > 100)) {
     return res.status(400).json({ error: 'Invalid graph_id' });
+  }
+  const doctorId = body.doctor_id ?? null;
+  if (doctorId !== null && (typeof doctorId !== 'number' || doctorId <= 0)) {
+    return res.status(400).json({ error: 'Invalid doctor_id' });
   }
 
   const id = randomUUID();
@@ -76,16 +80,17 @@ router.post('/', authenticate, requireRole('patient'), async (req, res, next) =>
 
     await connection.query(
       `INSERT INTO sessions
-       (id, patient_id, language, ayush_mode, graph_id,
+       (id, patient_id, language, ayush_mode, graph_id, doctor_id,
         voice_consent, document_consent, share_his_consent, save_dashboard_consent,
         expires_at, kiosk_token_hash)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         patientId,
         language,
         body.ayush_mode === true || body.ayush_mode === 1 ? 1 : 0,
         graphId,
+        doctorId,
         preferences.voice ? 1 : 0,
         preferences.document ? 1 : 0,
         preferences.his ? 1 : 0,
@@ -130,6 +135,7 @@ router.post('/', authenticate, requireRole('patient'), async (req, res, next) =>
       patient_id: patientId,
       language,
       ayush_mode: body.ayush_mode === true || body.ayush_mode === 1,
+      doctor_id: doctorId,
       expires_at,
       consents: preferences,
       kioskToken: sessionCredential.token

@@ -277,6 +277,24 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+router.get('/doctors', async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, username, display_name
+       FROM users
+       WHERE role = 'doctor'
+       ORDER BY display_name ASC`
+    );
+    return res.json(rows.map(row => ({
+      id: Number(row.id),
+      username: row.username,
+      display_name: row.display_name || row.username
+    })));
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.post('/consent-preferences', authenticate, requireRole('patient'), async (req, res, next) => {
   const validation = validateConsentPreferences(req.body || {});
   if (!validation.valid) return res.status(400).json({ error: validation.error });

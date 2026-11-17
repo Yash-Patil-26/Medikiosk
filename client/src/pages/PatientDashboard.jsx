@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, User, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar, X, Check, Eye, EyeOff } from 'lucide-react';
+import { Shield, User, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar, X, Check, Eye, EyeOff, Stethoscope } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useKiosk } from '../context/KioskContext.jsx';
 import UniversalHeader from '../components/UniversalHeader.jsx';
@@ -44,6 +44,9 @@ export default function PatientDashboard() {
   const [editLoading, setEditLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
 
   // Apply user's preferred language on mount
   useEffect(() => {
@@ -115,12 +118,17 @@ export default function PatientDashboard() {
   };
 
   const startSession = async () => {
+    if (!selectedDoctor) {
+      setError('Please select a doctor before starting the session.');
+      return;
+    }
     setStarting(true);
     setError('');
     try {
       const response = await api.post('/sessions', {
         language: user.preferred_language || 'en',
-        ayush_mode: Boolean(kiosk.ayushMode)
+        ayush_mode: Boolean(kiosk.ayushMode),
+        doctor_id: selectedDoctor.id
       });
       update({
         patientId: response.data.patient_id,
@@ -129,7 +137,9 @@ export default function PatientDashboard() {
         consents: response.data.consents || user.consents || {},
         complaint: null,
         slots: {},
-        encounterId: null
+        encounterId: null,
+        doctorId: selectedDoctor.id,
+        doctorName: selectedDoctor.display_name
       });
       // Apply language preference to new session
       i18n.changeLanguage(response.data.language || user.preferred_language || 'en');
@@ -167,6 +177,21 @@ export default function PatientDashboard() {
       }
     };
     loadEncounters();
+  }, []);
+
+  useEffect(() => {
+    const loadDoctors = async () => {
+      setLoadingDoctors(true);
+      try {
+        const r = await api.get('/auth/doctors');
+        setDoctors(r.data || []);
+      } catch {
+        // Error loading doctors
+      } finally {
+        setLoadingDoctors(false);
+      }
+    };
+    loadDoctors();
   }, []);
 
   const downloadEncounterSummary = async (encounterId, tokenNo) => {
@@ -381,12 +406,48 @@ export default function PatientDashboard() {
             <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center mb-4"><ClipboardList size={24} className="text-primary-600 dark:text-primary-400" /></div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Start a new intake</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-5">Your saved consent choices will automatically be applied to the new session. You will not be prompted to consent again unless the consent notice requires an update.</p>
+            
+            {/* Doctor Selection */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Select your doctor</label>
+              {loadingDoctors ? (
+                <div className="text-sm text-gray-500 dark:text-gray-400">Loading doctors...</div>
+              ) : doctors.length === 0 ? (
+                <div className="text-sm text-gray-500 dark:text-gray-400">No doctors available. Please contact administration.</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {doctors.map(doctor => (
+                    <button
+                      key={doctor.id}
+                      onClick={() => setSelectedDoctor(doctor)}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                        selectedDoctor?.id === doctor.id
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                          : 'border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-700'
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 flex items-center justify-center shrink-0">
+                        <Stethoscope size={18} className="text-primary-600 dark:text-primary-400" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{doctor.display_name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Dr. {doctor.username}</p>
+                      </div>
+                      {selectedDoctor?.id === doctor.id && (
+                        <CheckCircle size={18} className="text-primary-600 dark:text-primary-400 shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <label className="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-600 p-4 mb-5 cursor-pointer">
               <input type="checkbox" checked={Boolean(kiosk.ayushMode)} onChange={event => update({ ayushMode: event.target.checked })} className="mt-1 h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500" />
               <span><strong className="block text-sm text-gray-800 dark:text-gray-200">AYUSH / Ayurveda consultation</strong><span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">Enable additional questions about Prakriti, Agni, diet and lifestyle.</span></span>
             </label>
             {error && <div role="alert" className="rounded-xl border border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-900/20 p-3 text-sm text-error-700 dark:text-error-400 mb-4">{error}</div>}
-            <button onClick={startSession} disabled={starting} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl px-6 py-3 font-semibold shadow-md disabled:opacity-50">
+            <button onClick={startSession} disabled={starting || !selectedDoctor} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl px-6 py-3 font-semibold shadow-md disabled:opacity-50">
               {starting ? 'Starting session…' : 'Start new intake'} <ArrowRight size={18} />
             </button>
           </div>
