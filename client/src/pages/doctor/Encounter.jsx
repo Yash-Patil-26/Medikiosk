@@ -16,7 +16,6 @@ export default function DoctorEncounter() {
   const [loading, setLoading] = useState(true);
   const [signing, setSigning] = useState(false);
   const [signed, setSigned] = useState(false);
-  const [fhir, setFhir] = useState(null);
   const [error, setError] = useState('');
   const [editingField, setEditingField] = useState(null);
   const [editValue, setEditValue] = useState('');
@@ -84,20 +83,12 @@ export default function DoctorEncounter() {
     setError('');
     try {
       await api.patch(`/encounters/${id}/summary`, { summary_draft_json: summary, doctor_notes: notes });
-      const r = await api.post(`/encounters/${id}/sign`);
-      setFhir(r.data.fhir);
+      await api.post(`/encounters/${id}/sign`);
       setSigned(true);
     } catch (e) {
       setError(e.response?.data?.error || 'Sign-off failed');
     }
     finally { setSigning(false); }
-  };
-
-  const downloadFhir = async () => {
-    const r = await api.get(`/encounters/${id}/fhir`);
-    const blob = new Blob([JSON.stringify(r.data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `fhir-encounter-${id}.json`; a.click();
   };
 
   const downloadPrintableSummary = () => {
@@ -290,14 +281,9 @@ export default function DoctorEncounter() {
         </button>
         <div className="flex items-center gap-2">
           {signed && (
-            <>
-              <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
-                <Download size={16} /> Download Summary
-              </button>
-              <button onClick={downloadFhir} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-xl text-sm font-medium shadow-md shadow-success-200 hover:from-success-600 hover:to-success-700 transition-all">
-                <Download size={16} /> Download FHIR
-              </button>
-            </>
+            <button onClick={downloadPrintableSummary} className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium shadow-md shadow-primary-200 hover:from-primary-600 hover:to-primary-700 transition-all">
+              <Download size={16} /> Download Summary
+            </button>
           )}
         </div>
       </div>
