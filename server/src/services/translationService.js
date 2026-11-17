@@ -77,6 +77,23 @@ const HINDI_TRANSLATIONS = {
   'Moderate difficulty': 'मध्यम दिक्कत',
   'Severe difficulty': 'बहुत ज्यादा दिक्कत',
   'On a scale of 1 to 10, how severe is the discomfort? (1 = mild, 10 = worst)': '1 से 10 में, दर्द कितना गंभीर है? (1 = कम, 10 = बहुत ज्यादा)',
+  // Headache specific
+  'Where is the headache located?': 'सिरदर्द कहां हो रहा है?',
+  'Forehead': 'माथे पर',
+  'Temples': 'टेम्पल पर',
+  'Back of head': 'सिर के पीछे',
+  'One side': 'एक तरफ',
+  'Whole head': 'पूरे सिर में',
+  'How did the headache start?': 'सिरदर्द कैसे शुरू हुआ?',
+  'Suddenly (worst headache of life)': 'अचानक (जीवन का सबसे बुरा सिरदर्द)',
+  'How severe is the headache?': 'सिरदर्द कितना गंभीर है?',
+  'Mild': 'हल्का',
+  'Moderate': 'मध्यम',
+  'Severe': 'गंभीर',
+  // Fever specific
+  'Have you felt confused or had any change in awareness?': 'क्या आपको भ्रम हुआ है या जागरूकता में कोई बदलाव आया है?',
+  'Yes': 'हां',
+  'No': 'नहीं',
   // Suggested options
   'Dull ache': 'हल्का दर्द',
   'Sharp pain': 'तीखा दर्द',
