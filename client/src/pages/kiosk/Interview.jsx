@@ -26,6 +26,7 @@ export default function Interview() {
   const [textInput, setTextInput] = useState('');
   const [error, setError] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   const fetchNext = useCallback(async () => {
     setLoading(true);
@@ -35,6 +36,7 @@ export default function Interview() {
     setSelected([]);
     setTextInput('');
     setError('');
+    setValidationError('');
 
     try {
       const r = await api.get(`/dialogue/${kiosk.sessionId}/next`);
@@ -95,6 +97,71 @@ export default function Interview() {
       label: resolved.label,
       rawText: text
     });
+  };
+
+  // Suggested options for text_or_none questions based on slotId
+  const getSuggestedOptions = (slotId) => {
+    const suggestions = {
+      'character': [
+        { value: 'Dull ache', label: t('suggestion_dull_ache') },
+        { value: 'Sharp pain', label: t('suggestion_sharp_pain') },
+        { value: 'Burning sensation', label: t('suggestion_burning') },
+        { value: 'Tightness', label: t('suggestion_tightness') },
+        { value: 'Pressure', label: t('suggestion_pressure') },
+        { value: 'Throbbing', label: t('suggestion_throbbing') }
+      ],
+      'duration': [
+        { value: 'Constant', label: t('suggestion_constant') },
+        { value: 'Comes and goes', label: t('suggestion_comes_goes') },
+        { value: 'Intermittent', label: t('suggestion_intermittent') },
+        { value: 'Worse in morning', label: t('suggestion_worse_morning') },
+        { value: 'Worse at night', label: t('suggestion_worse_night') }
+      ],
+      'allergies': [
+        { value: 'Penicillin', label: t('suggestion_penicillin') },
+        { value: 'Sulfa drugs', label: t('suggestion_sulfa') },
+        { value: 'Aspirin', label: t('suggestion_aspirin') },
+        { value: 'Peanuts', label: t('suggestion_peanuts') },
+        { value: 'Dust', label: t('suggestion_dust') },
+        { value: 'Pollen', label: t('suggestion_pollen') }
+      ],
+      'current_medicines': [
+        { value: 'Metformin', label: t('suggestion_metformin') },
+        { value: 'Aspirin', label: t('suggestion_aspirin') },
+        { value: 'Blood pressure medication', label: t('suggestion_bp_medication') },
+        { value: 'Pain relievers', label: t('suggestion_pain_relievers') },
+        { value: 'Vitamins', label: t('suggestion_vitamins') }
+      ],
+      'surgical_history': [
+        { value: 'Appendectomy', label: t('suggestion_appendectomy') },
+        { value: 'C-section', label: t('suggestion_csection') },
+        { value: 'Gallbladder removal', label: t('suggestion_gallbladder') },
+        { value: 'Knee surgery', label: t('suggestion_knee_surgery') },
+        { value: 'Dental surgery', label: t('suggestion_dental_surgery') }
+      ],
+      'family_history': [
+        { value: 'Diabetes', label: t('suggestion_diabetes') },
+        { value: 'High blood pressure', label: t('suggestion_high_bp') },
+        { value: 'Heart disease', label: t('suggestion_heart_disease') },
+        { value: 'Cancer', label: t('suggestion_cancer') },
+        { value: 'Thyroid problems', label: t('suggestion_thyroid') }
+      ]
+    };
+    return suggestions[slotId] || [];
+  };
+
+  const handleConfirmTextAnswer = () => {
+    setValidationError('');
+    if (!textInput || textInput.trim() === '') {
+      setValidationError('Please enter an answer or select "None"');
+      return;
+    }
+    saveAnswer(textInput, 'text', textInput, 'touch');
+  };
+
+  const handleSuggestedOption = (value, label) => {
+    setTextInput(value);
+    setValidationError('');
   };
 
   if (!kiosk.sessionId) {
@@ -319,21 +386,39 @@ export default function Interview() {
               <div className="card p-6">
                 <input
                   value={textInput}
-                  onChange={e => setTextInput(e.target.value)}
+                  onChange={e => {
+                    setTextInput(e.target.value);
+                    setValidationError('');
+                  }}
                   placeholder={node.placeholder || 'Type here...'}
                   className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-900 text-gray-900 dark:text-gray-100"
                 />
 
+                {/* Suggested options */}
+                {getSuggestedOptions(node.slotId).length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Common answers:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {getSuggestedOptions(node.slotId).map(opt => (
+                        <button
+                          key={opt.value}
+                          onClick={() => handleSuggestedOption(opt.value, opt.label)}
+                          className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {validationError && (
+                  <p role="alert" className="text-sm text-error-600 mt-2">{validationError}</p>
+                )}
+
                 <div className="flex gap-3 mt-4">
                   <button
-                    onClick={() =>
-                      saveAnswer(
-                        textInput || 'none',
-                        'text',
-                        textInput,
-                        'touch'
-                      )
-                    }
+                    onClick={handleConfirmTextAnswer}
                     disabled={saving}
                     className="flex-1 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 rounded-xl font-bold disabled:opacity-50 shadow-md shadow-primary-200 transition-all"
                   >
@@ -348,9 +433,10 @@ export default function Interview() {
                   </button>
 
                   <button
-                    onClick={() =>
-                      saveAnswer('none', 'touch', node.noneLabel, 'touch')
-                    }
+                    onClick={() => {
+                      setValidationError('');
+                      saveAnswer('none', 'touch', node.noneLabel, 'touch');
+                    }}
                     disabled={saving}
                     className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
                   >
