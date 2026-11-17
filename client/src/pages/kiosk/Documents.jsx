@@ -41,14 +41,16 @@ export default function Documents() {
   const upload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { setError('File too large. Max 5MB.'); return; }
+    if (file.size > 10 * 1024 * 1024) { setError('File too large. Max 10MB.'); return; }
     setUploading(true); setError('');
     try {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('session_id', kiosk.sessionId);
+      fd.append('file_name', file.name);
+      fd.append('file_type', file.type);
       const r = await api.post('/documents/extract', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setExtractions(p => [...p, { ...r.data, id: r.data.id, verified: false, fileName: file.name }]);
+      setExtractions(p => [...p, { ...r.data, id: r.data.id, verified: false, fileName: file.name, uploadedAt: new Date().toISOString() }]);
     } catch {
       setError('Upload failed. Please try again.');
     }
@@ -106,8 +108,8 @@ export default function Documents() {
             <Upload size={40} className="text-primary-500" />
           </div>
           <p className="font-semibold text-gray-700 dark:text-gray-300 text-lg">{uploading ? 'Uploading...' : 'Tap to upload document'}</p>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">JPG, PNG, PDF · Max 5MB</p>
-          <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={upload} className="hidden" disabled={uploading} />
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">All file types supported · Max 10MB</p>
+          <input type="file" accept="image/*,.pdf,.doc,.docx,.txt" onChange={upload} className="hidden" disabled={uploading} />
         </label>
 
         {error && (
