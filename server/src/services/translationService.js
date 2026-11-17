@@ -129,6 +129,26 @@ const HINDI_TRANSLATIONS = {
   'e.g. feeling unusually heavy and sluggish': 'जैसे असामान्य रूप से भारी और सुस्त महसूस होना',
   'Nothing specific': 'कुछ खास नहीं',
   // Suggested options
+};
+
+// Marathi fallback translations for common terms that API may fail to translate
+const MARATHI_TRANSLATIONS = {
+  'Today': 'आज',
+  'Yesterday': 'काल',
+  '2-3 days ago': '२-३ दिवस आधी',
+  'More than a week': 'एका आठवड्यापेक्षा जास्त',
+  'Yes': 'होय',
+  'No': 'नाही',
+  'Mild': 'सौम्य',
+  'Moderate': 'मध्यम',
+  'Severe': 'गंभीर',
+  'Vata': 'वात',
+  'Pitta': 'पित्त',
+  'Kapha': 'कफ',
+  'Daily': 'दररोज',
+  'Never': 'कधीच नाही',
+  'None': 'काहीही नाही'
+};
   'Dull ache': 'हल्का दर्द',
   'Sharp pain': 'तीखा दर्द',
   'Burning sensation': 'जलन',
@@ -165,7 +185,7 @@ const HINDI_TRANSLATIONS = {
 /**
  * Free translation using MyMemory API
  * For Hindi, use hardcoded translations for reliability
- * For Marathi, use API since it's working well
+ * For Marathi, use API with fallback for common terms
  */
 export async function translateText(text, targetLang) {
   if (!text || !targetLang || targetLang === 'en') {
@@ -175,6 +195,14 @@ export async function translateText(text, targetLang) {
   // For Hindi, always use hardcoded translations (API produces poor results)
   if (targetLang === 'hi') {
     return HINDI_TRANSLATIONS[text] || text;
+  }
+
+  // For Marathi, check fallback first for common terms
+  if (targetLang === 'mr') {
+    const marathiFallback = MARATHI_TRANSLATIONS[text];
+    if (marathiFallback) {
+      return marathiFallback;
+    }
   }
 
   const cacheKey = `${text}-${targetLang}`;
@@ -230,6 +258,13 @@ export async function translateText(text, targetLang) {
     return translation;
   } catch (error) {
     console.error('Translation error:', error.message);
+    // Use Marathi fallback if available
+    if (targetLang === 'mr') {
+      const marathiFallback = MARATHI_TRANSLATIONS[text];
+      if (marathiFallback) {
+        return marathiFallback;
+      }
+    }
     // Return original text if translation fails
     return text;
   }
