@@ -1,0 +1,99 @@
+{
+  "graphId": "chest-pain",
+  "complaint": "chest_discomfort",
+  "nodes": [
+    {
+      "id": "cp_site",
+      "type": "question",
+      "slotId": "chest_site",
+      "text": "Where exactly do you feel the discomfort?",
+      "inputType": "choice",
+      "options": [
+        { "value": "center", "label": "Center of chest" },
+        { "value": "left", "label": "Left side" },
+        { "value": "right", "label": "Right side" },
+        { "value": "upper", "label": "Upper chest" },
+        { "value": "diffuse", "label": "All over chest" }
+      ],
+      "next": "cp_onset"
+    },
+    {
+      "id": "cp_onset",
+      "type": "question",
+      "slotId": "onset_type",
+      "text": "How did the discomfort start?",
+      "inputType": "choice",
+      "options": [
+        { "value": "sudden", "label": "Suddenly" },
+        { "value": "gradual", "label": "Gradually" }
+      ],
+      "next": "cp_duration"
+    },
+    {
+      "id": "cp_duration",
+      "type": "question",
+      "slotId": "duration",
+      "text": "How long have you had this discomfort?",
+      "inputType": "choice",
+      "options": [
+        { "value": "minutes", "label": "A few minutes" },
+        { "value": "hours", "label": "A few hours" },
+        { "value": "days", "label": "Days" },
+        { "value": "weeks", "label": "Weeks or more" }
+      ],
+      "next": "cp_character"
+    },
+    {
+      "id": "cp_character",
+      "type": "question",
+      "slotId": "character",
+      "text": "How would you describe the feeling?",
+      "inputType": "choice",
+      "options": [
+        { "value": "pressure", "label": "Pressure or squeezing" },
+        { "value": "sharp", "label": "Sharp or stabbing" },
+        { "value": "burning", "label": "Burning" },
+        { "value": "dull", "label": "Dull ache" }
+      ],
+      "next": "cp_radiation"
+    },
+    {
+      "id": "cp_radiation",
+      "type": "question",
+      "slotId": "radiation",
+      "text": "Does the discomfort spread anywhere?",
+      "inputType": "choice",
+      "options": [
+        { "value": "none", "label": "No, stays in chest" },
+        { "value": "arm_or_jaw", "label": "Arm or jaw" },
+        { "value": "back", "label": "Back" },
+        { "value": "shoulder", "label": "Shoulder" }
+      ],
+      "next": "cp_breathing"
+    },
+    {
+      "id": "cp_breathing",
+      "type": "question",
+      "slotId": "breathing_difficulty",
+      "text": "Are you having any difficulty breathing?",
+      "inputType": "choice",
+      "options": [
+        { "value": "none", "label": "No difficulty" },
+        { "value": "mild", "label": "Mild difficulty" },
+        { "value": "moderate", "label": "Moderate difficulty" },
+        { "value": "severe", "label": "Severe difficulty" }
+      ],
+      "next": "cp_severity"
+    },
+    {
+      "id": "cp_severity",
+      "type": "question",
+      "slotId": "severity_score",
+      "text": "On a scale of 1 to 10, how severe is the discomfort? (1 = mild, 10 = worst)",
+      "inputType": "scale",
+      "min": 1,
+      "max": 10,
+      "next": "general_allergies"
+    }
+  ]
+}

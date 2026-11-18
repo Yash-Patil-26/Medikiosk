@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-slate-50 via-white to-slate-50 text-gray-900 font-sans antialiased;
+  }
+
+  .dark body {
+    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100;
+  }
+
+  .high-contrast body {
+    @apply bg-gray-950 text-white;
+  }
+
+  * {
+    @apply transition-colors duration-200 ease-in-out;
+  }
+
+  button, a, input, textarea, select {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .dark button, .dark a, .dark input, .dark textarea, .dark select {
+    @apply focus:ring-offset-gray-800;
+  }
+
+  .text-large body {
+    font-size: 1.125rem;
+  }
+
+  .text-large body .text-base {
+    font-size: 1.25rem;
+  }
+
+  .text-large body .text-sm {
+    font-size: 1rem;
+  }
+
+  .text-large body .text-xs {
+    font-size: 0.875rem;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+
+  .dark .glass {
+    @apply bg-gray-800/70 border-gray-700;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-soft border border-gray-100;
+  }
+
+  .dark .card {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:border-primary-200;
+  }
+
+  .dark .card-hover {
+    @apply hover:border-primary-600;
+  }
+}
+
+@layer utilities {
+  .touch-target { min-height: 48px; min-width: 48px; }
+  .touch-target-lg { min-height: 96px; }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
