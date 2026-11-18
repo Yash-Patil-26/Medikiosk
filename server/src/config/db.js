@@ -55,8 +55,8 @@ async function query(sql, params = []) {
   const affectedRows = result.rowCount !== undefined ? result.rowCount : result.rows.length;
 
   return [{ rows: result.rows, affectedRows, insertId: result.rows[0]?.insertId, fields: result.fields }, result.fields];
-}", "replace_all": false}
 
+}
 // Get a connection for transactions - mimics mysql2 getConnection
 async function getConnection() {
   const client = await pool.connect();
