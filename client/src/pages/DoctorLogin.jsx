@@ -23,8 +23,10 @@ export default function DoctorLogin() {
       const user = await login(form.identifier_type, form.identifier, form.password);
       if (user.role === 'doctor') {
         navigate('/doctor', { replace: true });
+      } else if (user.role === 'admin') {
+        navigate('/admin', { replace: true });
       } else {
-        setError('This login is for doctors only. Please use patient login.');
+        setError('This login is for staff only. Please use patient login.');
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Check your credentials and try again.');
@@ -49,7 +51,7 @@ export default function DoctorLogin() {
               <Stethoscope size={24} className="text-primary-600 dark:text-primary-400" />
             </div>
             <div>
-              <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">Doctor Login</span>
+              <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">Staff Login</span>
               <span className="text-sm text-gray-500 dark:text-gray-400 block">Access your dashboard</span>
             </div>
           </div>
