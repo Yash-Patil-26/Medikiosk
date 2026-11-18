@@ -227,7 +227,7 @@ router.post('/register', async (req, res, next) => {
     if (connection && transactionOpen) {
       try { await connection.rollback(); } catch { /* Preserve original error. */ }
     }
-    if (err?.code === 'ER_DUP_ENTRY') {
+    if (err?.code === '23505') {
       return res.status(409).json({ error: 'An account already exists with these details. Please sign in instead.' });
     }
     return next(err);
@@ -352,10 +352,10 @@ router.post('/consent-preferences', authenticate, requireRole('patient'), async 
         `INSERT INTO patient_consent_preferences
          (patient_id, purpose_key, granted, notice_version, language)
          VALUES (?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           granted = VALUES(granted),
-           notice_version = VALUES(notice_version),
-           language = VALUES(language)`,
+         ON CONFLICT (patient_id, purpose_key) DO UPDATE SET
+           granted = EXCLUDED.granted,
+           notice_version = EXCLUDED.notice_version,
+           language = EXCLUDED.language`,
         [patientId, purpose, preferences[purpose] ? 1 : 0, CONSENT_NOTICE_VERSION, language]
       );
     }

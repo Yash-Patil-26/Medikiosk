@@ -100,10 +100,10 @@ router.post('/:id/revoke', requireKioskSessionToken(req => req.body?.session_id)
         `INSERT INTO patient_consent_preferences
          (patient_id, purpose_key, granted, notice_version, language)
          VALUES (?, ?, 0, ?, ?)
-         ON DUPLICATE KEY UPDATE
+         ON CONFLICT (patient_id, purpose_key) DO UPDATE SET
            granted = 0,
-           notice_version = VALUES(notice_version),
-           language = VALUES(language)`,
+           notice_version = EXCLUDED.notice_version,
+           language = EXCLUDED.language`,
         [patientId, consent.purpose_key, CONSENT_NOTICE_VERSION, session.language || consent.language || 'en']
       );
       await connection.query(

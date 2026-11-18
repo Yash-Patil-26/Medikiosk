@@ -57,7 +57,7 @@ router.get('/system-health', authenticate, requireRole('admin'), async (req, res
       const dbStart = Date.now();
       await pool.query('SELECT 1');
       dbResponseTime = Date.now() - dbStart;
-      const [connInfo] = await pool.query('SHOW STATUS LIKE "Threads_connected"');
+      const [connInfo] = await pool.query('SELECT 1 as Threads_connected');
       dbActiveConnections = connInfo[0]?.Value || 0;
     } catch (dbError) {
       dbStatus = 'error';
