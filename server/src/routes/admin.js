@@ -254,4 +254,202 @@ router.post('/sessions/:id/purge', authenticate, requireRole('admin'), async (re
   } catch (err) { next(err); }
 });
 
+// Encounter management
+router.get('/encounters', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { status, date_range } = req.query;
+    let query = `
+      SELECT e.id, e.patient_id, e.token_no, e.status, e.red_flag_level, e.red_flag_reasons,
+             e.created_at, e.signed_at, p.name_encrypted as patient_name
+      FROM encounters e
+      LEFT JOIN patients p ON p.id = e.patient_id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (status && status !== 'all') {
+      query += ' AND e.status = ?';
+      params.push(status);
+    }
+
+    if (date_range && date_range !== 'all') {
+      const now = new Date();
+      let startDate;
+      switch (date_range) {
+        case 'today':
+          startDate = new Date(now.setHours(0, 0, 0, 0));
+          break;
+        case 'week':
+          startDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case 'month':
+          startDate = new Date(now.setMonth(now.getMonth() - 1));
+          break;
+        default:
+          startDate = new Date(now.setHours(0, 0, 0, 0));
+      }
+      query += ' AND e.created_at >= ?';
+      params.push(startDate);
+    }
+
+    query += ' ORDER BY e.created_at DESC LIMIT 100';
+
+    const [rows] = await pool.query(query, params);
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+// Get single encounter details
+router.get('/encounters/:id', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT e.*, p.name_encrypted as patient_name, p.preferred_language as patient_language
+       FROM encounters e
+       LEFT JOIN patients p ON p.id = e.patient_id
+       WHERE e.id = ?`,
+      [id]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Encounter not found' });
+    }
+    
+    res.json(rows[0]);
+  } catch (err) { next(err); }
+});
+
+// Doctor management
+router.get('/doctors', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT u.id, u.username, u.display_name, u.login_identifier_type, u.login_identifier,
+              u.created_at,
+              (SELECT COUNT(*) FROM encounters WHERE signed_by = u.id) as encounters_completed,
+              (SELECT COUNT(*) FROM sessions WHERE doctor_id = u.id) as sessions_assigned,
+              1 as active
+       FROM users u
+       WHERE u.role = 'doctor'
+       ORDER BY u.created_at DESC`
+    );
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+// Get single doctor details
+router.get('/doctors/:id', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT u.*, 
+              (SELECT COUNT(*) FROM encounters WHERE signed_by = u.id) as encounters_completed,
+              (SELECT COUNT(*) FROM sessions WHERE doctor_id = u.id) as sessions_assigned
+       FROM users u
+       WHERE u.id = ? AND u.role = 'doctor'`,
+      [id]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Doctor not found' });
+    }
+    
+    res.json(rows[0]);
+  } catch (err) { next(err); }
+});
+
+// Analytics
+router.get('/analytics', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { date_range } = req.query;
+    let dateCondition = '';
+    const params = [];
+
+    if (date_range && date_range !== 'all') {
+      const now = new Date();
+      let startDate;
+      switch (date_range) {
+        case 'today':
+          startDate = new Date(now.setHours(0, 0, 0, 0));
+          break;
+        case 'week':
+          startDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case 'month':
+          startDate = new Date(now.setMonth(now.getMonth() - 1));
+          break;
+        case 'year':
+          startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+          break;
+        default:
+          startDate = new Date(now.setHours(0, 0, 0, 0));
+      }
+      dateCondition = ' WHERE created_at >= ?';
+      params.push(startDate);
+    }
+
+    // Basic stats
+    const [[{ total_patients }]] = await pool.query('SELECT COUNT(*) as total_patients FROM patients');
+    const [[{ total_sessions }]] = await pool.query(`SELECT COUNT(*) as total_sessions FROM sessions${dateCondition}`, params);
+    const [[{ total_encounters }]] = await pool.query(`SELECT COUNT(*) as total_encounters FROM encounters${dateCondition}`, params);
+    const [[{ completed_sessions }]] = await pool.query(`SELECT COUNT(*) as completed_sessions FROM sessions WHERE status = 'completed'${dateCondition}`, params);
+
+    // Language distribution
+    const [languageRows] = await pool.query(
+      `SELECT language, COUNT(*) as count FROM sessions${dateCondition} GROUP BY language ORDER BY count DESC`,
+      params
+    );
+    const totalSessionsForLang = languageRows.reduce((sum, row) => sum + row.count, 0);
+    const language_distribution = languageRows.map(row => ({
+      language: row.language || 'en',
+      count: row.count,
+      percentage: totalSessionsForLang > 0 ? Math.round((row.count / totalSessionsForLang) * 100) : 0
+    }));
+
+    // Encounter status
+    const [statusRows] = await pool.query(
+      `SELECT status, COUNT(*) as count FROM encounters${dateCondition} GROUP BY status ORDER BY count DESC`,
+      params
+    );
+    const totalEncountersForStatus = statusRows.reduce((sum, row) => sum + row.count, 0);
+    const encounter_status = statusRows.map(row => ({
+      status: row.status,
+      count: row.count,
+      percentage: totalEncountersForStatus > 0 ? Math.round((row.count / totalEncountersForStatus) * 100) : 0
+    }));
+
+    // Red flags
+    const [[{ high }]] = await pool.query(`SELECT COUNT(*) as high FROM red_flags WHERE level = 'high'${dateCondition}`, params);
+    const [[{ medium }]] = await pool.query(`SELECT COUNT(*) as medium FROM red_flags WHERE level = 'medium'${dateCondition}`, params);
+    const [[{ low }]] = await pool.query(`SELECT COUNT(*) as low FROM red_flags WHERE level = 'low'${dateCondition}`, params);
+
+    // Peak hours (mock data for now)
+    const peak_hours = [
+      { hour: 9, sessions: 15 },
+      { hour: 10, sessions: 25 },
+      { hour: 11, sessions: 20 },
+      { hour: 14, sessions: 18 },
+      { hour: 15, sessions: 22 }
+    ];
+
+    // Calculate average session duration (mock)
+    const avg_session_duration = 15; // minutes
+
+    // Calculate completion rate
+    const completion_rate = total_sessions > 0 ? Math.round((completed_sessions / total_sessions) * 100) : 0;
+
+    res.json({
+      total_patients,
+      total_sessions,
+      total_encounters,
+      completed_sessions,
+      completion_rate,
+      avg_session_duration,
+      language_distribution,
+      encounter_status,
+      red_flags: { high, medium, low },
+      peak_hours
+    });
+  } catch (err) { next(err); }
+});
+
 export default router;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Activity, FileText, AlertTriangle, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Activity, FileText, AlertTriangle, TrendingUp, Clock, CheckCircle, XCircle, UserPlus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import UniversalHeader from '../../components/UniversalHeader.jsx';
@@ -257,20 +257,36 @@ export default function AdminDashboard() {
                 <p className="text-xs text-gray-500 dark:text-gray-400">Monitor kiosk sessions</p>
               </button>
               <button
-                onClick={() => navigate('/admin/monitoring')}
+                onClick={() => navigate('/admin/encounters')}
                 className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/30 transition-all text-left"
               >
-                <CheckCircle size={24} className="text-green-600 mb-2" />
+                <FileText size={24} className="text-green-600 mb-2" />
+                <p className="font-medium text-gray-900 dark:text-gray-100">Encounter Management</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Monitor clinical encounters</p>
+              </button>
+              <button
+                onClick={() => navigate('/admin/doctors')}
+                className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-all text-left"
+              >
+                <UserPlus size={24} className="text-orange-600 mb-2" />
+                <p className="font-medium text-gray-900 dark:text-gray-100">Doctor Management</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Manage medical staff</p>
+              </button>
+              <button
+                onClick={() => navigate('/admin/monitoring')}
+                className="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-xl hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-all text-left"
+              >
+                <CheckCircle size={24} className="text-teal-600 mb-2" />
                 <p className="font-medium text-gray-900 dark:text-gray-100">System Monitoring</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Health & performance</p>
               </button>
               <button
-                onClick={() => navigate('/his')}
-                className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-all text-left"
+                onClick={() => navigate('/admin/analytics')}
+                className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all text-left"
               >
-                <FileText size={24} className="text-orange-600 mb-2" />
-                <p className="font-medium text-gray-900 dark:text-gray-100">HIS Integration</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">View HIS records</p>
+                <TrendingUp size={24} className="text-indigo-600 mb-2" />
+                <p className="font-medium text-gray-900 dark:text-gray-100">Reports & Analytics</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Usage statistics</p>
               </button>
             </div>
           </div>

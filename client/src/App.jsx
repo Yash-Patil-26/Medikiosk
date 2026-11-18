@@ -23,6 +23,9 @@ import AdminDashboard from './pages/admin/Dashboard.jsx';
 import UserManagement from './pages/admin/Users.jsx';
 import SessionManagement from './pages/admin/Sessions.jsx';
 import SystemMonitoring from './pages/admin/Monitoring.jsx';
+import EncounterManagement from './pages/admin/Encounters.jsx';
+import DoctorManagement from './pages/admin/Doctors.jsx';
+import ReportsAnalytics from './pages/admin/Analytics.jsx';
 import PatientDashboard from './pages/PatientDashboard.jsx';
 
 function ProtectedRoute({ children, roles, allowIncompleteConsent = false, requireSession = false }) {
@@ -90,6 +93,9 @@ function AppRoutes() {
       <Route path="/admin/users" element={<ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>} />
       <Route path="/admin/sessions" element={<ProtectedRoute roles={['admin']}><SessionManagement /></ProtectedRoute>} />
       <Route path="/admin/monitoring" element={<ProtectedRoute roles={['admin']}><SystemMonitoring /></ProtectedRoute>} />
+      <Route path="/admin/encounters" element={<ProtectedRoute roles={['admin']}><EncounterManagement /></ProtectedRoute>} />
+      <Route path="/admin/doctors" element={<ProtectedRoute roles={['admin']}><DoctorManagement /></ProtectedRoute>} />
+      <Route path="/admin/analytics" element={<ProtectedRoute roles={['admin']}><ReportsAnalytics /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
