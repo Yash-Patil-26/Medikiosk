@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, User, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar, X, Check, Eye, EyeOff, Stethoscope } from 'lucide-react';
+import { Shield, User, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar, X, Check, Eye, EyeOff, Stethoscope, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useKiosk } from '../context/KioskContext.jsx';
 import UniversalHeader from '../components/UniversalHeader.jsx';
