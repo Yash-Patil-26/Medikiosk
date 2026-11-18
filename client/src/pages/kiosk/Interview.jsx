@@ -42,8 +42,8 @@ export default function Interview() {
       const r = await api.get(`/dialogue/${kiosk.sessionId}/next`);
       setNode(r.data);
 
-      if (kiosk.audioGuided && r.data.message) {
-        speak(r.data.message);
+      if (kiosk.audioGuided && r.data.text) {
+        speak(r.data.text);
       }
     } catch {
       setLoadError('Could not load the next question. Please try again.');
