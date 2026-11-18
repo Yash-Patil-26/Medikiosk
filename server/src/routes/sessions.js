@@ -185,7 +185,7 @@ router.patch('/:id', requireKioskSessionToken(req => req.params.id), async (req,
     }
 
     const body = req.body || {};
-    const allowed = new Set(['language', 'ayush_mode']);
+    const allowed = new Set(['language', 'ayush_mode', 'slots']);
     const unsupported = Object.keys(body).filter(key => !allowed.has(key));
 
     if (unsupported.length) {
@@ -222,7 +222,27 @@ router.patch('/:id', requireKioskSessionToken(req => req.params.id), async (req,
         body.ayush_mode === true || body.ayush_mode === 1 ? 1 : 0;
     }
 
-    if (!Object.keys(updates).length) {
+    // Handle slot updates
+    if (body.slots !== undefined) {
+      if (!Array.isArray(body.slots)) {
+        return res.status(400).json({ error: 'slots must be an array' });
+      }
+
+      for (const slotUpdate of body.slots) {
+        if (!slotUpdate.slot_id || slotUpdate.value === undefined) {
+          return res.status(400).json({ error: 'Each slot update must have slot_id and value' });
+        }
+
+        await pool.query(
+          `UPDATE session_slots
+           SET value = ?, source = 'touch', raw_text = ?, confidence = 1.0, confirmed_by = 'touch'
+           WHERE session_id = ? AND slot_id = ?`,
+          [slotUpdate.value, slotUpdate.value, req.params.id, slotUpdate.slot_id]
+        );
+      }
+    }
+
+    if (!Object.keys(updates).length && !body.slots) {
       return res.status(400).json({ error: 'No valid fields' });
     }
 

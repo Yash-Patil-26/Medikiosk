@@ -40,6 +40,7 @@ export default function Review() {
 
   const startEdit = (slot) => {
     setEditingSlot(slot.id);
+    // Use the raw value (not formatted) for editing
     setEditValue(slot.value);
   };
 
@@ -53,21 +54,19 @@ export default function Review() {
     setSaving(true);
     setError('');
     try {
-      await api.post(`/dialogue/${kiosk.sessionId}/answer`, {
-        node_id: editingSlot.node_id || editingSlot.slot_id,
-        slot_id: editingSlot.slot_id,
-        value: editValue,
-        source: 'touch',
-        raw_text: editValue,
-        confidence: 1.0,
-        confirmed_by: 'touch'
+      await api.patch(`/sessions/${kiosk.sessionId}`, {
+        slots: [{
+          slot_id: editingSlot.slot_id,
+          value: editValue
+        }]
       });
       // Reload session to get updated data
       const r = await api.get('/sessions/' + kiosk.sessionId);
       setSession(r.data);
       setEditingSlot(null);
       setEditValue('');
-    } catch {
+    } catch (err) {
+      console.error('Failed to update slot:', err);
       setError('Failed to update. Please try again.');
     } finally {
       setSaving(false);
@@ -171,6 +170,35 @@ export default function Review() {
 
   const groupedSlots = groupSlots(slots);
 
+  // Format display value - handle JSON arrays and underscores
+  const formatDisplayValue = (value) => {
+    if (!value) return <span className="text-gray-400 italic">Not provided</span>;
+
+    // Try to parse as JSON array
+    if (value.startsWith('[') && value.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map(item => formatDisplayValue(item))
+            .join(', ');
+        }
+      } catch (e) {
+        // If parsing fails, continue with original value
+      }
+    }
+
+    // Replace underscores with spaces and capitalize first letter
+    const formatted = value
+      .replace(/_/g, ' ')
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+
+    return formatted;
+  };
+
   const renderSlot = (slot) => (
     <div key={slot.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all">
       <div className="flex items-start justify-between gap-3">
@@ -194,7 +222,7 @@ export default function Review() {
               </button>
             </div>
           ) : (
-            <p className="font-medium text-gray-900 dark:text-gray-100 text-base">{slot.value || <span className="text-gray-400 italic">Not provided</span>}</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100 text-base">{formatDisplayValue(slot.value)}</p>
           )}
         </div>
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
