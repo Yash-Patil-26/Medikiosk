@@ -224,7 +224,6 @@ router.post('/register', async (req, res, next) => {
     setAuthCookie(res, createAuthToken({ ...user, patient_id: patientId }));
     return res.status(201).json({ user });
   } catch (err) {
-    console.error('Registration error:', err);
     if (connection && transactionOpen) {
       try { await connection.rollback(); } catch { /* Preserve original error. */ }
     }
@@ -268,8 +267,8 @@ router.post('/login', async (req, res, next) => {
       [identifierType, queryValue]
     );
 
-    // If no match, try username (for backward compatibility with doctors)
-    if (!rows.length && identifierType !== 'username') {
+    // If no match, try username (for backward compatibility with existing accounts)
+    if (!rows.length) {
       [rows] = await pool.query(
         'SELECT id, password_hash FROM users WHERE username = ? LIMIT 1',
         [queryValue]
