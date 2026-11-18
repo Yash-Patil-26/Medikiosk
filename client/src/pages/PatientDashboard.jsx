@@ -141,7 +141,7 @@ export default function PatientDashboard() {
         doctorId: selectedDoctor.id,
         doctorName: selectedDoctor.display_name
       });
-      // Apply language preference to new session
+      // Apply language preference to new session without reloading
       i18n.changeLanguage(response.data.language || user.preferred_language || 'en');
       navigate('/kiosk/complaint');
     } catch (err) {

@@ -95,11 +95,12 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
                 const newLang = e.target.value;
                 try {
                   await api.patch('/patients/me', { preferred_language: newLang });
-                  if (user.role === 'patient') {
-                    // Update user state - handled by component that manages user
-                    window.location.reload();
-                  }
                   i18n.changeLanguage(newLang);
+                  // Only reload if it's a patient and we need to refresh data
+                  if (user.role === 'patient') {
+                    // Don't reload - let the page re-render with new language
+                    // The user state will be updated by the auth context
+                  }
                 } catch (err) {
                   console.error('Failed to update language:', err);
                 }
