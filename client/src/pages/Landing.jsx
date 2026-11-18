@@ -49,7 +49,7 @@ export default function Landing() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-primary-200 dark:border-primary-700 text-primary-700 dark:text-primary-400 px-5 py-2 rounded-full text-sm font-semibold mb-8 shadow-sm animate-slide-down">
             <Activity size={16} />
-            <span>AI-Assisted Pre-Consultation System</span>
+            <span>Pre-Consultation System</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 leading-tight">
             {t('app_name')}

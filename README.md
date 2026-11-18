@@ -2,9 +2,9 @@
 
 # MediKiosk
 
-### AI-Powered Healthcare Intake System
+### Healthcare Intake System
 
-Transforming patient registration with intelligent voice and touch interactions
+Transforming patient registration with voice and touch interactions
 
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -17,17 +17,17 @@ Transforming patient registration with intelligent voice and touch interactions
 
 ## 🎯 What is MediKiosk?
 
-MediKiosk is a **synthetic academic prototype** that reimagines the patient intake process. Instead of traditional paper forms or lengthy nurse interviews, patients interact with an intelligent kiosk that:
+MediKiosk is a **synthetic academic prototype** that reimagines the patient intake process. Instead of traditional paper forms or lengthy nurse interviews, patients interact with a kiosk that:
 
 - 🗣️ **Listens** to their health concerns in their native language
-- 🤖 **Asks** smart follow-up questions based on responses
+- 🗣️ **Asks** follow-up questions based on responses
 - 📄 **Processes** medical documents automatically
 - 📋 **Generates** comprehensive summaries for doctors
 - 🔒 **Ensures** complete privacy and consent management
 
 <div align="center">
 
-![MediKiosk Hero](https://via.placeholder.com/1200x600/4F46E5/FFFFFF?text=MediKiosk+-+AI-Powered+Healthcare+Intake)
+![MediKiosk Hero](https://via.placeholder.com/1200x600/4F46E5/FFFFFF?text=MediKiosk+Healthcare+Intake)
 
 </div>
 
@@ -42,13 +42,13 @@ Healthcare facilities face critical bottlenecks in patient intake:
 - 🔐 **Privacy concerns** - Sensitive information on paper forms
 
 ### Our Solution
-MediKiosk eliminates these barriers through intelligent automation:
+MediKiosk eliminates these barriers through automation:
 
 | Feature | Benefit |
 |---------|---------|
 | **Voice-First** | Natural conversation reduces patient anxiety |
-| **Adaptive AI** | Questions adjust to individual patient needs |
-| **Document Intelligence** | Automatic extraction from medical reports |
+| **Adaptive Questions** | Questions adjust to individual patient needs |
+| **Document Processing** | Automatic extraction from medical reports |
 | **Multi-Language** | Full support for English, Hindi, Marathi |
 | **Privacy-First** | Granular consent and automatic data purging |
 
@@ -395,7 +395,7 @@ MediKiosk is a **synthetic academic prototype** designed for educational and res
 
 ## 🙏 Acknowledgments
 
-- Built with ❤️ for healthcare innovation
+- Developed for healthcare innovation
 - Uses Web Speech API for voice features
 - Implements FHIR standards for interoperability
 - Designed for educational purposes
@@ -410,7 +410,7 @@ MediKiosk is a **synthetic academic prototype** designed for educational and res
 
 <div align="center">
 
-**Made with ❤️ for healthcare innovation**
+**Developed for healthcare innovation**
 
 [⬆ Back to top](#medikiosk)
 
