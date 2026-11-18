@@ -6,6 +6,8 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
+import DoctorLogin from './pages/DoctorLogin.jsx';
+import DoctorRegister from './pages/DoctorRegister.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ConsentPreferences from './pages/ConsentPreferences.jsx';
 import KioskComplaint from './pages/kiosk/Complaint.jsx';
@@ -66,6 +68,8 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/doctor/login" element={<DoctorLogin />} />
+      <Route path="/doctor/register" element={<DoctorRegister />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/register/consent" element={<PatientConsentRoute />} />
       <Route path="/me" element={<ProtectedRoute roles={['patient']}><PatientDashboard /></ProtectedRoute>} />

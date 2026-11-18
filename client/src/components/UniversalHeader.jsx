@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Moon, Sun, Type, HelpCircle, X, LogOut } from 'lucide-react';
+import { Activity, Moon, Sun, Type, HelpCircle, X, LogOut, Stethoscope } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useKiosk } from '../context/KioskContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
@@ -110,6 +110,16 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
               <option value="hi">हिंदी</option>
               <option value="mr">मराठी</option>
             </select>
+          )}
+
+          {!user && (
+            <Link
+              to="/doctor/login"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-medium text-sm hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-colors"
+            >
+              <Stethoscope size={16} />
+              <span>Staff</span>
+            </Link>
           )}
 
           <button

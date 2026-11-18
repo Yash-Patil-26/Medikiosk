@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Activity, Mic, FileText, ClipboardList, Shield, Database, Bell, FileJson, Building2, Trash2, BookOpen, ArrowRight, CheckCircle, Users } from 'lucide-react';
+import { Activity, Mic, FileText, ClipboardList, Shield, Database, Bell, FileJson, Building2, Trash2, BookOpen, ArrowRight, CheckCircle, Users, Stethoscope } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import UniversalHeader from '../components/UniversalHeader.jsx';
 
@@ -70,12 +70,18 @@ export default function Landing() {
               if (user && user.role === 'patient') {
                 navigate('/me');
               } else {
-                navigate('/login', { state: { loginType: 'patient' } });
+                navigate('/login');
               }
             }}
               className="px-8 py-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-primary-300 dark:hover:border-primary-600 hover:text-primary-600 dark:hover:text-primary-400 rounded-2xl text-lg font-bold transition-all shadow-sm hover:shadow-md">
               Patient Login
             </button>
+          </div>
+          <div className="mt-6">
+            <Link to="/doctor/login" className="inline-flex items-center gap-2 px-6 py-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-xl font-semibold hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-colors">
+              <Stethoscope size={18} />
+              Staff / Doctor Login
+            </Link>
           </div>
         </div>
       </section>
@@ -143,11 +149,17 @@ export default function Landing() {
           <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl p-12 text-center text-white shadow-2xl shadow-primary-200 dark:shadow-primary-900">
             <h2 className="text-3xl font-bold mb-4">Ready to Start Your Intake?</h2>
             <p className="text-primary-100 mb-8 max-w-xl mx-auto">Create a patient account, save your consent preferences once, and start an intake session when you need one.</p>
-            <button onClick={() => navigate('/register')}
-              className="px-8 py-4 bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 rounded-2xl text-lg font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-lg inline-flex items-center gap-2">
-              Get Started
-              <ArrowRight size={20} />
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button onClick={() => navigate('/register')}
+                className="px-8 py-4 bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 rounded-2xl text-lg font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-lg inline-flex items-center gap-2">
+                Get Started
+                <ArrowRight size={20} />
+              </button>
+              <Link to="/doctor/login" className="px-8 py-4 bg-white/20 dark:bg-gray-800/20 border-2 border-white/30 text-white rounded-2xl text-lg font-bold hover:bg-white/30 transition-all inline-flex items-center gap-2">
+                <Stethoscope size={20} />
+                Staff Login
+              </Link>
+            </div>
           </div>
         </div>
       </section>
