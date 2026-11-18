@@ -6,15 +6,16 @@ import {
 } from './kioskCredentials.js';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
   withCredentials: true
 });
 
 function isLocalApiRequest(config) {
   const baseURL = String(config.baseURL || '').trim();
+  const expectedBaseURL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
   // Never attach or consume kiosk credentials if the API base is overridden.
-  if (baseURL !== '/api') return false;
+  if (baseURL !== expectedBaseURL) return false;
 
   const value = String(config.url || '').trim();
 
