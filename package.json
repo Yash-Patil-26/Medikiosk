@@ -1,7 +1,7 @@
 {
   "name": "medikiosk",
   "version": "1.0.0",
-  "description": "MediKiosk - AI-Assisted Pre-Consultation Clinical Information System",
+  "description": "MediKiosk - Pre-Consultation Clinical Information System",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "npm --prefix server run dev",

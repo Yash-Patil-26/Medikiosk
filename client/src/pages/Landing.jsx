@@ -41,7 +41,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
-      <UniversalHeader />
+      <UniversalHeader showLanguageSelector={true} />
 
       {/* Hero */}
       <section className="flex flex-col items-center justify-center text-center px-6 py-24 relative overflow-hidden">
@@ -49,7 +49,7 @@ export default function Landing() {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 border border-primary-200 dark:border-primary-700 text-primary-700 dark:text-primary-400 px-5 py-2 rounded-full text-sm font-semibold mb-8 shadow-sm animate-slide-down">
             <Activity size={16} />
-            <span>AI-Assisted Pre-Consultation System</span>
+            <span>Pre-Consultation System</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 leading-tight">
             {t('app_name')}

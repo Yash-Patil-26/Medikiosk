@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import api from '../services/api.js';
 import { clearKioskCredentials } from '../services/kioskCredentials.js';
+import i18n from '../i18n/i18n.js';
 
 const AuthContext = createContext(null);
 
@@ -11,8 +12,13 @@ export function AuthProvider({ children }) {
   const refreshUser = useCallback(async () => {
     try {
       const response = await api.get('/auth/me');
-      setUser(response.data.user);
-      return response.data.user;
+      const userData = response.data.user;
+      setUser(userData);
+      // Apply user's preferred language when user data is loaded
+      if (userData?.preferred_language) {
+        i18n.changeLanguage(userData.preferred_language);
+      }
+      return userData;
     } catch {
       setUser(null);
       return null;
@@ -30,15 +36,25 @@ export function AuthProvider({ children }) {
       password
     });
     clearKioskCredentials();
-    setUser(response.data.user);
-    return response.data.user;
+    const userData = response.data.user;
+    setUser(userData);
+    // Apply user's preferred language after login
+    if (userData?.preferred_language) {
+      i18n.changeLanguage(userData.preferred_language);
+    }
+    return userData;
   };
 
   const register = async registration => {
     const response = await api.post('/auth/register', registration);
     clearKioskCredentials();
-    setUser(response.data.user);
-    return response.data.user;
+    const userData = response.data.user;
+    setUser(userData);
+    // Apply user's preferred language after registration
+    if (userData?.preferred_language) {
+      i18n.changeLanguage(userData.preferred_language);
+    }
+    return userData;
   };
 
   const logout = async () => {
