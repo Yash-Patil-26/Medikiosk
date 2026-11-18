@@ -2,6 +2,50 @@
   "graphId": "general",
   "nodes": [
     {
+      "id": "general_onset",
+      "type": "question",
+      "slotId": "onset_type",
+      "text": "When did this start?",
+      "inputType": "choice",
+      "options": [
+        { "value": "today", "label": "Today" },
+        { "value": "yesterday", "label": "Yesterday" },
+        { "value": "2_3_days", "label": "2-3 days ago" },
+        { "value": "week_plus", "label": "More than a week" }
+      ],
+      "next": "general_duration"
+    },
+    {
+      "id": "general_duration",
+      "type": "question",
+      "slotId": "duration",
+      "text": "Is it constant, or does it come and go?",
+      "inputType": "text_or_none",
+      "placeholder": "e.g. constant, or comes and goes every few hours",
+      "noneLabel": "Not sure",
+      "next": "general_character"
+    },
+    {
+      "id": "general_character",
+      "type": "question",
+      "slotId": "character",
+      "text": "Can you describe what it feels like?",
+      "inputType": "text_or_none",
+      "placeholder": "e.g. dull ache, sharp, burning, tight",
+      "noneLabel": "Hard to describe",
+      "next": "general_severity"
+    },
+    {
+      "id": "general_severity",
+      "type": "question",
+      "slotId": "severity",
+      "text": "On a scale of 1 to 10, how severe is it right now?",
+      "inputType": "scale",
+      "min": 1,
+      "max": 10,
+      "next": "general_allergies"
+    },
+    {
       "id": "general_allergies",
       "type": "question",
       "slotId": "allergies",

@@ -1,33 +1,43 @@
 -- MediKiosk Database Schema
--- Run this in phpMyAdmin > SQL tab
--- Database: medikiosk
-
-CREATE DATABASE IF NOT EXISTS medikiosk CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE medikiosk;
+-- Apply this file to a selected, empty MySQL database.
+-- Create/select the database separately; this file creates tables only.
 
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   role ENUM('patient','doctor','triage','admin') NOT NULL,
   username VARCHAR(100) NOT NULL UNIQUE,
+  login_identifier_type VARCHAR(16) NULL,
+  login_identifier VARCHAR(254) NULL,
   password_hash VARCHAR(255) NOT NULL,
   display_name VARCHAR(150),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_users_login_identifier (login_identifier_type, login_identifier)
 );
 
+-- Patient account identifiers are stored for account login in this academic prototype.
+-- ABHA/mobile/email ownership is not verified by this schema, and the prototype
+-- does not provide application-layer encryption for these values. Use synthetic
+-- values for demonstrations and do not treat this as a production health system.
 CREATE TABLE IF NOT EXISTS patients (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  abha_hash VARCHAR(255),
-  abha_last4 VARCHAR(4),
-  name_encrypted VARCHAR(500),
-  dob_encrypted VARCHAR(500),
   sex ENUM('male','female','other','prefer_not_to_say'),
-  phone_encrypted VARCHAR(500),
-  phone_hash VARCHAR(255),
-    kiosk_enrollment_token_hash CHAR(64) NULL,
   preferred_language VARCHAR(10) DEFAULT 'en',
+  date_of_birth DATE NULL,
   user_id INT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS patient_consent_preferences (
+  patient_id INT NOT NULL,
+  purpose_key VARCHAR(32) NOT NULL,
+  granted TINYINT(1) NOT NULL DEFAULT 0,
+  notice_version VARCHAR(20) NOT NULL DEFAULT '1.0',
+  language VARCHAR(10) NOT NULL DEFAULT 'en',
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (patient_id, purpose_key),
+  CONSTRAINT fk_patient_consent_preferences_patient
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -135,7 +145,7 @@ CREATE TABLE IF NOT EXISTS consents (
   granted TINYINT(1) DEFAULT 0,
   notice_version VARCHAR(20) DEFAULT '1.0',
   language VARCHAR(10) DEFAULT 'en',
-  action ENUM('grant','revoke') DEFAULT 'grant',
+  action ENUM('grant','deny','revoke') DEFAULT 'grant',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE SET NULL,
   FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL,

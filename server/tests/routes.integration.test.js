@@ -8,17 +8,35 @@ test(
   async () => {
     await import('dotenv/config');
 
+    const expectedTestDb = process.env.MEDIKIOSK_TEST_DB?.trim();
+
+    assert.ok(
+      expectedTestDb,
+      'Set MEDIKIOSK_TEST_DB explicitly to a dedicated database ending in _test'
+    );
+    assert.match(
+      expectedTestDb,
+      /^[A-Za-z0-9_]+_test$/i,
+      'MEDIKIOSK_TEST_DB must end in _test'
+    );
+    assert.equal(
+      process.env.DB_NAME?.trim(),
+      expectedTestDb,
+      'DB_NAME must exactly match MEDIKIOSK_TEST_DB'
+    );
+
     const { default: pool } = await import('../src/config/db.js');
     const { default: app } = await import('../src/app.js');
     const request = (await import('supertest')).default;
     const jwt = (await import('jsonwebtoken')).default;
     const { getJwtSecret } = await import('../src/config/jwt.js');
-const { createOpaqueToken } = await import('../src/utils/opaqueToken.js');
+    const { createOpaqueToken } = await import('../src/utils/opaqueToken.js');
 
     const sessions = [];
     const encounters = [];
     const redFlagIds = [];
-const sessionTokens = new Map();
+    const patientIds = [];
+    const sessionTokens = new Map();
     function createApiRequest(method, path) {
       const req = request(app)[method](path);
 
@@ -64,72 +82,97 @@ const sessionTokens = new Map();
     };
 
     async function cleanup() {
-      if (!sessions.length) return;
+      if (!sessions.length && !patientIds.length) return;
 
       const connection = await pool.getConnection();
       try {
         await connection.beginTransaction();
-        const marks = sessions.map(() => '?').join(',');
 
-        const [linked] = await connection.query(
-          `SELECT id FROM encounters WHERE session_id IN (${marks})`,
-          sessions
-        );
+        if (sessions.length) {
+          const marks = sessions.map(() => '?').join(',');
 
-        await connection.query(
-          `DELETE FROM audit_logs
-           WHERE resource_type = 'session' AND resource_id IN (${marks})`,
-          sessions
-        );
+          const [linked] = await connection.query(
+            `SELECT id FROM encounters WHERE session_id IN (${marks})`,
+            sessions
+          );
 
-        if (redFlagIds.length) {
-          const flagMarks = redFlagIds.map(() => '?').join(',');
           await connection.query(
             `DELETE FROM audit_logs
-             WHERE resource_type = 'red_flag' AND resource_id IN (${flagMarks})`,
-            redFlagIds.map(String)
+             WHERE resource_type = 'session' AND resource_id IN (${marks})`,
+            sessions
+          );
+
+          if (redFlagIds.length) {
+            const flagMarks = redFlagIds.map(() => '?').join(',');
+            await connection.query(
+              `DELETE FROM audit_logs
+               WHERE resource_type = 'red_flag' AND resource_id IN (${flagMarks})`,
+              redFlagIds.map(String)
+            );
+          }
+
+          const ids = [...new Set([
+            ...encounters,
+            ...linked.map(row => Number(row.id))
+          ])].filter(id => Number.isSafeInteger(id) && id > 0);
+
+          if (ids.length) {
+            const idMarks = ids.map(() => '?').join(',');
+
+            await connection.query(
+              `DELETE FROM his_records WHERE encounter_id IN (${idMarks})`,
+              ids
+            );
+            await connection.query(
+              `DELETE FROM audit_logs
+               WHERE resource_type = 'encounter'
+                 AND resource_id IN (${idMarks})`,
+              ids.map(String)
+            );
+            await connection.query(
+              `DELETE FROM encounters WHERE id IN (${idMarks})`,
+              ids
+            );
+          }
+
+          await connection.query(
+            `DELETE FROM red_flags WHERE session_id IN (${marks})`,
+            sessions
+          );
+          // Test teardown removes only consent events belonging to its
+          // synthetic sessions; production purge retains consent history.
+          await connection.query(
+            `DELETE FROM consents WHERE session_id IN (${marks})`,
+            sessions
+          );
+          await connection.query(
+            `DELETE FROM sessions WHERE id IN (${marks})`,
+            sessions
           );
         }
 
-        const ids = [...new Set([
-          ...encounters,
-          ...linked.map(row => Number(row.id))
-        ])].filter(id => Number.isSafeInteger(id) && id > 0);
-
-        if (ids.length) {
-          const idMarks = ids.map(() => '?').join(',');
-
-          await connection.query(
-            `DELETE FROM his_records WHERE encounter_id IN (${idMarks})`,
-            ids
-          );
+        if (patientIds.length) {
+          const patientMarks = patientIds.map(() => '?').join(',');
           await connection.query(
             `DELETE FROM audit_logs
-             WHERE resource_type = 'encounter'
-               AND resource_id IN (${idMarks})`,
-            ids.map(String)
+             WHERE resource_type = 'patient'
+               AND resource_id IN (${patientMarks})`,
+            patientIds.map(String)
           );
+          // Account-level revocation events have no session_id. Remove
+          // events belonging to this test's synthetic patients before
+          // deleting those fixtures; production purge retains consent history.
           await connection.query(
-            `DELETE FROM encounters WHERE id IN (${idMarks})`,
-            ids
+            `DELETE FROM consents
+             WHERE patient_id IN (${patientMarks}) AND session_id IS NULL`,
+            patientIds
+          );
+
+          await connection.query(
+            `DELETE FROM patients WHERE id IN (${patientMarks})`,
+            patientIds
           );
         }
-
-        await connection.query(
-          `DELETE FROM red_flags WHERE session_id IN (${marks})`,
-          sessions
-        );
-        // Test teardown may remove only consent rows created for these
-        // unique synthetic sessions; production purge retains them.
-        await connection.query(
-          `DELETE FROM consents WHERE session_id IN (${marks})`,
-          sessions
-        );
-
-        await connection.query(
-          `DELETE FROM sessions WHERE id IN (${marks})`,
-          sessions
-        );
 
         await connection.commit();
       } catch (error) {
@@ -149,8 +192,8 @@ const sessionTokens = new Map();
       const [dbRows] = await pool.query('SELECT DATABASE() AS db');
       assert.equal(
         dbRows[0].db,
-        process.env.MEDIKIOSK_TEST_DB || 'medikiosk',
-        'Refusing to run against an unexpected database'
+        expectedTestDb,
+        'Refusing to run against a database other than the explicit test database'
       );
 
       const [doctors] = await pool.query(
@@ -243,17 +286,21 @@ const sessionTokens = new Map();
       }
 
       // A patient identifier must match the session's patient.
-      const [demoPatients] = await pool.query(
-        'SELECT id FROM patients ORDER BY id LIMIT 1'
+      const [testPatient] = await pool.query(
+        `INSERT INTO patients (sex, preferred_language)
+         VALUES ('prefer_not_to_say', 'en')`
       );
-      assert.ok(demoPatients[0], 'A seeded synthetic demo patient is required');
-
-      const triagePatientId = Number(demoPatients[0].id);
-      const noConsentSession = await seedSession(false, triagePatientId);
+      const staffPatientId = Number(testPatient.insertId);
+      patientIds.push(staffPatientId);
+      assert.ok(
+        Number.isSafeInteger(staffPatientId) && staffPatientId > 0,
+        'A dedicated synthetic test patient must be created'
+      );
+      const noConsentSession = await seedSession(false, staffPatientId);
 
       const mismatch = await createEncounter(
         noConsentSession,
-        triagePatientId + 1000000
+        staffPatientId + 1000000
       );
       assert.equal(mismatch.status, 403);
 
@@ -357,6 +404,39 @@ const sessionTokens = new Map();
       );
       assert.equal(complaintSaved.status, 200);
 
+      // Follow the general question graph in order before testing multiselect.
+      const onsetSaved = await sendAnswer(
+        'general_onset', 'onset_type', 'today', 'Today'
+      );
+      assert.equal(
+        onsetSaved.status, 200,
+        `Onset answer failed: ${JSON.stringify(onsetSaved.body)}`
+      );
+
+      const durationSaved = await sendAnswer(
+        'general_duration', 'duration', 'constant', 'Constant'
+      );
+      assert.equal(
+        durationSaved.status, 200,
+        `Duration answer failed: ${JSON.stringify(durationSaved.body)}`
+      );
+
+      const characterSaved = await sendAnswer(
+        'general_character', 'character', 'persistent cough', 'Persistent cough'
+      );
+      assert.equal(
+        characterSaved.status, 200,
+        `Character answer failed: ${JSON.stringify(characterSaved.body)}`
+      );
+
+      const severitySaved = await sendAnswer(
+        'general_severity', 'severity', '3', '3'
+      );
+      assert.equal(
+        severitySaved.status, 200,
+        `Severity answer failed: ${JSON.stringify(severitySaved.body)}`
+      );
+
       const allergySaved = await sendAnswer(
         'general_allergies', 'allergies', 'none', 'No known allergies'
       );
@@ -397,7 +477,7 @@ const sessionTokens = new Map();
       // Signing without sharing consent must not write to mock HIS.
       const deniedCreate = await createEncounter(
         noConsentSession,
-        triagePatientId
+        staffPatientId
       );
       assert.equal(
         deniedCreate.status, 201,
@@ -420,7 +500,7 @@ const sessionTokens = new Map();
       assert.equal(await hisCount(deniedId), 0);
 
       // A later revocation must override an earlier grant.
-      const revokedSession = await seedSession(true, triagePatientId);
+      const revokedSession = await seedSession(true, staffPatientId);
 
       const [initialGrantRows] = await pool.query(
         `SELECT id FROM consents
@@ -442,7 +522,7 @@ const sessionTokens = new Map();
 
       const revokedCreate = await createEncounter(
         revokedSession,
-        triagePatientId
+        staffPatientId
       );
       assert.equal(
         revokedCreate.status,
@@ -471,10 +551,10 @@ const sessionTokens = new Map();
       assert.equal(latestRevocation[0].action, 'revoke');
 
       // With consent, sign-off should create exactly one mock receipt.
-      const consentSession = await seedSession(true, triagePatientId);
+      const consentSession = await seedSession(true, staffPatientId);
       const allowedCreate = await createEncounter(
         consentSession,
-        triagePatientId
+        staffPatientId
       );
       assert.equal(
         allowedCreate.status, 201,
@@ -496,7 +576,7 @@ const sessionTokens = new Map();
       );
       redFlagIds.push(Number(alertInsert.insertId));
 
-      const alertList = await api.get('/api/triage/alerts')
+      const alertList = await api.get('/api/staff/alerts')
         .set('Authorization', auth);
       assert.equal(
         alertList.status,
@@ -516,7 +596,7 @@ const sessionTokens = new Map();
       assert.equal(Number(linkedAlertRows[0].encounter_id), deniedId);
 
       const acknowledge = await api.post(
-        `/api/triage/alerts/${alertInsert.insertId}/acknowledge`
+        `/api/staff/alerts/${alertInsert.insertId}/acknowledge`
       ).set('Authorization', auth).send({});
       assert.equal(
         acknowledge.status,
@@ -525,13 +605,14 @@ const sessionTokens = new Map();
       );
 
       const acknowledgeAgain = await api.post(
-        `/api/triage/alerts/${alertInsert.insertId}/acknowledge`
+        `/api/staff/alerts/${alertInsert.insertId}/acknowledge`
       ).set('Authorization', auth).send({});
       assert.equal(acknowledgeAgain.status, 409);
 
       // Purge removes temporary data, retains audit-relevant records,
       // and remains safe to retry.
       const purgeSessionId = await seedSession(false);
+      if (!sessions.includes(purgeSessionId)) sessions.push(purgeSessionId);
 
       await pool.query(
         `INSERT INTO session_slots

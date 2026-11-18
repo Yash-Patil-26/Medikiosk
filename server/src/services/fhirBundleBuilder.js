@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 export function buildFhirBundle(encounter, summary) {
   const now = new Date().toISOString();
@@ -7,7 +7,7 @@ export function buildFhirBundle(encounter, summary) {
 
   const bundle = {
     resourceType: 'Bundle',
-    id: uuidv4(),
+    id: randomUUID(),
     meta: { lastUpdated: now },
     type: 'document',
     timestamp: now,
@@ -16,10 +16,10 @@ export function buildFhirBundle(encounter, summary) {
 
   // Composition
   bundle.entry.push({
-    fullUrl: `urn:uuid:${uuidv4()}`,
+    fullUrl: `urn:uuid:${randomUUID()}`,
     resource: {
       resourceType: 'Composition',
-      id: uuidv4(),
+      id: randomUUID(),
       status: 'final',
       type: { text: 'OPConsultRecord' },
       subject: { reference: patientId },
@@ -30,8 +30,13 @@ export function buildFhirBundle(encounter, summary) {
         { title: 'Chief Complaint', text: { div: summary?.chiefComplaint?.text || '' } },
         { title: 'History of Present Illness', text: { div: JSON.stringify(summary?.historyOfPresentIllness || {}) } },
         { title: 'Past Medical History', text: { div: summary?.pastMedicalHistory?.text || 'None reported' } },
+        { title: 'Past Surgical History', text: { div: summary?.pastSurgicalHistory?.text || 'None reported' } },
         { title: 'Drug History', text: { div: summary?.drugHistory?.text || 'None reported' } },
-        { title: 'Allergy History', text: { div: summary?.allergyHistory?.text || 'None reported' } }
+        { title: 'Allergy History', text: { div: summary?.allergyHistory?.text || 'None reported' } },
+        { title: 'Family History', text: { div: summary?.familyHistory?.text || 'None reported' } },
+        ...(summary?.ayushAssessment
+          ? [{ title: 'AYUSH Assessment (Patient-Reported)', text: { div: JSON.stringify(summary.ayushAssessment) } }]
+          : [])
       ]
     }
   });
@@ -65,7 +70,7 @@ export function buildFhirBundle(encounter, summary) {
   for (const doc of docs) {
     for (const lab of (doc.labs || [])) {
       bundle.entry.push({
-        fullUrl: `urn:uuid:${uuidv4()}`,
+        fullUrl: `urn:uuid:${randomUUID()}`,
         resource: {
           resourceType: 'Observation',
           status: 'final',

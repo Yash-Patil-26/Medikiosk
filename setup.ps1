@@ -99,5 +99,5 @@ foreach ($folder in @(".", "server", "client")) {
 }
 
 Write-Host "`nSetup complete." -ForegroundColor Green
-Write-Host "Next: configure server/.env, create database 'medikiosk', review/apply database/schema.sql, and optionally apply database/seed.sql."
+Write-Host "Next: configure server/.env, create database 'medikiosk', and apply database/schema.sql (see database/README.md -- demo accounts seed automatically on first run)."
 Write-Host "Then run .\run.ps1"

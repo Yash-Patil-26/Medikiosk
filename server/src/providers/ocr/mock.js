@@ -1,11 +1,24 @@
-// Mock OCR provider — returns synthetic demo data
+// Mock OCR provider. It does not read uploaded file contents.
+// Synthetic sample findings are returned for demo fixtures or any upload with keywords.
+const LAB_FIXTURE = /^(?:medikiosk-demo-)?(?:lab|report|lab.*report)\.(?:pdf|png|jpe?g)$/i;
+const PRESCRIPTION_FIXTURE = /^(?:medikiosk-demo-)?(?:prescription|rx|medication)\.(?:pdf|png|jpe?g)$/i;
+
+const SYNTHETIC_PROVIDER =
+  'SYNTHETIC DEMO FIXTURE ONLY; not extracted from the uploaded file';
+
 export async function extract(_buffer, _mimeType, filename = '') {
-  const name = filename.toLowerCase();
-  if (name.includes('lab') || name.includes('report')) {
+  const name = String(filename || '')
+    .split(/[\\/]/)
+    .pop()
+    .trim()
+    .toLowerCase();
+
+  // Check for lab report keywords
+  if (LAB_FIXTURE.test(name) || name.includes('lab') || name.includes('report')) {
     return {
       docType: 'lab_report',
       date: '2025-06-01',
-      provider: 'Demo Diagnostics Lab',
+      provider: SYNTHETIC_PROVIDER,
       diagnoses: [],
       medications: [],
       labs: [
@@ -13,36 +26,38 @@ export async function extract(_buffer, _mimeType, filename = '') {
         { name: 'WBC', value: '11.5', unit: 'x10³/µL', referenceRange: '4-11' },
         { name: 'Platelets', value: '210', unit: 'x10³/µL', referenceRange: '150-400' }
       ],
-      confidence: 0.88
+      confidence: 0
     };
   }
-  if (name.includes('prescription') || name.includes('rx')) {
+
+  // Check for prescription keywords
+  if (PRESCRIPTION_FIXTURE.test(name) || name.includes('prescription') || name.includes('rx') || name.includes('medication')) {
     return {
       docType: 'prescription',
       date: '2025-05-15',
-      provider: 'Demo Clinic',
+      provider: SYNTHETIC_PROVIDER,
       diagnoses: [{ text: 'Demo condition (synthetic)' }],
       medications: [
         { name: 'Metformin', dose: '500mg', frequency: 'twice daily' },
         { name: 'Aspirin', dose: '75mg', frequency: 'once daily' }
       ],
       labs: [],
-      confidence: 0.82
+      confidence: 0
     };
   }
-  // For generic files, return demo lab data for better demo experience
+
+  // For other files, return generic medical document with demo data
   return {
     docType: 'medical_document',
-    date: new Date().toISOString().slice(0, 10),
-    provider: 'Demo Provider',
-    diagnoses: [{ text: 'Routine checkup (synthetic)' }],
+    date: '2025-04-10',
+    provider: SYNTHETIC_PROVIDER,
+    diagnoses: [{ text: 'Prior condition (synthetic demo data)' }],
     medications: [
-      { name: 'Paracetamol', dose: '500mg', frequency: 'as needed' }
+      { name: 'Sample Medication', dose: '100mg', frequency: 'once daily' }
     ],
     labs: [
-      { name: 'Hemoglobin', value: '14.0', unit: 'g/dL', referenceRange: '12-16' },
-      { name: 'Blood Pressure', value: '120/80', unit: 'mmHg', referenceRange: '90-120 / 60-80' }
+      { name: 'Sample Lab', value: 'Normal', unit: '-', referenceRange: 'Normal range' }
     ],
-    confidence: 0.75
+    confidence: 0
   };
 }

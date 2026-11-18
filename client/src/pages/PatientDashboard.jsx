@@ -1,102 +1,706 @@
-import { useNavigate } from 'react-router-dom';
-import { Activity, FileText, Shield, Trash2, User, ArrowRight, LogOut } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Shield, User, ArrowRight, ClipboardList, CheckCircle2, Circle, Settings2, Download, History, FileText, Calendar, X, Check, Eye, EyeOff, Stethoscope, CheckCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useKiosk } from '../context/KioskContext.jsx';
+import UniversalHeader from '../components/UniversalHeader.jsx';
+import api from '../services/api.js';
+import i18n from '../i18n/i18n.js';
+
+function maskLoginId(value, type) {
+  if (!value) return 'Not available';
+  if (type === 'email') {
+    const [name, domain] = value.split('@');
+    return domain ? `${name.slice(0, 1)}•••@${domain}` : '••••';
+  }
+  if (value.length <= 4) return '••••';
+  return `${'•'.repeat(Math.max(4, value.length - 4))}${value.slice(-4)}`;
+}
 
 export default function PatientDashboard() {
+  const { user, logout, updateUser } = useAuth();
+  const { kiosk, update, reset } = useKiosk();
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const [starting, setStarting] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [error, setError] = useState('');
+  const [encounters, setEncounters] = useState([]);
+  const [loadingEncounters, setLoadingEncounters] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    display_name: '',
+    date_of_birth: '',
+    sex: '',
+    preferred_language: '',
+    identifier_type: '',
+    identifier: '',
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
+  });
+  const [editError, setEditError] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
+
+  // Apply user's preferred language on mount
+  useEffect(() => {
+    if (user?.preferred_language) {
+      i18n.changeLanguage(user.preferred_language);
+    }
+  }, [user?.preferred_language]);
+
+  const openEditModal = () => {
+    setEditForm({
+      display_name: user.display_name || '',
+      date_of_birth: user.date_of_birth || '',
+      sex: user.sex || 'prefer_not_to_say',
+      preferred_language: user.preferred_language || 'en',
+      identifier_type: user.login_identifier_type || 'mobile',
+      identifier: user.login_identifier || '',
+      current_password: '',
+      new_password: '',
+      confirm_password: ''
+    });
+    setEditError('');
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditError('');
+  };
+
+  const saveAccountDetails = async (e) => {
+    e.preventDefault();
+    setEditError('');
+    setEditLoading(true);
+
+    try {
+      const updateData = {
+        display_name: editForm.display_name,
+        date_of_birth: editForm.date_of_birth,
+        sex: editForm.sex,
+        preferred_language: editForm.preferred_language,
+        identifier_type: editForm.identifier_type,
+        identifier: editForm.identifier
+      };
+
+      if (editForm.new_password) {
+        if (editForm.new_password !== editForm.confirm_password) {
+          setEditError('New passwords do not match.');
+          setEditLoading(false);
+          return;
+        }
+        updateData.current_password = editForm.current_password;
+        updateData.new_password = editForm.new_password;
+      }
+
+      const response = await api.patch('/patients/me', updateData);
+      updateUser(response.data);
+      
+      // Apply the new language preference immediately
+      if (editForm.preferred_language) {
+        i18n.changeLanguage(editForm.preferred_language);
+      }
+      
+      closeEditModal();
+    } catch (err) {
+      setEditError(err.response?.data?.error || 'Failed to update account details. Please try again.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const startSession = async () => {
+    if (!selectedDoctor) {
+      setError('Please select a doctor before starting the session.');
+      return;
+    }
+    setStarting(true);
+    setError('');
+    try {
+      const response = await api.post('/sessions', {
+        language: user.preferred_language || 'en',
+        ayush_mode: Boolean(kiosk.ayushMode),
+        doctor_id: selectedDoctor.id
+      });
+      update({
+        patientId: response.data.patient_id,
+        sessionId: response.data.id,
+        language: response.data.language || user.preferred_language || 'en',
+        consents: response.data.consents || user.consents || {},
+        complaint: null,
+        slots: {},
+        encounterId: null,
+        doctorId: selectedDoctor.id,
+        doctorName: selectedDoctor.display_name
+      });
+      // Apply language preference to new session
+      i18n.changeLanguage(response.data.language || user.preferred_language || 'en');
+      navigate('/kiosk/complaint');
+    } catch (err) {
+      setError(err.response?.data?.error || 'A new intake session could not be started. Please try again.');
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  const signOut = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } catch {
+      // The local UI is still cleared below if the server is unavailable.
+    } finally {
+      reset();
+      setLoggingOut(false);
+      navigate('/', { replace: true });
+    }
+  };
+
+  useEffect(() => {
+    const loadEncounters = async () => {
+      setLoadingEncounters(true);
+      try {
+        const r = await api.get('/patients/my-encounters');
+        setEncounters(r.data || []);
+      } catch {
+        // No encounters yet or error loading
+      } finally {
+        setLoadingEncounters(false);
+      }
+    };
+    loadEncounters();
+  }, []);
+
+  useEffect(() => {
+    const loadDoctors = async () => {
+      setLoadingDoctors(true);
+      try {
+        const r = await api.get('/auth/doctors');
+        setDoctors(r.data || []);
+      } catch {
+        // Error loading doctors
+      } finally {
+        setLoadingDoctors(false);
+      }
+    };
+    loadDoctors();
+  }, []);
+
+  const downloadEncounterSummary = async (encounterId, tokenNo) => {
+    try {
+      const r = await api.get(`/encounters/${encounterId}/summary`);
+      const encounter = r.data;
+      const summary = encounter.summary_draft_json || encounter.summary_final_json || {};
+      const docs = encounter.documents || [];
+      const flags = Array.isArray(encounter.red_flag_reasons)
+        ? encounter.red_flag_reasons
+        : (encounter.red_flag_reasons ? JSON.parse(encounter.red_flag_reasons) : []);
+
+      const hpiFields = [
+        { key: 'site', label: 'Location' },
+        { key: 'onset', label: 'Onset' },
+        { key: 'character', label: 'Character' },
+        { key: 'radiation', label: 'Radiation' },
+        { key: 'severity', label: 'Severity' },
+        { key: 'duration', label: 'Duration' },
+        { key: 'breathingDifficulty', label: 'Breathing Difficulty' }
+      ];
+
+      const getFieldValue = (path) => {
+        const parts = path.split('.');
+        let value = summary;
+        for (const part of parts) {
+          value = value?.[part];
+        }
+        if (typeof value === 'object' && value !== null) {
+          return value?.text || JSON.stringify(value);
+        }
+        return value || '—';
+      };
+
+      const summaryContent = `
+        <html>
+          <head>
+            <title>MediKiosk Encounter Summary - ${tokenNo}</title>
+            <style>
+              body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+              .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+              .header h1 { margin: 0; color: #333; }
+              .header p { margin: 5px 0; color: #666; }
+              .section { margin-bottom: 20px; }
+              .section h2 { background: #f5f5f5; padding: 10px; margin: 0 0 10px 0; border-left: 4px solid #007bff; }
+              .field { margin: 10px 0; }
+              .field-label { font-weight: bold; color: #555; }
+              .field-value { margin-left: 10px; }
+              .footer { border-top: 2px solid #333; padding-top: 20px; margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+              table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background: #f5f5f5; }
+              .flag-warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 10px 0; }
+              .flag-critical { background: #f8d7da; border-left: 4px solid #dc3545; padding: 10px; margin: 10px 0; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>MediKiosk Encounter Summary</h1>
+              <p>Token No: ${tokenNo}</p>
+              <p>Date: ${new Date(encounter.created_at).toLocaleString()}</p>
+              <p>Status: ${encounter.status?.toUpperCase()}</p>
+            </div>
+
+            ${encounter.red_flag_level && encounter.red_flag_level !== 'none' ? `
+              <div class="${encounter.red_flag_level === 'critical' ? 'flag-critical' : 'flag-warning'}">
+                <strong>⚠️ RED FLAG: ${encounter.red_flag_level?.toUpperCase()}</strong>
+                <p>${flags.join(', ')}</p>
+              </div>
+            ` : ''}
+
+            <div class="section">
+              <h2>Patient Summary</h2>
+              <div class="field">
+                <span class="field-label">Chief Complaint:</span>
+                <span class="field-value">${getFieldValue('chiefComplaint')}</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Language:</span>
+                <span class="field-value">${encounter.language || 'en'}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>History of Present Illness</h2>
+              ${hpiFields.map(field => {
+                const fieldValue = getFieldValue(`historyOfPresentIllness.${field.key}`);
+                return `
+                <div class="field">
+                  <span class="field-label">${field.label}:</span>
+                  <span class="field-value">${fieldValue}</span>
+                </div>
+              `;
+              }).join('')}
+            </div>
+
+            <div class="section">
+              <h2>Past Medical History</h2>
+              <div class="field">
+                <span class="field-value">${getFieldValue('pastMedicalHistory')}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Past Surgical History</h2>
+              <div class="field">
+                <span class="field-value">${getFieldValue('pastSurgicalHistory')}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Drug History</h2>
+              <div class="field">
+                <span class="field-value">${getFieldValue('drugHistory')}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Allergy History</h2>
+              <div class="field">
+                <span class="field-value">${getFieldValue('allergyHistory')}</span>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Family History</h2>
+              <div class="field">
+                <span class="field-value">${getFieldValue('familyHistory')}</span>
+              </div>
+            </div>
+
+            ${summary.documentFindings?.length > 0 ? `
+              <div class="section">
+                <h2>Document Findings</h2>
+                ${summary.documentFindings.map(doc => `
+                  <div style="margin: 15px 0; padding: 10px; background: #f9f9f9; border: 1px solid #ddd;">
+                    <p><strong>${doc.docType}</strong> - ${doc.date || 'Date not specified'} - ${doc.provider || 'Provider not specified'}</p>
+                    ${doc.verifiedByPatient ? '<p style="color: green;">✓ Verified by patient</p>' : '<p style="color: orange;">⚠ Not verified by patient</p>'}
+                    ${doc.labs?.length > 0 ? `
+                      <h3>Lab Results</h3>
+                      <table>
+                        <tr><th>Lab</th><th>Value</th><th>Reference</th></tr>
+                        ${doc.labs.map(lab => `<tr><td>${lab.name}</td><td>${lab.value} ${lab.unit}</td><td>${lab.referenceRange}</td></tr>`).join('')}
+                      </table>
+                    ` : ''}
+                    ${doc.medications?.length > 0 ? `
+                      <h3>Medications</h3>
+                      ${doc.medications.map(med => `<p>• ${med.name} ${med.dose} — ${med.frequency}</p>`).join('')}
+                    ` : ''}
+                    ${doc.diagnoses?.length > 0 ? `
+                      <h3>Diagnoses</h3>
+                      ${doc.diagnoses.map(diag => `<p>• ${typeof diag === 'string' ? diag : diag.text}</p>`).join('')}
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <div class="section">
+              <h2>Doctor Notes</h2>
+              <div class="field">
+                <span class="field-value">${encounter.doctor_notes || 'No notes provided'}</span>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p>Generated by MediKiosk - AI-Assisted Pre-Consultation Clinical Information System</p>
+              <p>This is a synthetic demo document. Not for actual clinical use.</p>
+              <p>Encounter ID: ${encounterId} | Signed at: ${new Date().toLocaleString()}</p>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const blob = new Blob([summaryContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `encounter-summary-${tokenNo}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+  };
+
+  const consentEntries = [
+    ['voice', 'Voice processing'],
+    ['document', 'Document processing'],
+    ['his', 'Hospital system sharing'],
+    ['dashboard', 'Save to dashboard']
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 flex flex-col">
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-            <Activity size={20} className="text-white" />
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <UniversalHeader showLogout={true} showLanguageSelector={true} />
+
+      <main className="max-w-5xl mx-auto w-full p-5 sm:p-8 space-y-6">
+        <section className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <span className="font-bold text-gray-800 text-lg leading-tight">MediKiosk</span>
-            <span className="text-xs text-gray-500 font-medium block">Patient Portal</span>
+            <p className="text-sm font-semibold text-primary-600 dark:text-primary-400">WELCOME BACK</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{user.display_name || 'Patient'}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">Start a new intake session or review your saved privacy choices.</p>
           </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-              <User size={16} className="text-primary-600" />
-            </div>
-            <span className="text-sm font-medium text-gray-700">Patient</span>
+          <div className="flex items-center gap-2 text-xs text-success-700 dark:text-success-400 bg-success-50 dark:bg-success-900/30 border border-success-200 dark:border-success-800 rounded-full px-3 py-2 w-fit">
+            <CheckCircle2 size={15} /> Account signed in
           </div>
-          <button onClick={() => navigate('/')} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-            <LogOut size={16} /> Logout
-          </button>
-        </div>
-      </header>
+        </section>
 
-      <main className="flex-1 p-6 max-w-5xl mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Records</h1>
-          <p className="text-gray-500">View your encounter history and manage your consent preferences</p>
-        </div>
-
-        <div className="card p-5 bg-warning-50 border-warning-200 mb-8">
-          <div className="flex items-start gap-3">
-            <Shield size={20} className="text-warning-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-warning-800">Demo Environment</p>
-              <p className="text-sm text-warning-700 mt-1">This dashboard shows demo/synthetic records only. No real patient data is stored.</p>
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="card p-6 lg:col-span-2">
+            <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center mb-4"><ClipboardList size={24} className="text-primary-600 dark:text-primary-400" /></div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Start a new intake</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-5">Your saved consent choices will automatically be applied to the new session. You will not be prompted to consent again unless the consent notice requires an update.</p>
+            
+            {/* Doctor Selection */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Select your doctor</label>
+              {loadingDoctors ? (
+                <div className="text-sm text-gray-500 dark:text-gray-400">Loading doctors...</div>
+              ) : doctors.length === 0 ? (
+                <div className="text-sm text-gray-500 dark:text-gray-400">No doctors available. Please contact administration.</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {doctors.map(doctor => (
+                    <button
+                      key={doctor.id}
+                      onClick={() => setSelectedDoctor(doctor)}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                        selectedDoctor?.id === doctor.id
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                          : 'border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-700'
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 flex items-center justify-center shrink-0">
+                        <Stethoscope size={18} className="text-primary-600 dark:text-primary-400" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{doctor.display_name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Dr. {doctor.username}</p>
+                      </div>
+                      {selectedDoctor?.id === doctor.id && (
+                        <CheckCircle size={18} className="text-primary-600 dark:text-primary-400 shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card p-6 card-hover">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center mb-4">
-              <FileText size={28} className="text-primary-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Recent Encounters</h2>
-            <p className="text-gray-500 text-sm mb-4">
-              Your encounter summaries will appear here after your doctor signs off.
-              This is a demo — no real records are stored.
-            </p>
-            <button onClick={() => navigate('/kiosk/identify')}
-              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-3 rounded-xl font-medium shadow-md shadow-primary-200 transition-all flex items-center justify-center gap-2">
-              Start New Session
-              <ArrowRight size={18} />
+            <label className="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-600 p-4 mb-5 cursor-pointer">
+              <input type="checkbox" checked={Boolean(kiosk.ayushMode)} onChange={event => update({ ayushMode: event.target.checked })} className="mt-1 h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500" />
+              <span><strong className="block text-sm text-gray-800 dark:text-gray-200">AYUSH / Ayurveda consultation</strong><span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">Enable additional questions about Prakriti, Agni, diet and lifestyle.</span></span>
+            </label>
+            {error && <div role="alert" className="rounded-xl border border-error-200 dark:border-error-800 bg-error-50 dark:bg-error-900/20 p-3 text-sm text-error-700 dark:text-error-400 mb-4">{error}</div>}
+            <button onClick={startSession} disabled={starting || !selectedDoctor} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl px-6 py-3 font-semibold shadow-md disabled:opacity-50">
+              {starting ? 'Starting session…' : 'Start new intake'} <ArrowRight size={18} />
             </button>
           </div>
 
-          <div className="card p-6 card-hover">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-success-100 to-success-200 flex items-center justify-center mb-4">
-              <Shield size={28} className="text-success-600" />
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center"><User size={24} className="text-gray-600 dark:text-gray-400" /></div>
+              <button onClick={openEditModal} className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">Edit</button>
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Consent Management</h2>
-            <p className="text-gray-500 text-sm mb-4">
-              You can revoke any consent at any time. Revocation creates a new record — previous records are not modified.
-            </p>
-            <button className="w-full bg-white border-2 border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:border-primary-300 hover:text-primary-600 transition-all">
-              View Consent History
-            </button>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Account details</h2>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div><dt className="text-gray-500 dark:text-gray-400">Login ID type</dt><dd className="font-semibold text-gray-800 dark:text-gray-200 capitalize">{user.login_identifier_type || 'Username'}</dd></div>
+              <div><dt className="text-gray-500 dark:text-gray-400">Registered login ID</dt><dd className="font-mono text-gray-800 dark:text-gray-200 break-all">{maskLoginId(user.login_identifier, user.login_identifier_type)}</dd></div>
+              <div><dt className="text-gray-500 dark:text-gray-400">Preferred language</dt><dd className="font-semibold text-gray-800 dark:text-gray-200">{{ en: 'English', hi: 'Hindi', mr: 'Marathi' }[user.preferred_language] || 'English'}</dd></div>
+            </dl>
           </div>
+        </section>
 
-          <div className="card p-6 card-hover md:col-span-2">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-error-100 to-error-200 flex items-center justify-center flex-shrink-0">
-                <Trash2 size={28} className="text-error-600" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-800 mb-2">Delete My Demo Data</h2>
-                <p className="text-gray-500 text-sm mb-4">
-                  Remove all synthetic demo records associated with this session. This action cannot be undone.
-                </p>
-                <button className="px-6 py-3 bg-error-50 border border-error-200 text-error-600 rounded-xl font-medium hover:bg-error-100 transition-colors">
-                  Delete Demo Data
-                </button>
-              </div>
+        <section className="card p-6">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center shrink-0"><Shield size={20} className="text-primary-600 dark:text-primary-400" /></div>
+              <div><h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Saved privacy choices</h2><p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Your choices are saved to your account and applied to new sessions.</p></div>
             </div>
+            <Link to="/me/consent" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 shrink-0"><Settings2 size={16} /> Manage</Link>
           </div>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {consentEntries.map(([key, label]) => {
+              const granted = Boolean(user.consents?.[key]);
+              const Icon = granted ? CheckCircle2 : Circle;
+              return <div key={key} className="flex items-center gap-2 text-sm rounded-lg bg-gray-50 dark:bg-gray-700 px-3 py-3">
+                <Icon size={17} className={granted ? 'text-success-600 dark:text-success-400' : 'text-gray-400 dark:text-gray-500'} />
+                <span className="text-gray-700 dark:text-gray-300">{label}</span>
+                <span className={`ml-auto text-xs font-semibold ${granted ? 'text-success-700 dark:text-success-400' : 'text-gray-500 dark:text-gray-400'}`}>{granted ? 'Allowed' : 'Declined'}</span>
+              </div>;
+            })}
+          </div>
+        </section>
+
+        <section className="card p-6">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center shrink-0"><History size={20} className="text-gray-600 dark:text-gray-400" /></div>
+            <div><h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Patient Profile & History</h2><p className="text-sm text-gray-500 dark:text-gray-400 mt-1">View and download your encounter summaries from completed sessions.</p></div>
+          </div>
+          
+          {loadingEncounters ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading your history...</div>
+          ) : encounters.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <p>No completed encounters yet.</p>
+              <p className="text-sm mt-2">Complete a kiosk session and have the doctor sign it to see your history here.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {encounters.map(enc => (
+                <div key={enc.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                      <FileText size={18} className="text-primary-600 dark:text-primary-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">{enc.token_no}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <Calendar size={12} /> {new Date(enc.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                      enc.status === 'signed' ? 'bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400' : 'bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400'
+                    }`}>
+                      {enc.status}
+                    </span>
+                    {enc.status === 'signed' && (
+                      <button 
+                        onClick={() => downloadEncounterSummary(enc.id, enc.token_no)}
+                        className="p-2 text-primary-500 hover:bg-primary-50 rounded-lg"
+                        title="Download summary"
+                      >
+                        <Download size={18} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <p className="text-xs leading-relaxed text-gray-400">MediKiosk is an academic prototype. Do not use real patient data in demonstrations. Login identifiers are not verified through OTP or the official ABHA/ABDM services.</p>
       </main>
 
-      <footer className="text-center text-xs text-gray-400 py-4 px-6 border-t border-gray-200/50 bg-white/50 backdrop-blur-sm">
-        MediKiosk is a student project prototype using synthetic data only. Not a medical device.
-      </footer>
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit Account Details</h2>
+              <button onClick={closeEditModal} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={saveAccountDetails} className="space-y-4">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Full Name
+                <input
+                  value={editForm.display_name}
+                  onChange={e => setEditForm({ ...editForm, display_name: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                  required
+                />
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Date of Birth
+                <input
+                  type="date"
+                  value={editForm.date_of_birth}
+                  onChange={e => setEditForm({ ...editForm, date_of_birth: e.target.value })}
+                  max={new Date().toISOString().slice(0, 10)}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                  required
+                />
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Sex
+                <select
+                  value={editForm.sex}
+                  onChange={e => setEditForm({ ...editForm, sex: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Preferred Language
+                <select
+                  value={editForm.preferred_language}
+                  onChange={e => setEditForm({ ...editForm, preferred_language: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="mr">Marathi</option>
+                </select>
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Login ID Type
+                <select
+                  value={editForm.identifier_type}
+                  onChange={e => setEditForm({ ...editForm, identifier_type: e.target.value })}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="mobile">Mobile Number</option>
+                  <option value="email">Email Address</option>
+                  <option value="abha">ABHA Number</option>
+                </select>
+              </label>
+
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                {editForm.identifier_type === 'abha' ? 'ABHA Number' : editForm.identifier_type === 'mobile' ? 'Mobile Number' : 'Email Address'}
+                <input
+                  value={editForm.identifier}
+                  onChange={e => setEditForm({ ...editForm, identifier: e.target.value })}
+                  type={editForm.identifier_type === 'email' ? 'email' : 'text'}
+                  inputMode={editForm.identifier_type === 'email' ? 'email' : 'numeric'}
+                  maxLength={editForm.identifier_type === 'abha' ? 14 : editForm.identifier_type === 'mobile' ? 10 : 254}
+                  placeholder={editForm.identifier_type === 'abha' ? '14 digits' : editForm.identifier_type === 'mobile' ? '10 digits' : 'you@example.com'}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                  required
+                />
+              </label>
+
+              <div className="border-t border-gray-200 pt-4">
+                <p className="text-sm font-semibold text-gray-700 mb-3">Change Password (Optional)</p>
+                
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Current Password
+                  <div className="relative mt-1.5">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={editForm.current_password}
+                      onChange={e => setEditForm({ ...editForm, current_password: e.target.value })}
+                      className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </label>
+
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  New Password
+                  <div className="relative mt-1.5">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={editForm.new_password}
+                      onChange={e => setEditForm({ ...editForm, new_password: e.target.value })}
+                      className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 pr-10 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </label>
+
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Confirm New Password
+                  <input
+                    type="password"
+                    value={editForm.confirm_password}
+                    onChange={e => setEditForm({ ...editForm, confirm_password: e.target.value })}
+                    className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"
+                  />
+                </label>
+              </div>
+
+              {editError && <div role="alert" className="rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-700">{editError}</div>}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editLoading}
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg font-semibold disabled:opacity-50"
+                >
+                  {editLoading ? 'Saving…' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

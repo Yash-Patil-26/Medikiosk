@@ -7,7 +7,7 @@ import { buildFhirBundle } from '../services/fhirBundleBuilder.js';
 import { evaluateRedFlags } from '../services/redFlagService.js';
 import { log } from '../utils/audit.js';
 import { hasCurrentConsent } from '../utils/consentAccess.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { getSession, sessionIsActive } from '../utils/sessionAccess.js';
 
 const router = Router();
@@ -181,7 +181,7 @@ router.post('/', requireKioskSessionToken(req => req.body?.session_id), async (r
           flag.ruleId,
           flag.level,
           flag.reason,
-          uuidv4()
+          randomUUID()
         ]
       );
     }
@@ -236,9 +236,11 @@ router.get(
     try {
       const [rows] = await pool.query(
         `SELECT e.id, e.token_no, e.status, e.red_flag_level,
-                e.language, e.created_at, e.summary_draft_json, p.sex
+                e.language, e.created_at, e.summary_draft_json, p.sex,
+                u.display_name, u.login_identifier, u.login_identifier_type
          FROM encounters e
          LEFT JOIN patients p ON p.id = e.patient_id
+         LEFT JOIN users u ON u.id = p.user_id
          ORDER BY e.created_at DESC
          LIMIT 50`
       );
@@ -253,7 +255,6 @@ router.get(
 router.get(
   '/:id/summary',
   authenticate,
-  requireRole('doctor', 'admin'),
   async (req, res, next) => {
     try {
       const [rows] = await pool.query(
@@ -266,6 +267,14 @@ router.get(
       }
 
       const enc = rows[0];
+
+      // Allow patients to access their own encounters, doctors/admins access all
+      if (req.user.role === 'patient' && enc.patient_id !== req.user.patient_id) {
+        return res.status(403).json({ error: 'You can only access your own encounters' });
+      }
+      if (req.user.role !== 'patient' && req.user.role !== 'doctor' && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Access denied' });
+      }
 
       // Only show documents belonging to this encounter's source session.
       let docs = [];

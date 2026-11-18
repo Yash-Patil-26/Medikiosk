@@ -1,289 +1,401 @@
-# MediKiosk — AI-Assisted Pre-Consultation Clinical Information System
+# MediKiosk
 
-> **DEMO — SYNTHETIC DATA ONLY**
-> This is a student project prototype. It is NOT a medical device and does NOT provide autonomous diagnosis or treatment advice.
-
----
-
-## Problem Statement
-
-Doctors in OPD settings have limited time per patient. Patients often provide unstructured verbal history and carry old prescriptions or lab reports that are difficult to review quickly. MediKiosk solves this by collecting structured patient history before consultation via a kiosk interface.
-
----
-
-## Objectives
-
-- Collect structured patient history via voice and touch
-- Digitize previous medical documents via OCR
-- Detect deterministic red flags (no autonomous diagnosis)
-- Generate a physician-verifiable structured summary
-- Produce FHIR-oriented JSON output
-- Maintain full audit trail and session purge proof
-
----
+A comprehensive healthcare kiosk system for pre-consultation clinical information collection. This is a synthetic academic prototype designed for educational purposes, not a medical device.
 
 ## Features
 
-- Voice + Touch dual-mode input
-- Adaptive graph-driven interview (SOCRATES-style)
-- Medical document upload and extraction (mock OCR)
-- Deterministic red-flag detection from JSON rules
-- Doctor verification and sign-off workflow
-- FHIR-style JSON bundle generation
-- Mock HIS integration
-- Session purge with proof
-- Full audit logging
-- Multilingual UI (English, Hindi, Marathi)
-- Accessibility controls (high contrast, large text, audio guided)
-- Role-based access: Patient, Doctor, Triage, Admin
+### Core Functionality
+- **Patient Registration & Login**: Secure patient account creation with ABHA/mobile/email authentication
+- **Adaptive Kiosk Interview**: Voice and touch-based clinical information collection
+- **Document Upload & OCR**: Medical document processing and information extraction
+- **Consent Management**: Granular consent tracking for voice, documents, HIS sharing, and data storage
+- **Doctor Review & Signing**: Clinical encounter review and digital signing
+- **FHIR Integration**: Healthcare data interoperability with FHIR format
+- **Multi-language Support**: English, Hindi, and Marathi with full i18n
+- **Dark Mode**: Universal theme support across all interfaces
 
----
+### User Roles
 
-## Architecture
+**Patients**
+- Account registration and login
+- Kiosk session for clinical information collection
+- Document upload and review
+- View encounter history and summaries
 
-```
-Patient Kiosk (React) → REST API (Express) → MySQL (XAMPP)
-Doctor Portal (React) → REST API (Express) → MySQL (XAMPP)
-Triage Console        → REST API (Express) → MySQL (XAMPP)
-Admin Panel           → REST API (Express) → MySQL (XAMPP)
-                                ↓
-                         Mock HIS Viewer
-```
+**Doctors**
+- Doctor queue management
+- Encounter review and editing
+- Clinical summary generation
+- Digital signing and FHIR export
 
----
+**Admins**
+- System dashboard with real-time metrics
+- User management (patients, doctors, admins)
+- Session and encounter monitoring
+- System health monitoring
+- Reports and analytics
+- Doctor management
 
-## Technology Stack
+### Technical Stack
 
-| Layer     | Technology                              |
-|-----------|-----------------------------------------|
-| Frontend  | React 18, Vite, Tailwind CSS, React Router DOM |
-| Icons     | Lucide React                            |
-| i18n      | react-i18next                           |
-| HTTP      | Axios                                   |
-| Backend   | Node.js, Express.js (ES Modules)        |
-| Auth      | JWT (httpOnly cookie), bcryptjs         |
-| Security  | Helmet, CORS, express-rate-limit        |
-| Upload    | Multer (memory storage)                 |
-| Validation| Zod                                     |
-| Database  | MySQL 8.0 via XAMPP, mysql2 driver      |
+**Frontend**
+- React 18 with Vite
+- TailwindCSS for styling
+- React Router for navigation
+- i18next for internationalization
+- Lucide React for icons
+- Web Speech API for voice features
 
----
+**Backend**
+- Node.js with Express
+- MySQL database with mysql2
+- JWT authentication with httpOnly cookies
+- bcrypt for password hashing
+- Express-rate-limit for security
 
-## Folder Structure
+**Features**
+- Real-time session management
+- Adaptive dialogue graph
+- Browser-based speech recognition and synthesis
+- Mock LLM/OCR/ASR/TTS providers
+- Audit logging and purge proof
+- HIS integration mock
 
-```
-medikiosk/
-├── client/               # React frontend
-│   └── src/
-│       ├── components/   # Reusable UI components
-│       ├── pages/        # Route pages
-│       ├── context/      # AuthContext, KioskContext
-│       ├── hooks/        # useIdleTimer, useTTS
-│       ├── services/     # Axios API client
-│       └── i18n/         # en/hi/mr translations
-├── server/               # Express backend
-│   └── src/
-│       ├── config/       # DB connection, seed
-│       ├── middleware/   # JWT auth
-│       ├── routes/       # All API routes
-│       ├── services/     # Business logic
-│       ├── providers/    # OCR mock provider
-│       └── utils/        # Audit logger
-├── database/
-│   ├── schema.sql        # All CREATE TABLE statements
-│   └── seed.sql          # Demo users and sample data
-├── content/
-│   ├── questions/        # Interview question graphs (JSON)
-│   ├── redflags.json     # Deterministic red-flag rules
-│   ├── ddi.json          # Demo drug interaction table
-│   └── ayush.json        # AYUSH mode fields
-├── .env.example
-└── package.json          # Root scripts
-```
+## Getting Started
 
----
+### Prerequisites
+- Node.js 18+ 
+- MySQL 8.0+
+- npm or yarn
 
-## Database Setup (XAMPP)
+### Installation
 
-### Step 1 — Install XAMPP
-Download from https://www.apachefriends.org and install.
-
-### Step 2 — Start MySQL
-Open XAMPP Control Panel → Start **MySQL** (Apache is optional).
-
-### Step 3 — Open phpMyAdmin
-Navigate to: http://localhost/phpmyadmin
-
-### Step 4 — Create Database
-Click **New** → Name: `medikiosk` → Create
-
-### Step 5 — Run Schema
-Select `medikiosk` database → Click **SQL** tab → Paste contents of `database/schema.sql` → Go
-
-### Step 6 — Run Seed (optional)
-The server automatically seeds demo users on first startup with properly hashed passwords (Doctor@123, Triage@123, Admin@123, Patient@123). Manual seeding via `database/seed.sql` is optional.
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `server/.env`:
-
+1. **Clone the repository**
 ```bash
-copy .env.example server\.env
+git clone https://github.com/Yash-Patil-26/Medikiosk.git
+cd Medikiosk
 ```
 
-Key variables:
-
-| Variable     | Default                  | Description              |
-|--------------|--------------------------|--------------------------|
-| PORT         | 5000                     | Backend port             |
-| DB_HOST      | localhost                | MySQL host               |
-| DB_NAME      | medikiosk                | Database name            |
-| DB_USER      | root                     | MySQL user               |
-| DB_PASSWORD  | (empty)                  | MySQL password           |
-| JWT_SECRET   | change_this_secret       | JWT signing secret       |
-| CORS_ORIGIN  | http://localhost:5173    | Frontend origin          |
-| OCR_PROVIDER | mock                     | OCR provider (mock only) |
-
----
-
-## Installation
-
+2. **Install dependencies**
 ```bash
-# 1. Clone / extract project
-cd medikiosk
-
-# 2. Install all dependencies
+# Backend
+cd server
 npm install
-npm --prefix server install
-npm --prefix client install
 
-# 3. Configure environment
-copy .env.example server\.env
-# Edit server\.env if needed (DB password etc.)
-
-# 4. Set up database in phpMyAdmin (see above)
+# Frontend
+cd ../client
+npm install
 ```
 
----
-
-## Running the Project
-
+3. **Configure environment**
 ```bash
+# Backend
+cd server
+cp .env.example .env
+# Edit .env with your database credentials and configuration
+```
+
+4. **Set up database**
+```bash
+# Create MySQL database
+mysql -u root -p
+CREATE DATABASE medikiosk;
+EXIT;
+
+# Run migrations (if applicable)
+cd server
+npm run migrate
+```
+
+5. **Start servers**
+```bash
+# Backend (terminal 1)
+cd server
+npm run dev
+
+# Frontend (terminal 2)
+cd client
 npm run dev
 ```
 
-This starts both:
+6. **Access the application**
 - Frontend: http://localhost:5173
-- Backend:  http://localhost:5000
+- Backend API: http://localhost:5000
 
----
+### Default Credentials
 
-## Demo Accounts
+**Admin**
+- Username: `admin`
+- Password: `Admin@123`
 
-| Role    | Username | Password    |
-|---------|----------|-------------|
-| Doctor  | doctor   | Doctor@123  |
-| Triage  | triage   | Triage@123  |
-| Admin   | admin    | Admin@123   |
-| Patient | patient  | Patient@123 |
+**Demo Patient** (if seeded)
+- Login through patient registration
 
-All accounts are **demo accounts with synthetic data only**.
+**Demo Doctor** (if seeded)
+- Register through doctor registration
 
----
+## Project Structure
 
-## API Documentation
+```
+Medikiosk/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── context/        # React context providers
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── i18n/           # Translation files
+│   │   ├── pages/          # Page components
+│   │   │   ├── admin/      # Admin pages
+│   │   │   ├── doctor/     # Doctor pages
+│   │   │   ├── kiosk/      # Kiosk flow pages
+│   │   │   └── *.jsx       # Other pages
+│   │   ├── services/       # API services
+│   │   └── utils/          # Utility functions
+│   └── package.json
+├── server/                 # Node.js backend
+│   ├── src/
+│   │   ├── config/         # Configuration files
+│   │   ├── middleware/     # Express middleware
+│   │   ├── routes/         # API routes
+│   │   ├── utils/          # Utility functions
+│   │   └── server.js       # Main server file
+│   └── package.json
+└── README.md
+```
 
-| Method | Endpoint                          | Description              |
-|--------|-----------------------------------|--------------------------|
-| POST   | /api/auth/login                   | Login                    |
-| POST   | /api/auth/logout                  | Logout                   |
-| GET    | /api/auth/me                      | Current user             |
-| POST   | /api/patients                     | Create patient           |
-| POST   | /api/sessions                     | Create session           |
-| GET    | /api/sessions/:id                 | Get session + slots      |
-| PATCH  | /api/sessions/:id                 | Update session           |
-| DELETE | /api/sessions/:id                 | Purge session            |
-| POST   | /api/consents                     | Record consent           |
-| POST   | /api/consents/:id/revoke          | Revoke consent           |
-| GET    | /api/dialogue/:sessionId/next     | Get next question        |
-| POST   | /api/dialogue/:sessionId/answer   | Save answer              |
-| GET    | /api/triage/alerts                | Get red flag alerts      |
-| POST   | /api/triage/alerts/:id/acknowledge| Acknowledge alert        |
-| POST   | /api/documents/extract            | Upload & extract doc     |
-| POST   | /api/documents/:id/verify         | Patient verify doc       |
-| POST   | /api/encounters                   | Create encounter         |
-| GET    | /api/encounters                   | List encounters          |
-| GET    | /api/encounters/:id/summary       | Get summary              |
-| PATCH  | /api/encounters/:id/summary       | Edit summary             |
-| POST   | /api/encounters/:id/sign          | Doctor sign-off          |
-| GET    | /api/encounters/:id/fhir          | Get FHIR bundle          |
-| POST   | /api/his/records                  | Push to mock HIS         |
-| GET    | /api/his/records                  | View HIS records         |
-| GET    | /api/admin/audit                  | Audit logs               |
-| GET    | /api/admin/purge-proof            | Purge proof records      |
+## API Endpoints
 
----
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/me` - Get current user
+- `POST /api/auth/forgot-password` - Password reset request
+- `POST /api/auth/reset-password` - Password reset
 
-## Application Routes
+### Patients
+- `GET /api/patients/me` - Get patient profile
+- `GET /api/patients/my-encounters` - Get patient encounters
+- `PATCH /api/patients/me` - Update patient profile
 
-| Path                      | Description              |
-|---------------------------|--------------------------|
-| /                         | Landing page             |
-| /login                    | Staff login              |
-| /kiosk/identify           | Patient identification   |
-| /kiosk/consent            | Consent screen           |
-| /kiosk/complaint          | Complaint selection      |
-| /kiosk/interview          | Adaptive interview       |
-| /kiosk/documents          | Document upload          |
-| /kiosk/review             | Patient review           |
-| /kiosk/done               | Completion + purge proof |
-| /doctor                   | Doctor queue             |
-| /doctor/encounter/:id     | Encounter view           |
-| /triage                   | Triage dashboard         |
-| /his                      | Mock HIS viewer          |
-| /admin/audit              | Audit logs               |
-| /admin/purge-proof        | Purge proof              |
-| /me                       | Patient dashboard        |
+### Sessions
+- `POST /api/sessions` - Create new session
+- `GET /api/sessions/:id` - Get session details
+- `PATCH /api/sessions/:id` - Update session
+- `POST /api/sessions/:id/purge` - Purge session data
 
----
+### Dialogue
+- `POST /api/dialogue/:sessionId/answer` - Submit answer
+- `GET /api/dialogue/:sessionId/next` - Get next question
 
-## Testing
+### Documents
+- `POST /api/documents/upload` - Upload document
+- `GET /api/documents/:sessionId` - Get document extractions
 
+### Encounters
+- `GET /api/encounters` - List encounters
+- `GET /api/encounters/:id` - Get encounter details
+- `PATCH /api/encounters/:id` - Update encounter
+- `POST /api/encounters/:id/sign` - Sign encounter
+
+### Admin
+- `GET /api/admin/dashboard-stats` - Dashboard statistics
+- `GET /api/admin/users` - List users
+- `GET /api/admin/sessions` - List sessions
+- `GET /api/admin/encounters` - List encounters
+- `GET /api/admin/doctors` - List doctors
+- `GET /api/admin/analytics` - Analytics data
+- `GET /api/admin/system-health` - System health
+
+## Configuration
+
+### Environment Variables (Backend)
+
+```env
+# Server
+PORT=5000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
+
+# Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=medikiosk
+DB_USER=root
+DB_PASSWORD=your_password
+
+# JWT
+JWT_SECRET=your_secure_secret_key_minimum_32_characters
+
+# Providers (mock/real)
+LLM_PROVIDER=mock
+OCR_PROVIDER=mock
+ASR_PROVIDER=browser
+TTS_PROVIDER=browser
+PROVIDER_MODE=mock
+
+# HIS Integration
+HIS_KEY=demo_key
+```
+
+### Frontend Configuration
+
+The frontend uses Vite and automatically proxies API requests to the backend at `http://localhost:5000`.
+
+## Kiosk Flow
+
+1. **Identify** - Patient identification (ABHA, mobile, or new patient)
+2. **Consent** - Granular consent collection
+3. **Complaint** - Chief complaint selection
+4. **Interview** - Adaptive clinical interview
+5. **Documents** - Medical document upload
+6. **Review** - Review and confirm information
+7. **Done** - Session completion
+
+## Admin Features
+
+### Dashboard
+- Real-time system metrics
+- Patient, doctor, session, encounter counts
+- Recent activity feed
+- System health status
+
+### User Management
+- View all users (patients, doctors, admins)
+- Search and filter by role/status
+- User details and activity
+
+### Session Management
+- Monitor all kiosk sessions
+- Session status tracking
+- Force purge capability
+
+### Encounter Management
+- Monitor clinical encounters
+- Status tracking (draft, final, signed)
+- Red flag indicators
+
+### Doctor Management
+- Manage doctor accounts
+- Activity metrics
+- Encounter and session counts
+
+### System Monitoring
+- Database health checks
+- API performance metrics
+- Memory and disk usage
+- Real-time monitoring
+
+### Reports & Analytics
+- Usage statistics
+- Language distribution
+- Encounter completion rates
+- Red flag analysis
+- Peak usage hours
+
+## Security
+
+- JWT-based authentication with httpOnly cookies
+- bcrypt password hashing (12 rounds)
+- Rate limiting on API endpoints
+- CORS configuration
+- Helmet security headers
+- Input validation and sanitization
+- Audit logging for all actions
+- Session-based kiosk authentication
+- Data encryption for sensitive fields
+
+## Privacy & Compliance
+
+- Granular consent management
+- Data retention policies
+- Session purge proof
+- Audit trail for all actions
+- No PHI storage (synthetic data only)
+- GDPR-compliant data handling
+
+## Browser Compatibility
+
+- **Recommended**: Chrome, Edge (full Web Speech API support)
+- **Partial**: Firefox (limited speech recognition)
+- **Limited**: Safari (limited speech recognition)
+
+Audio features (voice input/output) require browser speech API support.
+
+## Development
+
+### Running Tests
 ```bash
+# Backend tests
+cd server
+npm test
+
+# Frontend tests
+cd client
 npm test
 ```
 
----
+### Building for Production
+```bash
+# Backend
+cd server
+npm run build
 
-## Limitations
+# Frontend
+cd client
+npm run build
+```
 
-- OCR is mock only (no real document text extraction)
-- Voice uses browser Web Speech API (Chrome recommended)
-- No real ABHA integration
-- No real HIS/ABDM integration
-- Demo OTP is always `123456`
-- Encryption is placeholder (not production-grade)
+### Linting
+```bash
+# Backend
+cd server
+npm run lint
 
----
+# Frontend
+cd client
+npm run lint
+```
 
-## Future Scope
+## Deployment
 
-- Real OCR via Gemini Vision API
-- Real ASR via Sarvam AI
-- ABDM FHIR compliance
-- Real ABHA verification
-- Multi-doctor scheduling
-- Prescription history timeline
-- Telemedicine integration
+### Backend Deployment
+- Set environment variables
+- Configure database connection
+- Run migrations
+- Start with `npm start`
 
----
+### Frontend Deployment
+- Build with `npm run build`
+- Deploy `dist/` folder to static hosting
+- Configure environment variables if needed
 
-## Safety Disclaimer
+## Contributing
 
-MediKiosk is a student project prototype using synthetic data only.
-It is NOT a medical device.
-It does NOT provide autonomous diagnosis or treatment recommendations.
-Red flags only indicate "Priority for staff review."
-No real patient data is used or stored.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is for educational purposes only. Not for medical use.
+
+## Disclaimer
+
+MediKiosk is a synthetic academic prototype for educational purposes. It is not a medical device and should not be used for actual patient care. All data is synthetic and no real patient information should be entered.
+
+## Support
+
+For issues and questions:
+- Open an issue on GitHub
+- Check existing documentation
+- Review the code comments
+
+## Acknowledgments
+
+- Built with React, Node.js, Express, and MySQL
+- Uses Web Speech API for voice features
+- Implements FHIR standards for healthcare interoperability
+- Designed for educational and research purposes

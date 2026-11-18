@@ -1,21 +1,6 @@
-let enrollmentToken = null;
+// Kiosk session tokens stay in memory and are scoped to their exact session ID.
+// Patient account authentication uses the HttpOnly server cookie instead.
 let sessionCredentials = null;
-
-export function setKioskEnrollmentToken(token) {
-  enrollmentToken =
-    typeof token === 'string' && token.length >= 32 ? token : null;
-
-  // A newly issued enrollment token starts a new kiosk identity flow.
-  sessionCredentials = null;
-}
-
-export function getKioskEnrollmentToken() {
-  return enrollmentToken;
-}
-
-export function clearKioskEnrollmentToken() {
-  enrollmentToken = null;
-}
 
 export function setKioskSessionCredentials(sessionId, token) {
   if (
@@ -25,12 +10,9 @@ export function setKioskSessionCredentials(sessionId, token) {
     token.length < 32
   ) {
     sessionCredentials = null;
-    enrollmentToken = null;
     return false;
   }
-
   sessionCredentials = { id: sessionId, token };
-  enrollmentToken = null;
   return true;
 }
 
@@ -43,6 +25,5 @@ export function clearKioskSessionCredentials() {
 }
 
 export function clearKioskCredentials() {
-  enrollmentToken = null;
-  sessionCredentials = null;
+  clearKioskSessionCredentials();
 }

@@ -1,10 +1,7 @@
 import axios from 'axios';
 import {
   clearKioskCredentials,
-
-  getKioskEnrollmentToken,
   getKioskSessionCredentials,
-  setKioskEnrollmentToken,
   setKioskSessionCredentials
 } from './kioskCredentials.js';
 
@@ -75,16 +72,7 @@ api.interceptors.request.use(config => {
   const method = String(config.method || 'get').toLowerCase();
   const path = normalizePath(requestUrl);
 
-  // Enrollment credentials are used only to create the next session.
-  if (method === 'post' && path === '/sessions') {
-    const token = getKioskEnrollmentToken();
-
-    if (token) {
-      setHeader(config, 'X-Kiosk-Enrollment-Token', token);
-    }
-
-    return config;
-  }
+  // Session creation now uses the authenticated patient account cookie.
 
   const credentials = getKioskSessionCredentials();
   if (!credentials) return config;
@@ -115,14 +103,6 @@ api.interceptors.request.use(config => {
 
   if (
     method === 'post' &&
-    path === '/consents' &&
-    body?.session_id === sessionId
-  ) {
-    authorized = true;
-  }
-
-  if (
-    method === 'post' &&
     /^\/consents\/[^/]+\/revoke$/.test(path) &&
     body?.session_id === sessionId
   ) {
@@ -137,6 +117,14 @@ api.interceptors.request.use(config => {
   if (
     method === 'post' &&
     /^\/documents\/[^/]+\/verify$/.test(path) &&
+    body?.session_id === sessionId
+  ) {
+    authorized = true;
+  }
+
+  if (
+    method === 'delete' &&
+    /^\/documents\/[^/]+$/.test(path) &&
     body?.session_id === sessionId
   ) {
     authorized = true;
@@ -171,15 +159,6 @@ api.interceptors.response.use(response => {
   const method = String(config.method || 'get').toLowerCase();
   const path = normalizePath(responseUrl);
   const data = response.data;
-
-  // The opaque enrollment token is never placed in React state or storage.
-  if (method === 'post' && path === '/patients') {
-    if (typeof data?.enrollmentToken === 'string') {
-      setKioskEnrollmentToken(data.enrollmentToken);
-    } else {
-      clearKioskCredentials();
-    }
-  }
 
   if (method === 'post' && path === '/sessions') {
     if (data?.id && typeof data.kioskToken === 'string') {

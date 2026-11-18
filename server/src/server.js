@@ -10,7 +10,11 @@ const PORT = process.env.PORT || 5000;
 async function start() {
   assertJwtSecretConfigured();
   await testConnection();
-  await runSeed();
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Demo-account seeding disabled in production.');
+  } else {
+    await runSeed();
+  }
   app.listen(PORT, () => {
     startSessionExpiryCleanup();
     console.log(`MediKiosk server running on http://localhost:${PORT}`);
