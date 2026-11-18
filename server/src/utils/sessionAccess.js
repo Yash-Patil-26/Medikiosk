@@ -55,17 +55,3 @@ export async function requireActiveSession(sessionId) {
 
   return { session, status: 200, error: null };
 }
-
-export async function verifyPatientOwnsSession(sessionId, patientId) {
-  const session = await getSession(sessionId);
-
-  if (!session) {
-    return { session: null, status: 404, error: 'Session not found' };
-  }
-
-  if (session.patient_id !== patientId) {
-    return { session, status: 403, error: 'You do not own this session' };
-  }
-
-  return { session, status: 200, error: null };
-}

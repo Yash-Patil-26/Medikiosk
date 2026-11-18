@@ -16,6 +16,10 @@ const VALIDATION_RULES = {
   abha: {
     pattern: /^\d{14}$/,
     message: 'ABHA number must be exactly 14 digits'
+  },
+  username: {
+    pattern: /^[a-zA-Z0-9_]{3,50}$/,
+    message: 'Username must be 3-50 characters (letters, numbers, underscore)'
   }
 };
 
@@ -120,7 +124,9 @@ export default function ForgotPassword() {
     ? 'ABHA Number'
     : identifierType === 'mobile'
       ? 'Mobile Number'
-      : 'Email Address';
+      : identifierType === 'username'
+        ? 'Username'
+        : 'Email Address';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
@@ -155,6 +161,7 @@ export default function ForgotPassword() {
                   <option value="mobile">Mobile Number</option>
                   <option value="email">Email Address</option>
                   <option value="abha">ABHA Number</option>
+                  <option value="username">Username</option>
                 </select>
               </label>
 
@@ -167,7 +174,7 @@ export default function ForgotPassword() {
                     validateIdentifier(e.target.value, identifierType);
                   }}
                   type={identifierType === 'email' ? 'email' : 'text'}
-                  placeholder={identifierType === 'abha' ? '14 digits' : identifierType === 'mobile' ? '10 digits' : 'you@example.com'}
+                  placeholder={identifierType === 'abha' ? '14 digits' : identifierType === 'mobile' ? '10 digits' : identifierType === 'username' ? 'Your username' : 'you@example.com'}
                   maxLength={identifierType === 'abha' ? 14 : identifierType === 'mobile' ? 10 : 254}
                   required
                   className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100"

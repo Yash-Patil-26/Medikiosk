@@ -112,9 +112,15 @@ router.post('/register', async (req, res, next) => {
       return res.status(400).json({ error: validation.error, ...(validation.fields ? { fields: validation.fields } : {}) });
     }
   } else if (role === 'doctor') {
-    // Basic validation for doctor
+    // Doctor registration - requires display_name, password, and login identifier
     if (!body.display_name || !body.display_name.trim()) {
       return res.status(400).json({ error: 'Display name is required.' });
+    }
+    if (!body.identifier_type || !['username', 'email', 'mobile'].includes(body.identifier_type)) {
+      return res.status(400).json({ error: 'Invalid identifier type. Use username, email, or mobile.' });
+    }
+    if (!body.identifier || !body.identifier.trim()) {
+      return res.status(400).json({ error: 'Login identifier is required.' });
     }
     if (!body.password || body.password.length < 10) {
       return res.status(400).json({ error: 'Password must be at least 10 characters.' });
@@ -182,24 +188,24 @@ router.post('/register', async (req, res, next) => {
         [userId, String(patientId), JSON.stringify({ identifier_type: registration.identifier_type })]
       );
     } else {
-      // Doctor - use display_name as username
+      // Doctor - generate username from name, store login identifier
       const username = registration.display_name.trim().toLowerCase().replace(/\s+/g, '_');
 
       const [duplicateRows] = await connection.query(
-        `SELECT id FROM users WHERE username = ? LIMIT 1 FOR UPDATE`,
-        [username]
+        `SELECT id FROM users WHERE username = ? OR (login_identifier_type = ? AND login_identifier = ?) LIMIT 1 FOR UPDATE`,
+        [username, registration.identifier_type, registration.identifier]
       );
       if (duplicateRows.length) {
         await connection.rollback();
         transactionOpen = false;
-        return res.status(409).json({ error: 'An account with this name already exists. Please use a different name.' });
+        return res.status(409).json({ error: 'An account with this name or login ID already exists. Please use different credentials.' });
       }
 
       const [userResult] = await connection.query(
         `INSERT INTO users
-         (role, username, password_hash, display_name)
-         VALUES (?, ?, ?, ?)`,
-        [role, username, passwordHash, registration.display_name]
+         (role, username, login_identifier_type, login_identifier, password_hash, display_name)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [role, username, registration.identifier_type, registration.identifier, passwordHash, registration.display_name]
       );
       userId = Number(userResult.insertId);
 
@@ -207,7 +213,7 @@ router.post('/register', async (req, res, next) => {
         `INSERT INTO audit_logs
          (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
          VALUES (?, ?, 'DOCTOR_REGISTERED', 'user', ?, ?)`,
-        [role, userId, String(userId), JSON.stringify({ display_name: registration.display_name })]
+        [role, userId, String(userId), JSON.stringify({ display_name: registration.display_name, identifier_type: registration.identifier_type })]
       );
     }
 
@@ -253,13 +259,21 @@ router.post('/login', async (req, res, next) => {
       queryValue = normalized.value;
     }
 
-    const [rows] = identifierType === 'username'
-      ? await pool.query('SELECT id, password_hash FROM users WHERE username = ? LIMIT 1', [queryValue])
-      : await pool.query(
-        `SELECT id, password_hash FROM users
-         WHERE login_identifier_type = ? AND login_identifier = ? LIMIT 1`,
-        [identifierType, queryValue]
+    // Search by login identifier first, then fall back to username
+    let [rows] = await pool.query(
+      `SELECT id, password_hash FROM users
+       WHERE login_identifier_type = ? AND login_identifier = ?
+       LIMIT 1`,
+      [identifierType, queryValue]
+    );
+
+    // If no match, try username (for backward compatibility with doctors)
+    if (!rows.length && identifierType !== 'username') {
+      [rows] = await pool.query(
+        'SELECT id, password_hash FROM users WHERE username = ? LIMIT 1',
+        [queryValue]
       );
+    }
 
     const account = rows[0];
     if (!account || !(await bcrypt.compare(password, account.password_hash))) {
@@ -448,28 +462,36 @@ router.post('/forgot-password', async (req, res, next) => {
 
     if (
       typeof identifierType !== 'string' ||
-      !['abha', 'mobile', 'email'].includes(identifierType) ||
+      !['abha', 'mobile', 'email', 'username'].includes(identifierType) ||
       typeof identifier !== 'string' || !identifier.trim()
     ) {
       return res.status(400).json({ error: 'Identifier type and identifier are required.' });
     }
 
-    const normalizedIdentifier = normalizePatientIdentifier(identifierType, identifier.trim());
+    let queryValue = identifier.trim();
+    if (identifierType !== 'username') {
+      const normalized = normalizePatientIdentifier(identifierType, queryValue);
+      if (!normalized.valid) return res.status(400).json({ error: normalized.error });
+      queryValue = normalized.value;
+    }
 
-    const [rows] = await pool.query(
+    let [rows] = await pool.query(
       `SELECT id, role FROM users 
        WHERE login_identifier_type = ? AND login_identifier = ? 
        LIMIT 1`,
-      [identifierType, normalizedIdentifier]
+      [identifierType, queryValue]
     );
+
+    // Fall back to username for backward compatibility
+    if (!rows.length && identifierType !== 'username') {
+      [rows] = await pool.query(
+        'SELECT id, role FROM users WHERE username = ? LIMIT 1',
+        [queryValue]
+      );
+    }
 
     if (!rows.length) {
       return res.status(404).json({ error: 'No account found with this identifier.' });
-    }
-
-    const user = rows[0];
-    if (user.role !== 'patient') {
-      return res.status(400).json({ error: 'Password reset is only available for patient accounts.' });
     }
 
     return res.json({ message: 'Identifier verified. You can now reset your password.' });
@@ -489,25 +511,38 @@ router.post('/reset-password', async (req, res, next) => {
 
     if (
       typeof identifierType !== 'string' ||
-      !['abha', 'mobile', 'email'].includes(identifierType) ||
+      !['abha', 'mobile', 'email', 'username'].includes(identifierType) ||
       typeof identifier !== 'string' || !identifier.trim() ||
       typeof newPassword !== 'string' || !newPassword || newPassword.length < 10 || newPassword.length > 128
     ) {
       return res.status(400).json({ error: 'Identifier and new password are required. Password must be 10-128 characters.' });
     }
 
-    const normalizedIdentifier = normalizePatientIdentifier(identifierType, identifier.trim());
+    let queryValue = identifier.trim();
+    if (identifierType !== 'username') {
+      const normalized = normalizePatientIdentifier(identifierType, queryValue);
+      if (!normalized.valid) return res.status(400).json({ error: normalized.error });
+      queryValue = normalized.value;
+    }
 
     connection = await pool.getConnection();
     await connection.beginTransaction();
     transactionOpen = true;
 
-    const [userRows] = await connection.query(
+    let [userRows] = await connection.query(
       `SELECT id, role FROM users 
        WHERE login_identifier_type = ? AND login_identifier = ? 
        LIMIT 1 FOR UPDATE`,
-      [identifierType, normalizedIdentifier]
+      [identifierType, queryValue]
     );
+
+    // Fall back to username for backward compatibility
+    if (!userRows.length && identifierType !== 'username') {
+      [userRows] = await connection.query(
+        'SELECT id, role FROM users WHERE username = ? LIMIT 1 FOR UPDATE',
+        [queryValue]
+      );
+    }
 
     if (!userRows.length) {
       await connection.rollback();
@@ -516,11 +551,6 @@ router.post('/reset-password', async (req, res, next) => {
     }
 
     const user = userRows[0];
-    if (user.role !== 'patient') {
-      await connection.rollback();
-      transactionOpen = false;
-      return res.status(400).json({ error: 'Password reset is only available for patient accounts.' });
-    }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
@@ -532,8 +562,8 @@ router.post('/reset-password', async (req, res, next) => {
     await connection.query(
       `INSERT INTO audit_logs
        (actor_role, actor_id, action, resource_type, resource_id, metadata_json)
-       VALUES ('patient', ?, 'PASSWORD_RESET', 'user', ?, ?)`,
-      [user.id, String(user.id), JSON.stringify({ identifier_type: identifierType })]
+       VALUES (?, ?, 'PASSWORD_RESET', 'user', ?, ?)`,
+      [user.role, user.id, String(user.id), JSON.stringify({ identifier_type: identifierType })]
     );
 
     await connection.commit();

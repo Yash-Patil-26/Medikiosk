@@ -15,8 +15,12 @@ export default function Login() {
 
   const setField = (field, value) => {
     setForm(previous => ({ ...previous, [field]: value }));
-    if (field === 'role' && value !== 'patient') {
-      setForm(previous => ({ ...previous, role: value, identifier_type: 'username', identifier: '' }));
+    if (field === 'role') {
+      if (value === 'doctor') {
+        setForm(prev => ({ ...prev, role: value, identifier_type: 'username', identifier: '' }));
+      } else if (value === 'patient') {
+        setForm(prev => ({ ...prev, role: value, identifier_type: 'mobile', identifier: '' }));
+      }
     }
   };
 
@@ -80,14 +84,26 @@ export default function Login() {
               </label>
             )}
 
+            {form.role === 'doctor' && (
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Login ID Type
+                <select value={form.identifier_type} onChange={e => setField('identifier_type', e.target.value)}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100">
+                  <option value="username">Username</option>
+                  <option value="email">Email Address</option>
+                  <option value="mobile">Mobile Number</option>
+                </select>
+              </label>
+            )}
+
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-              {form.role === 'patient' ? identifierLabel : 'Username'}
+              {identifierLabel}
               <div className="relative mt-1.5">
                 <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input value={form.identifier} onChange={e => setField('identifier', e.target.value)}
                   autoComplete="username" maxLength={254} required
                   type={form.identifier_type === 'email' ? 'email' : 'text'}
-                  placeholder={form.role === 'patient' ? (form.identifier_type === 'abha' ? '14 digits' : form.identifier_type === 'mobile' ? '10 digits' : 'you@example.com') : 'Your full name'}
+                  placeholder={form.identifier_type === 'abha' ? '14 digits' : form.identifier_type === 'mobile' ? '10 digits' : form.identifier_type === 'username' ? 'Your username' : 'you@example.com'}
                   className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 pl-10 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 text-gray-900 dark:text-gray-100" />
               </div>
             </label>

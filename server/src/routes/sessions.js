@@ -7,7 +7,6 @@ import pool from '../config/db.js';
 import { getSession, requireActiveSession } from '../utils/sessionAccess.js';
 import { CONSENT_NOTICE_VERSION, CONSENT_PURPOSES } from '../utils/patientRegistration.js';
 import { clearTemporarySessionData } from '../utils/sessionCleanup.js';
-import { verifyPatientOwnsSession } from '../utils/sessionAccess.js';
 
 const router = Router();
 
@@ -177,18 +176,15 @@ delete session.kiosk_token_hash;
   }
 });
 
-router.patch('/:id', authenticate, requireRole('patient'), async (req, res, next) => {
+router.patch('/:id', requireKioskSessionToken(req => req.params.id), async (req, res, next) => {
   try {
-    // Verify patient owns this session
-    const ownership = await verifyPatientOwnsSession(req.params.id, req.user.patient_id);
+    const access = await requireActiveSession(req.params.id);
 
-    if (ownership.status !== 200) {
-      console.log('Session ownership check failed:', ownership);
-      return res.status(ownership.status).json({ error: ownership.error });
+    if (access.status !== 200) {
+      return res.status(access.status).json({ error: access.error });
     }
 
     const body = req.body || {};
-    console.log('PATCH request body:', body);
     const allowed = new Set(['language', 'ayush_mode', 'slots']);
     const unsupported = Object.keys(body).filter(key => !allowed.has(key));
 
@@ -237,14 +233,12 @@ router.patch('/:id', authenticate, requireRole('patient'), async (req, res, next
           return res.status(400).json({ error: 'Each slot update must have slot_id and value' });
         }
 
-        console.log('Updating slot:', slotUpdate.slot_id, 'with value:', slotUpdate.value);
-        const [result] = await pool.query(
+        await pool.query(
           `UPDATE session_slots
            SET value = ?, source = 'touch', raw_text = ?, confidence = 1.0, confirmed_by = 'touch'
            WHERE session_id = ? AND slot_id = ?`,
           [slotUpdate.value, slotUpdate.value, req.params.id, slotUpdate.slot_id]
         );
-        console.log('Update result:', result);
       }
     }
 

@@ -28,6 +28,10 @@ const VALIDATION_RULES = {
   abha: {
     pattern: /^\d{14}$/,
     message: 'ABHA number must be exactly 14 digits'
+  },
+  username: {
+    pattern: /^[a-zA-Z0-9_]{3,50}$/,
+    message: 'Username must be 3-50 characters (letters, numbers, underscore)'
   }
 };
 
@@ -41,8 +45,18 @@ export default function Register() {
 
   const setField = (field, value) => {
     setForm(previous => ({ ...previous, [field]: value }));
-    if (field === 'identifier' && form.role === 'patient') {
+    if (field === 'identifier' && (form.role === 'patient' || form.role === 'doctor')) {
       validateIdentifier(value, form.identifier_type);
+    }
+    if (field === 'role') {
+      // Reset identifier type based on role
+      if (value === 'doctor') {
+        setForm(prev => ({ ...prev, identifier_type: 'username', identifier: '' }));
+        setIdentifierError('');
+      } else if (value === 'patient') {
+        setForm(prev => ({ ...prev, identifier_type: 'mobile', identifier: '' }));
+        setIdentifierError('');
+      }
     }
   };
 
@@ -75,8 +89,8 @@ export default function Register() {
     event.preventDefault();
     setError('');
     
-    // Validate identifier for patients
-    if (form.role === 'patient' && !validateIdentifier(form.identifier, form.identifier_type)) {
+    // Validate identifier for patients and doctors
+    if ((form.role === 'patient' || form.role === 'doctor') && !validateIdentifier(form.identifier, form.identifier_type)) {
       return;
     }
 
@@ -179,6 +193,31 @@ export default function Register() {
                   autoComplete={form.identifier_type === 'email' ? 'email' : 'off'}
                   maxLength={form.identifier_type === 'abha' ? 14 : form.identifier_type === 'mobile' ? 10 : 254}
                   placeholder={form.identifier_type === 'abha' ? '14 digits' : form.identifier_type === 'mobile' ? '10 digits' : 'you@example.com'}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100" />
+                </label>
+                {identifierError && <p className="text-xs text-error-600 dark:text-error-400 mt-1">{identifierError}</p>}
+            </>
+          )}
+
+          {form.role === 'doctor' && (
+            <>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Login ID Type
+                <select value={form.identifier_type} onChange={e => { setField('identifier_type', e.target.value); setField('identifier', ''); setIdentifierError(''); }}
+                  className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100">
+                  <option value="username">Username</option>
+                  <option value="email">Email Address</option>
+                  <option value="mobile">Mobile Number</option>
+                </select>
+              </label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                {form.identifier_type === 'username' ? 'Username' : form.identifier_type === 'mobile' ? 'Mobile Number' : 'Email Address'}
+                <input value={form.identifier} onChange={e => setField('identifier', e.target.value)} required
+                  type={form.identifier_type === 'email' ? 'email' : 'text'}
+                  inputMode={form.identifier_type === 'email' ? 'email' : form.identifier_type === 'mobile' ? 'numeric' : 'text'}
+                  autoComplete={form.identifier_type === 'email' ? 'email' : 'off'}
+                  maxLength={form.identifier_type === 'mobile' ? 10 : 254}
+                  placeholder={form.identifier_type === 'username' ? 'Your username' : form.identifier_type === 'mobile' ? '10 digits' : 'you@example.com'}
                   className="mt-1.5 w-full border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-gray-100" />
                 </label>
                 {identifierError && <p className="text-xs text-error-600 dark:text-error-400 mt-1">{identifierError}</p>}
