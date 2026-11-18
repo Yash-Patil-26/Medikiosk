@@ -1,183 +1,212 @@
+<div align="center">
+
 # MediKiosk
 
-## Transforming Healthcare Intake with AI-Powered Kiosks
+### AI-Powered Healthcare Intake System
 
-**MediKiosk** is an innovative pre-consultation system that streamlines patient information collection through intelligent voice and touch interactions. Designed for healthcare facilities, it reduces patient wait times and improves data accuracy for doctors.
+Transforming patient registration with intelligent voice and touch interactions
 
-![MediKiosk Landing Page](https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=MediKiosk+Landing+Page)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![License](https://img.shields.io/badge/License-Educational-blue)](LICENSE)
 
-## What is MediKiosk?
+</div>
 
-MediKiosk is a **synthetic academic prototype** that demonstrates how AI can enhance the patient intake process. Instead of filling out paper forms or waiting for nurses, patients interact with a friendly kiosk that:
+---
 
-- **Listens** to their complaints in their preferred language (English, Hindi, or Marathi)
-- **Asks** intelligent follow-up questions based on their responses
-- **Processes** uploaded medical documents automatically
-- **Generates** a comprehensive summary for doctor review
-- **Ensures** complete privacy and consent management
+## 🎯 What is MediKiosk?
 
-## Why MediKiosk?
+MediKiosk is a **synthetic academic prototype** that reimagines the patient intake process. Instead of traditional paper forms or lengthy nurse interviews, patients interact with an intelligent kiosk that:
 
-### The Problem
-- Long waiting times for patient registration
-- Incomplete or inaccurate medical histories
-- Language barriers in multilingual environments
-- Manual data entry errors
-- Privacy concerns with paper forms
+- 🗣️ **Listens** to their health concerns in their native language
+- 🤖 **Asks** smart follow-up questions based on responses
+- 📄 **Processes** medical documents automatically
+- 📋 **Generates** comprehensive summaries for doctors
+- 🔒 **Ensures** complete privacy and consent management
 
-### The Solution
-MediKiosk addresses these challenges through:
+<div align="center">
 
-✨ **Voice-First Interaction** - Natural conversation in patient's language  
-✨ **Adaptive Intelligence** - Questions adjust based on patient responses  
-✨ **Document Processing** - Automatic extraction from medical documents  
-✨ **Privacy-First** - Granular consent and automatic data purging  
-✨ **Multi-Language** - Full support for English, Hindi, and Marathi  
-✨ **Doctor Integration** - Seamless workflow from kiosk to consultation
+![MediKiosk Hero](https://via.placeholder.com/1200x600/4F46E5/FFFFFF?text=MediKiosk+-+AI-Powered+Healthcare+Intake)
 
-## How It Works
+</div>
+
+## ✨ Why MediKiosk?
+
+### The Challenge
+Healthcare facilities face critical bottlenecks in patient intake:
+- ⏱️ **Long wait times** - 15-30 minutes per patient registration
+- 📝 **Incomplete data** - Patients forget symptoms or medical history
+- 🌍 **Language barriers** - Limited multilingual support
+- ❌ **Manual errors** - Data entry mistakes and transcription issues
+- 🔐 **Privacy concerns** - Sensitive information on paper forms
+
+### Our Solution
+MediKiosk eliminates these barriers through intelligent automation:
+
+| Feature | Benefit |
+|---------|---------|
+| **Voice-First** | Natural conversation reduces patient anxiety |
+| **Adaptive AI** | Questions adjust to individual patient needs |
+| **Document Intelligence** | Automatic extraction from medical reports |
+| **Multi-Language** | Full support for English, Hindi, Marathi |
+| **Privacy-First** | Granular consent and automatic data purging |
+
+## 🚀 How It Works
 
 ### Patient Journey
 
-![Kiosk Flow](https://via.placeholder.com/1000x200/10B981/FFFFFF?text=Identify+→+Consent+→+Interview+→+Documents+→+Review+→+Done)
-
-1. **Identify** - Patient scans ABHA ID or enters mobile number
-2. **Consent** - Patient reviews and grants specific permissions
-3. **Interview** - Voice-guided conversation about symptoms and history
-4. **Documents** - Upload medical documents for automatic processing
-5. **Review** - Patient verifies all information before submission
-6. **Done** - Information sent to doctor for review
+```
+┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
+│ Identify│───▶│ Consent │───▶│Interview│───▶│Documents│───▶│ Review  │───▶│  Done   │
+│         │    │         │    │         │    │         │    │         │    │         │
+│ ABHA ID │    │ Voice   │    │ Voice   │    │ Upload  │    │ Confirm │    │ Submit  │
+│ Mobile  │    │ Docs    │    │ Touch   │    │ OCR     │    │ Edit    │    │ Doctor  │
+│ New     │    │ HIS     │    │ Adaptive│    │ Extract │    │ Verify  │    │ Queue   │
+└─────────┘    └─────────┘    └─────────┘    └─────────┘    └─────────┘    └─────────┘
+```
 
 ### Doctor Workflow
 
-![Doctor Workflow](https://via.placeholder.com/800x300/8B5CF6/FFFFFF?text=Queue+→+Review+→+Sign+→+FHIR+Export)
+```
+┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
+│  Queue  │───▶│ Review  │───▶│  Sign   │───▶│  Export │
+│         │    │         │    │         │    │         │
+│ Token   │    │ Summary │    │ Digital │    │  FHIR   │
+│ Number  │    │ Notes   │    │ Signature│   │  Bundle │
+│ Priority│    │ Edit    │    │ Finalize│    │   HIS   │
+└─────────┘    └─────────┘    └─────────┘    └─────────┘
+```
 
-1. **Queue** - View waiting patients with token numbers
-2. **Review** - Examine patient summary and clinical notes
-3. **Sign** - Digital signature and finalization
-4. **Export** - Generate FHIR bundle for hospital systems
+## 🎨 See It in Action
 
-## Key Features
+### Landing Page
+<div align="center">
+<img src="https://via.placeholder.com/800x500/4F46E5/FFFFFF?text=Landing+Page" alt="Landing Page" width="800">
+</div>
 
-### 🎤 Voice Recognition & Synthesis
-- Natural voice interaction in multiple languages
-- Real-time speech-to-text and text-to-speech
-- Fallback to touch interface when needed
+### Patient Dashboard
+<div align="center">
+<img src="https://via.placeholder.com/800x500/10B981/FFFFFF?text=Patient+Dashboard" alt="Patient Dashboard" width="800">
+</div>
 
-### 📋 Adaptive Interview System
-- Intelligent question flow based on patient responses
-- Red flag detection for urgent conditions
-- Ayush mode for traditional medicine consultations
+### Kiosk Interview Interface
+<div align="center">
+<img src="https://via.placeholder.com/800x500/8B5CF6/FFFFFF?text=Kiosk+Interview" alt="Kiosk Interview" width="800">
+</div>
 
-### 📄 Document Intelligence
-- Upload medical reports, prescriptions, lab results
-- Automatic text extraction and categorization
-- Integration with interview findings
+### Doctor Encounter Review
+<div align="center">
+<img src="https://via.placeholder.com/800x500/F59E0B/FFFFFF?text=Doctor+Encounter+Review" alt="Doctor Encounter" width="800">
+</div>
 
-### 🔒 Privacy & Consent
-- Granular consent for each data type
-- Automatic session purging after completion
-- Complete audit trail for compliance
-- No PHI storage (synthetic data only)
+### Admin Dashboard
+<div align="center">
+<img src="https://via.placeholder.com/800x500/06B6D4/FFFFFF?text=Admin+Dashboard" alt="Admin Dashboard" width="800">
+</div>
 
-### 🌍 Multi-Language Support
-- Full English, Hindi, and Marathi interfaces
-- Language preference persists across sessions
-- Voice recognition in native languages
+## 🏗️ Architecture
 
-### 🌓 Dark Mode
-- Universal dark mode across all pages
-- System preference detection
-- Consistent theming throughout
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Frontend (React)                      │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │   Patient   │  │   Doctor    │  │       Admin         │  │
+│  │   Portal    │  │   Portal    │  │     Dashboard       │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│                         │                                    │
+│                    REST API                                  │
+└─────────────────────────┼────────────────────────────────────┘
+                          │
+┌─────────────────────────┼────────────────────────────────────┐
+│                    Backend (Node.js)                          │
+│  ┌──────────────────────┼──────────────────────┐             │
+│  │    Auth Service      │   Session Manager    │             │
+│  └──────────────────────┼──────────────────────┘             │
+│  ┌──────────────────────┼──────────────────────┐             │
+│  │   Dialogue Engine    │   Document Processor │             │
+│  └──────────────────────┼──────────────────────┘             │
+│  ┌──────────────────────┼──────────────────────┐             │
+│  │   Encounter Service  │    HIS Integration   │             │
+│  └──────────────────────┼──────────────────────┘             │
+└─────────────────────────┼────────────────────────────────────┘
+                          │
+┌─────────────────────────┼────────────────────────────────────┐
+│                    Database (MySQL)                           │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────────────┐  │
+│  │ Users   │  │Patients │  │Sessions │  │   Encounters    │  │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
 
-### 📊 Admin Dashboard
-- Real-time system metrics
-- User and session management
-- Comprehensive analytics
-- System health monitoring
-
-## User Roles
-
-### 👤 Patients
-- Register and login with ABHA, mobile, or email
-- Complete kiosk interview sessions
-- Upload medical documents
-- View encounter history
-- Manage consent preferences
-
-### 👨‍⚕️ Doctors
-- Access patient queue with token numbers
-- Review patient summaries and clinical notes
-- Edit and finalize encounter documents
-- Generate FHIR bundles for HIS integration
-- Track patient encounters
-
-### 👨‍💼 Admins
-- Monitor system health and performance
-- Manage all user accounts
-- View comprehensive analytics
-- Track sessions and encounters
-- Generate reports and exports
-
-## Technology Stack
+## 🛠️ Tech Stack
 
 ### Frontend
-- **React 18** - Modern UI framework
-- **Vite** - Fast build tool and dev server
-- **TailwindCSS** - Utility-first styling
+- **React 18** - Modern UI library
+- **Vite** - Lightning-fast build tool
+- **TailwindCSS** - Utility-first CSS framework
 - **React Router** - Client-side routing
 - **i18next** - Internationalization
-- **Lucide React** - Beautiful icons
-- **Web Speech API** - Voice recognition and synthesis
+- **Lucide React** - Beautiful icon library
+- **Web Speech API** - Voice recognition & synthesis
 
 ### Backend
-- **Node.js** - Runtime environment
+- **Node.js** - JavaScript runtime
 - **Express** - Web framework
 - **MySQL** - Relational database
-- **JWT** - Secure authentication
+- **JWT** - Authentication tokens
 - **bcrypt** - Password hashing
 - **Express-rate-limit** - API security
 
-### Architecture
-- **RESTful API** - Clean API design
-- **Session-based** - Secure kiosk authentication
-- **Adaptive Dialogue** - Intelligent conversation flow
-- **Mock Providers** - LLM, OCR, ASR, TTS integration ready
+### Healthcare Standards
+- **FHIR R4** - Healthcare interoperability
+- **HL7** - Health level 7 messaging
+- **HIPAA** - Privacy and security (synthetic data)
 
-## Getting Started
+## 📋 User Roles
+
+### 👤 Patient Portal
+- **Registration**: ABHA, mobile, or email authentication
+- **Kiosk Sessions**: Voice-guided clinical interviews
+- **Document Upload**: Medical report processing
+- **History**: View past encounters and summaries
+- **Preferences**: Language and consent management
+
+### 👨‍⚕️ Doctor Portal
+- **Queue Management**: View waiting patients with tokens
+- **Encounter Review**: Examine patient summaries
+- **Clinical Notes**: Add doctor observations
+- **Digital Signing**: Finalize and sign encounters
+- **FHIR Export**: Generate healthcare data bundles
+
+### 👨‍💼 Admin Dashboard
+- **System Monitoring**: Real-time health metrics
+- **User Management**: Manage all accounts
+- **Session Tracking**: Monitor kiosk activity
+- **Analytics**: Usage statistics and reports
+- **Doctor Management**: Manage medical staff
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18 or higher
-- MySQL 8.0 or higher
-- npm or yarn package manager
+- Node.js 18+
+- MySQL 8.0+
+- npm or yarn
 
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/Yash-Patil-26/Medikiosk.git
 cd Medikiosk
 
-# Install backend dependencies
-cd server
-npm install
+# Install dependencies
+cd server && npm install
+cd ../client && npm install
 
-# Install frontend dependencies
-cd ../client
-npm install
-```
-
-### Configuration
-
-```bash
-# Backend environment setup
-cd server
-cp .env.example .env
-
-# Edit .env file with your settings:
-# - Database credentials
-# - JWT secret
-# - Provider modes (mock/real)
+# Configure environment
+cd ../server && cp .env.example .env
+# Edit .env with your database credentials
 ```
 
 ### Database Setup
@@ -188,7 +217,7 @@ mysql -u root -p
 CREATE DATABASE medikiosk;
 EXIT;
 
-# The application will automatically create tables on first run
+# Tables are created automatically on first run
 ```
 
 ### Running the Application
@@ -203,175 +232,94 @@ cd client
 npm run dev
 ```
 
-### Access the Application
-
+### Access Points
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:5000
-- **Admin Dashboard**: http://localhost:5173/admin
+- **Admin**: http://localhost:5173/admin
 
-### Default Admin Credentials
-- **Username**: `admin`
-- **Password**: `Admin@123`
-
-## Screenshots
-
-### Landing Page
-![Landing](https://via.placeholder.com/800x500/4F46E5/FFFFFF?text=Landing+Page)
-
-### Patient Dashboard
-![Patient Dashboard](https://via.placeholder.com/800x500/10B981/FFFFFF?text=Patient+Dashboard)
-
-### Kiosk Interview
-![Kiosk Interview](https://via.placeholder.com/800x500/8B5CF6/FFFFFF?text=Kiosk+Interview)
-
-### Doctor Queue
-![Doctor Queue](https://via.placeholder.com/800x500/F59E0B/FFFFFF?text=Doctor+Queue)
-
-### Doctor Encounter Review
-![Doctor Encounter](https://via.placeholder.com/800x500/EF4444/FFFFFF?text=Doctor+Encounter)
-
-### Admin Dashboard
-![Admin Dashboard](https://via.placeholder.com/800x500/06B6D4/FFFFFF?text=Admin+Dashboard)
-
-## Project Structure
-
+### Default Credentials
 ```
-Medikiosk/
-├── client/                 # React frontend
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── context/        # React context providers
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── i18n/           # Translation files
-│   │   ├── pages/          # Page components
-│   │   │   ├── admin/      # Admin pages
-│   │   │   ├── doctor/     # Doctor pages
-│   │   │   ├── kiosk/      # Kiosk flow pages
-│   │   │   └── *.jsx       # Other pages
-│   │   ├── services/       # API services
-│   │   └── utils/          # Utility functions
-│   └── package.json
-├── server/                 # Node.js backend
-│   ├── src/
-│   │   ├── config/         # Configuration files
-│   │   ├── middleware/     # Express middleware
-│   │   ├── routes/         # API routes
-│   │   ├── utils/          # Utility functions
-│   │   └── server.js       # Main server file
-│   └── package.json
-└── README.md
+Admin: admin / Admin@123
 ```
 
-## API Documentation
+## 📚 Documentation
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/forgot-password` - Password reset
+### API Reference
+Complete API documentation is available at `/api/docs` when the server is running.
 
-### Patient Management
-- `GET /api/patients/me` - Get patient profile
-- `PATCH /api/patients/me` - Update patient profile
-- `GET /api/patients/my-encounters` - Get patient encounters
+### Key Endpoints
+- **Auth**: `/api/auth/*` - Authentication and user management
+- **Patients**: `/api/patients/*` - Patient profile and encounters
+- **Sessions**: `/api/sessions/*` - Kiosk session management
+- **Dialogue**: `/api/dialogue/*` - Interview conversation flow
+- **Documents**: `/api/documents/*` - Document upload and processing
+- **Encounters**: `/api/encounters/*` - Clinical encounter management
+- **Admin**: `/api/admin/*` - Administrative functions
 
-### Session Management
-- `POST /api/sessions` - Create new session
-- `GET /api/sessions/:id` - Get session details
-- `PATCH /api/sessions/:id` - Update session
-- `POST /api/sessions/:id/purge` - Purge session data
-
-### Dialogue System
-- `POST /api/dialogue/:sessionId/answer` - Submit answer
-- `GET /api/dialogue/:sessionId/next` - Get next question
-
-### Document Processing
-- `POST /api/documents/upload` - Upload document
-- `GET /api/documents/:sessionId` - Get document extractions
-
-### Encounter Management
-- `GET /api/encounters` - List encounters
-- `GET /api/encounters/:id` - Get encounter details
-- `PATCH /api/encounters/:id` - Update encounter
-- `POST /api/encounters/:id/sign` - Sign encounter
-
-### Admin Functions
-- `GET /api/admin/dashboard-stats` - Dashboard statistics
-- `GET /api/admin/users` - List users
-- `GET /api/admin/sessions` - List sessions
-- `GET /api/admin/encounters` - List encounters
-- `GET /api/admin/doctors` - List doctors
-- `GET /api/admin/analytics` - Analytics data
-- `GET /api/admin/system-health` - System health
-
-## Configuration
-
-### Environment Variables
-
+### Environment Configuration
 ```env
-# Server Configuration
+# Server
 PORT=5000
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:5173
 
-# Database Configuration
+# Database
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=medikiosk
 DB_USER=root
 DB_PASSWORD=your_password
 
-# JWT Configuration
+# Security
 JWT_SECRET=your_secure_secret_key_minimum_32_characters
 
-# Provider Modes (mock/real)
+# Providers (mock/real)
 LLM_PROVIDER=mock
 OCR_PROVIDER=mock
 ASR_PROVIDER=browser
 TTS_PROVIDER=browser
 PROVIDER_MODE=mock
-
-# HIS Integration
-HIS_KEY=demo_key
 ```
 
-## Security Features
+## 🔒 Security & Privacy
 
-- **JWT Authentication** - Secure token-based authentication
-- **Password Hashing** - bcrypt with 12 rounds
-- **Rate Limiting** - API endpoint protection
-- **CORS Configuration** - Cross-origin security
-- **Helmet Headers** - Security headers
-- **Input Validation** - Data sanitization
-- **Audit Logging** - Complete activity tracking
-- **Session Purging** - Automatic data deletion
-- **Consent Management** - Granular permission control
+### Security Features
+- ✅ JWT-based authentication
+- ✅ bcrypt password hashing (12 rounds)
+- ✅ Rate limiting on all endpoints
+- ✅ CORS protection
+- ✅ Helmet security headers
+- ✅ Input validation and sanitization
+- ✅ Audit logging for all actions
+- ✅ Session-based kiosk authentication
 
-## Privacy & Compliance
+### Privacy Compliance
+- ✅ Granular consent management
+- ✅ Automatic data purging
+- ✅ Complete audit trail
+- ✅ No PHI storage (synthetic data)
+- ✅ GDPR-compliant design
+- ✅ Encryption for sensitive data
 
-- **Granular Consent** - Separate permissions for voice, documents, HIS, dashboard
-- **Data Retention** - Automatic session purging
-- **Audit Trail** - Complete action logging
-- **No PHI Storage** - Synthetic data only
-- **GDPR Compliant** - Privacy-first design
-- **Encryption** - Sensitive data protection
+## 🌍 Internationalization
 
-## Browser Compatibility
+MediKiosk supports multiple languages with full translation:
 
-### Recommended Browsers
-- **Chrome** (latest) - Full feature support
-- **Edge** (latest) - Full feature support
-- **Firefox** (latest) - Partial speech recognition
-- **Safari** (latest) - Limited speech recognition
+- 🇺🇸 **English** - Complete interface
+- 🇮🇳 **Hindi** - Full translation
+- 🇮🇳 **Marathi** - Full translation
 
-### Audio Features
-Voice recognition and synthesis require browser support:
-- Chrome/Edge: Full support
-- Firefox: Limited support
-- Safari: Limited support
+Language preferences persist across sessions and are automatically applied to voice interactions.
 
-## Development
+## 🌓 Dark Mode
+
+Universal dark mode support across all pages:
+- Automatic system preference detection
+- Manual toggle in header
+- Consistent theming throughout
+- Accessible color contrasts
+
+## 🧪 Testing
 
 ### Running Tests
 ```bash
@@ -384,71 +332,86 @@ cd client
 npm test
 ```
 
-### Building for Production
-```bash
-# Backend
-cd server
-npm run build
+### Test Coverage
+- Unit tests for utility functions
+- Integration tests for API endpoints
+- Component tests for UI elements
+- E2E tests for critical user flows
 
-# Frontend
-cd client
-npm run build
-```
-
-### Code Quality
-```bash
-# Linting
-npm run lint
-
-# Type checking (if applicable)
-npm run type-check
-```
-
-## Deployment
+## 🚢 Deployment
 
 ### Backend Deployment
-1. Set environment variables
-2. Configure database connection
-3. Run database migrations
-4. Start with `npm start`
+```bash
+# Build for production
+npm run build
+
+# Set environment variables
+export NODE_ENV=production
+export DB_HOST=your_db_host
+# ... other env vars
+
+# Start server
+npm start
+```
 
 ### Frontend Deployment
-1. Build with `npm run build`
-2. Deploy `dist/` folder to static hosting
-3. Configure environment variables if needed
+```bash
+# Build for production
+npm run build
 
-## Contributing
+# Deploy dist/ folder to:
+# - Vercel
+# - Netlify
+# - AWS S3 + CloudFront
+# - Any static hosting
+```
 
-We welcome contributions! Please follow these steps:
+## 🤝 Contributing
 
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Workflow
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## License
+### Code Style
+- Follow existing code conventions
+- Use ESLint and Prettier
+- Write meaningful commit messages
+- Add JSDoc comments for complex functions
 
-This project is for educational purposes only. Not for medical use.
+## 📄 License
 
-## Disclaimer
+This project is licensed under the Educational License - see the [LICENSE](LICENSE) file for details.
 
-**MediKiosk is a synthetic academic prototype for educational purposes.** It is not a medical device and should not be used for actual patient care. All data is synthetic and no real patient information should be entered.
+**This is an educational prototype and should not be used for actual medical purposes.**
 
-## Support
+## ⚠️ Disclaimer
 
-For issues and questions:
-- Open an issue on [GitHub](https://github.com/Yash-Patil-26/Medikiosk/issues)
-- Check existing documentation
-- Review the code comments
+MediKiosk is a **synthetic academic prototype** designed for educational and research purposes. It is **not a medical device** and should **not be used for actual patient care**. All data is synthetic and no real patient information should be entered.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
-- Built with React, Node.js, Express, and MySQL
+- Built with ❤️ for healthcare innovation
 - Uses Web Speech API for voice features
-- Implements FHIR standards for healthcare interoperability
-- Designed for educational and research purposes
+- Implements FHIR standards for interoperability
+- Designed for educational purposes
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/Yash-Patil-26/Medikiosk/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Yash-Patil-26/Medikiosk/discussions)
+- **Documentation**: Check the `/docs` folder
 
 ---
 
+<div align="center">
+
 **Made with ❤️ for healthcare innovation**
+
+[⬆ Back to top](#medikiosk)
+
+</div>
