@@ -11,7 +11,7 @@ import i18n from '../i18n/i18n.js';
 export default function UniversalHeader({ showLogout = false, showLanguageSelector = false }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { kiosk, reset } = useKiosk();
   const { darkMode, toggleDarkMode } = useTheme();
   const [showHomeWarning, setShowHomeWarning] = useState(false);
@@ -96,11 +96,8 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
                 try {
                   await api.patch('/patients/me', { preferred_language: newLang });
                   i18n.changeLanguage(newLang);
-                  // Only reload if it's a patient and we need to refresh data
-                  if (user.role === 'patient') {
-                    // Don't reload - let the page re-render with new language
-                    // The user state will be updated by the auth context
-                  }
+                  // Refresh user data to trigger re-render with new language
+                  await refreshUser();
                 } catch (err) {
                   console.error('Failed to update language:', err);
                 }
