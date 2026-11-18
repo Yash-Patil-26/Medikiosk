@@ -177,9 +177,10 @@ export async function getNextNode(session, slotMap) {
   for (const node of allNodes) {
     if (node.slotId && !slotMap[node.slotId]) {
       // Translate the node using hardcoded translations
+      // Question text is stored in 'text' field, not 'message'
       const translatedNode = {
         ...node,
-        message: node.message ? translateText(node.message, language) : node.message,
+        text: node.text ? translateText(node.text, language) : node.text,
         placeholder: node.placeholder ? translateText(node.placeholder, language) : node.placeholder,
         noneLabel: node.noneLabel ? translateText(node.noneLabel, language) : node.noneLabel,
         options: node.options ? node.options.map(opt => ({
