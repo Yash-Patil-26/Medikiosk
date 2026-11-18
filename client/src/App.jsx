@@ -19,8 +19,10 @@ import KioskDone from './pages/kiosk/Done.jsx';
 import DoctorQueue from './pages/doctor/Queue.jsx';
 import DoctorEncounter from './pages/doctor/Encounter.jsx';
 import HIS from './pages/HIS.jsx';
-import AuditLogs from './pages/admin/AuditLogs.jsx';
-import PurgeProof from './pages/admin/PurgeProof.jsx';
+import AdminDashboard from './pages/admin/Dashboard.jsx';
+import UserManagement from './pages/admin/Users.jsx';
+import SessionManagement from './pages/admin/Sessions.jsx';
+import SystemMonitoring from './pages/admin/Monitoring.jsx';
 import PatientDashboard from './pages/PatientDashboard.jsx';
 
 function ProtectedRoute({ children, roles, allowIncompleteConsent = false, requireSession = false }) {
@@ -84,8 +86,10 @@ function AppRoutes() {
       <Route path="/doctor" element={<ProtectedRoute roles={['doctor']}><DoctorQueue /></ProtectedRoute>} />
       <Route path="/doctor/encounter/:id" element={<ProtectedRoute roles={['doctor']}><DoctorEncounter /></ProtectedRoute>} />
       <Route path="/his" element={<ProtectedRoute roles={['doctor', 'admin']}><HIS /></ProtectedRoute>} />
-      <Route path="/admin/audit" element={<ProtectedRoute roles={['admin']}><AuditLogs /></ProtectedRoute>} />
-      <Route path="/admin/purge-proof" element={<ProtectedRoute roles={['admin', 'doctor']}><PurgeProof /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/users" element={<ProtectedRoute roles={['admin']}><UserManagement /></ProtectedRoute>} />
+      <Route path="/admin/sessions" element={<ProtectedRoute roles={['admin']}><SessionManagement /></ProtectedRoute>} />
+      <Route path="/admin/monitoring" element={<ProtectedRoute roles={['admin']}><SystemMonitoring /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -224,6 +224,7 @@ router.post('/register', async (req, res, next) => {
     setAuthCookie(res, createAuthToken({ ...user, patient_id: patientId }));
     return res.status(201).json({ user });
   } catch (err) {
+    console.error('Registration error:', err);
     if (connection && transactionOpen) {
       try { await connection.rollback(); } catch { /* Preserve original error. */ }
     }
