@@ -88,18 +88,19 @@ export default function UniversalHeader({ showLogout = false, showLanguageSelect
         </Link>
 
         <div className="flex items-center gap-2">
-          {showLanguageSelector && user && (
+          {showLanguageSelector && (
             <select
-              value={user.preferred_language || 'en'}
+              value={i18n.language || 'en'}
               onChange={async (e) => {
                 const newLang = e.target.value;
                 try {
-                  await api.patch('/patients/me', { preferred_language: newLang });
+                  // If user is logged in, save preference to database
+                  if (user && user.role === 'patient') {
+                    await api.patch('/patients/me', { preferred_language: newLang });
+                  }
                   i18n.changeLanguage(newLang);
                   // Reload the page to ensure all components update with new language
-                  if (user.role === 'patient') {
-                    window.location.reload();
-                  }
+                  window.location.reload();
                 } catch (err) {
                   console.error('Failed to update language:', err);
                 }

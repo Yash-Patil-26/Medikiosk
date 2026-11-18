@@ -41,7 +41,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
-      <UniversalHeader />
+      <UniversalHeader showLanguageSelector={true} />
 
       {/* Hero */}
       <section className="flex flex-col items-center justify-center text-center px-6 py-24 relative overflow-hidden">
