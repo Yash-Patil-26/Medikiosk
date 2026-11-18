@@ -54,20 +54,21 @@ export default function Review() {
     setSaving(true);
     setError('');
     try {
-      await api.patch(`/sessions/${kiosk.sessionId}`, {
+      const response = await api.patch(`/sessions/${kiosk.sessionId}`, {
         slots: [{
           slot_id: editingSlot.slot_id,
           value: editValue
         }]
       });
+      console.log('Update response:', response.data);
       // Reload session to get updated data
       const r = await api.get('/sessions/' + kiosk.sessionId);
       setSession(r.data);
       setEditingSlot(null);
       setEditValue('');
     } catch (err) {
-      console.error('Failed to update slot:', err);
-      setError('Failed to update. Please try again.');
+      console.error('Failed to update slot:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Failed to update. Please try again.');
     } finally {
       setSaving(false);
     }
