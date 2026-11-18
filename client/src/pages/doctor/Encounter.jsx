@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, PenLine, AlertTriangle, Download, CheckCircle, User, Clock, FileText, Stethoscope, Shield, FileCheck, Heart, Pill, AlertCircle, Edit2, X, Activity, ChevronRight, Calendar, FileMedical } from 'lucide-react';
+import { ArrowLeft, Save, PenLine, AlertTriangle, Download, CheckCircle, User, Clock, FileText, Stethoscope, Shield, FileCheck, Heart, Pill, AlertCircle, Edit2, X, Activity, ChevronRight, Calendar, Clipboard } from 'lucide-react';
 import RedFlagBanner from '../../components/RedFlagBanner.jsx';
 import ProvenanceChip from '../../components/ProvenanceChip.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
@@ -788,7 +788,7 @@ export default function DoctorEncounter() {
                   </div>
                 ) : (
                   <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <FileMedical size={48} className="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                    <Clipboard size={48} className="text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                     <p className="text-gray-400 dark:text-gray-500 text-lg">No documents uploaded</p>
                   </div>
                 )}
