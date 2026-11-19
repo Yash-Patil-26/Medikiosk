@@ -5,7 +5,7 @@ services:
     runtime: node
     plan: free
     buildCommand: cd server && npm install
-    startCommand: cd server && npm start
+    startCommand: cd server && npm run migrate:apply-schema && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -20,15 +20,15 @@ services:
       - key: CORS_ORIGIN
         sync: false
       - key: LLM_PROVIDER
-        value: mock
+        value: local
       - key: OCR_PROVIDER
-        value: mock
+        value: local
       - key: ASR_PROVIDER
         value: browser
       - key: TTS_PROVIDER
         value: browser
       - key: PROVIDER_MODE
-        value: mock
+        value: production
     healthCheckPath: /api/health
 
   # Frontend Static Site
