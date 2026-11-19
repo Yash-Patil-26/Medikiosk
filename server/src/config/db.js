@@ -101,7 +101,7 @@ const db = {
 };
 
 export async function testConnection() {
-  const conn = await pool.getConnection();
+  const conn = await pool.connect();
   await conn.query('SELECT 1');
   conn.release();
   console.log('PostgreSQL connected successfully');
