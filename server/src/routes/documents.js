@@ -65,7 +65,7 @@ router.post('/extract', requireKioskSessionToken(req => req.get('X-Kiosk-Session
       return res.status(access.status).json({ error: access.error });
     }
 
-    // The OCR provider is the existing demo/mock extraction service.
+    // OCR provider for document extraction.
     const extracted = await extractDocument(
       req.file.buffer,
       req.file.mimetype,

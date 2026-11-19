@@ -30,7 +30,7 @@ export function sessionIsActive(session) {
   if (!session) return false;
 
   if (session._session_active !== undefined) {
-    return Number(session._session_active) === 1;
+    return session._session_active === true || session._session_active === 'true' || Number(session._session_active) === 1;
   }
 
   const expiry = session.expires_at instanceof Date

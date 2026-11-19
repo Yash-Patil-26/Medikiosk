@@ -30,7 +30,7 @@ export async function hasCurrentConsent(sessionId, purposeKey, executor = pool) 
 
   return Boolean(
     decision &&
-    Number(decision.granted) === 1 &&
+    decision.granted === true &&
     decision.action === 'grant'
   );
 }

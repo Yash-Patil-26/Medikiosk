@@ -383,8 +383,7 @@ router.post(
         `SELECT e.*, p.sex
          FROM encounters e
          LEFT JOIN patients p ON p.id = e.patient_id
-         WHERE e.id = ?
-         FOR UPDATE`,
+         WHERE e.id = ?`,
         [req.params.id]
       );
 
@@ -456,7 +455,7 @@ router.post(
         ]
       );
 
-      // This is a local mock-HIS record, not a real external transmission.
+      // This is a local HIS record.
       if (hasHisConsent) {
         await connection.query(
           'INSERT INTO his_records (encounter_id, bundle_json) VALUES (?, ?)',

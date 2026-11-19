@@ -47,7 +47,7 @@ export function buildFhirBundle(encounter, summary) {
     resource: {
       resourceType: 'Patient',
       id: patientId,
-      text: { div: 'DEMO SYNTHETIC PATIENT — NOT REAL DATA' },
+      text: { div: 'PATIENT — NOT REAL DATA' },
       gender: encounter.sex || 'unknown'
     }
   });

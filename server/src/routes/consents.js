@@ -75,7 +75,7 @@ router.post('/:id/revoke', requireKioskSessionToken(req => req.body?.session_id)
       `INSERT INTO consents
        (patient_id, session_id, encounter_id, purpose_key,
         granted, language, action)
-       VALUES (?, ?, ?, ?, 0, ?, 'revoke')`,
+       VALUES (?, ?, ?, ?, false, ?, 'revoke')`,
       [
         session.patient_id,
         session_id,
@@ -86,7 +86,7 @@ router.post('/:id/revoke', requireKioskSessionToken(req => req.body?.session_id)
     );
 
     await connection.query(
-      `UPDATE sessions SET \`${column}\` = 0
+      `UPDATE sessions SET \`${column}\` = false
        WHERE id = ? AND status = 'active' AND expires_at > NOW()`,
       [session_id]
     );
@@ -99,9 +99,9 @@ router.post('/:id/revoke', requireKioskSessionToken(req => req.body?.session_id)
       await connection.query(
         `INSERT INTO patient_consent_preferences
          (patient_id, purpose_key, granted, notice_version, language)
-         VALUES (?, ?, 0, ?, ?)
+         VALUES (?, ?, false, ?, ?)
          ON CONFLICT (patient_id, purpose_key) DO UPDATE SET
-           granted = 0,
+           granted = false,
            notice_version = EXCLUDED.notice_version,
            language = EXCLUDED.language`,
         [patientId, consent.purpose_key, CONSENT_NOTICE_VERSION, session.language || consent.language || 'en']
@@ -109,7 +109,7 @@ router.post('/:id/revoke', requireKioskSessionToken(req => req.body?.session_id)
       await connection.query(
         `INSERT INTO consents
          (patient_id, session_id, encounter_id, purpose_key, granted, notice_version, language, action)
-         VALUES (?, NULL, ?, ?, 0, ?, ?, 'revoke')`,
+         VALUES (?, NULL, ?, ?, false, ?, ?, 'revoke')`,
         [patientId, consent.encounter_id, consent.purpose_key, CONSENT_NOTICE_VERSION, session.language || consent.language || 'en']
       );
 
@@ -121,14 +121,14 @@ router.post('/:id/revoke', requireKioskSessionToken(req => req.body?.session_id)
       );
       for (const otherSession of otherSessions) {
         await connection.query(
-          `UPDATE sessions SET \`${column}\` = 0 WHERE id = ? AND status = 'active'`,
+          `UPDATE sessions SET \`${column}\` = false WHERE id = ? AND status = 'active'`,
           [otherSession.id]
         );
         if (otherSession.id !== session_id) {
           await connection.query(
             `INSERT INTO consents
              (patient_id, session_id, encounter_id, purpose_key, granted, notice_version, language, action)
-             VALUES (?, ?, NULL, ?, 0, ?, ?, 'revoke')`,
+             VALUES (?, ?, NULL, ?, false, ?, ?, 'revoke')`,
             [patientId, otherSession.id, consent.purpose_key, CONSENT_NOTICE_VERSION, session.language || consent.language || 'en']
           );
         }

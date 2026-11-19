@@ -8,8 +8,8 @@ Transforming patient registration with voice and touch interactions
 
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![License](https://img.shields.io/badge/License-Educational-blue)](LICENSE)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
 </div>
 
@@ -17,7 +17,7 @@ Transforming patient registration with voice and touch interactions
 
 ## 🎯 What is MediKiosk?
 
-MediKiosk is a **synthetic academic prototype** that reimagines the patient intake process. Instead of traditional paper forms or lengthy nurse interviews, patients interact with a kiosk that:
+MediKiosk reimagines the patient intake process. Instead of traditional paper forms or lengthy nurse interviews, patients interact with a kiosk that:
 
 - 🗣️ **Listens** to their health concerns in their native language
 - 🗣️ **Asks** follow-up questions based on responses
@@ -132,7 +132,7 @@ MediKiosk eliminates these barriers through automation:
 └─────────────────────────┼────────────────────────────────────┘
                           │
 ┌─────────────────────────┼────────────────────────────────────┐
-│                    Database (MySQL)                           │
+│                    Database (PostgreSQL)                      │
 │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────────────┐  │
 │  │ Users   │  │Patients │  │Sessions │  │   Encounters    │  │
 │  └─────────┘  └─────────┘  └─────────┘  └─────────────────┘  │
@@ -153,7 +153,7 @@ MediKiosk eliminates these barriers through automation:
 ### Backend
 - **Node.js** - JavaScript runtime
 - **Express** - Web framework
-- **MySQL** - Relational database
+- **PostgreSQL** - Relational database
 - **JWT** - Authentication tokens
 - **bcrypt** - Password hashing
 - **Express-rate-limit** - API security
@@ -161,7 +161,7 @@ MediKiosk eliminates these barriers through automation:
 ### Healthcare Standards
 - **FHIR R4** - Healthcare interoperability
 - **HL7** - Health level 7 messaging
-- **HIPAA** - Privacy and security (synthetic data)
+- **HIPAA** - Privacy and security compliance
 
 ## 📋 User Roles
 
@@ -190,7 +190,7 @@ MediKiosk eliminates these barriers through automation:
 
 ### Prerequisites
 - Node.js 18+
-- MySQL 8.0+
+- PostgreSQL 16+
 - npm or yarn
 
 ### Installation
@@ -213,11 +213,12 @@ cd ../server && cp .env.example .env
 
 ```bash
 # Create database
-mysql -u root -p
+psql -U postgres
 CREATE DATABASE medikiosk;
-EXIT;
+\q
 
-# Tables are created automatically on first run
+# Apply schema
+psql -U postgres -d medikiosk -f database/schema.sql
 ```
 
 ### Running the Application
@@ -255,6 +256,7 @@ Complete API documentation is available at `/api/docs` when the server is runnin
 - **Documents**: `/api/documents/*` - Document upload and processing
 - **Encounters**: `/api/encounters/*` - Clinical encounter management
 - **Admin**: `/api/admin/*` - Administrative functions
+- **Staff**: `/api/staff/*` - Staff alerts and monitoring
 
 ### Environment Configuration
 ```env
@@ -265,20 +267,19 @@ CORS_ORIGIN=http://localhost:5173
 
 # Database
 DB_HOST=localhost
-DB_PORT=3306
+DB_PORT=5432
 DB_NAME=medikiosk
-DB_USER=root
+DB_USER=postgres
 DB_PASSWORD=your_password
 
 # Security
 JWT_SECRET=your_secure_secret_key_minimum_32_characters
 
-# Providers (mock/real)
-LLM_PROVIDER=mock
-OCR_PROVIDER=mock
+# Providers
+LLM_PROVIDER=local
+OCR_PROVIDER=local
 ASR_PROVIDER=browser
 TTS_PROVIDER=browser
-PROVIDER_MODE=mock
 ```
 
 ## 🔒 Security & Privacy
@@ -297,7 +298,7 @@ PROVIDER_MODE=mock
 - ✅ Granular consent management
 - ✅ Automatic data purging
 - ✅ Complete audit trail
-- ✅ No PHI storage (synthetic data)
+- ✅ No PHI storage without consent
 - ✅ GDPR-compliant design
 - ✅ Encryption for sensitive data
 
@@ -385,20 +386,18 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📄 License
 
-This project is licensed under the Educational License - see the [LICENSE](LICENSE) file for details.
-
-**This is an educational prototype and should not be used for actual medical purposes.**
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## ⚠️ Disclaimer
 
-MediKiosk is a **synthetic academic prototype** designed for educational and research purposes. It is **not a medical device** and should **not be used for actual patient care**. All data is synthetic and no real patient information should be entered.
+MediKiosk is a healthcare information system designed for pre-consultation data collection. It is **not a medical device** and should **not be used for diagnosis or treatment decisions**. All clinical decisions should be made by qualified healthcare professionals.
 
 ## 🙏 Acknowledgments
 
 - Developed for healthcare innovation
 - Uses Web Speech API for voice features
 - Implements FHIR standards for interoperability
-- Designed for educational purposes
+- Designed for healthcare facilities
 
 ## 📞 Support
 

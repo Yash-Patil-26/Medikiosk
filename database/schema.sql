@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE (login_identifier_type, login_identifier)
 );
 
--- Patient account identifiers are stored for account login in this academic prototype.
--- ABHA/mobile/email ownership is not verified by this schema, and the prototype
--- does not provide application-layer encryption for these values. Use synthetic
--- values for demonstrations and do not treat this as a production health system.
+-- Patient account identifiers are stored for account login.
+-- ABHA/mobile/email ownership is not verified by this schema, and the system
+-- does not provide application-layer encryption for these values. Use
+-- values for testing and do not treat this as a production health system.
 CREATE TABLE IF NOT EXISTS patients (
   id SERIAL PRIMARY KEY,
   sex VARCHAR(20) CHECK (sex IN ('male','female','other','prefer_not_to_say')),
@@ -54,8 +54,10 @@ CREATE TABLE IF NOT EXISTS sessions (
   graph_id VARCHAR(100),
   expires_at TIMESTAMP,
   kiosk_token_hash CHAR(64) NULL,
+  doctor_id INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE SET NULL
+  FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE SET NULL,
+  FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS session_slots (

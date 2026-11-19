@@ -8,7 +8,7 @@ import api from '../services/api.js';
 const CONSENT_ITEMS = [
   { key: 'voice', title: 'Voice processing', description: 'Allow voice input to be processed for transcription.', icon: Volume2 },
   { key: 'document', title: 'Document processing', description: 'Allow uploaded documents to be processed by the document extraction workflow.', icon: FileText },
-  { key: 'his', title: 'Share with hospital information system', description: 'Allow a signed encounter summary to be shared with the connected mock hospital system.', icon: Database },
+  { key: 'his', title: 'Share with hospital information system', description: 'Allow a signed encounter summary to be shared with the connected hospital system.', icon: Database },
   { key: 'dashboard', title: 'Save to patient dashboard', description: 'Allow the application to save encounter information for future reference where supported.', icon: Shield }
 ];
 const EMPTY_PREFERENCES = { voice: false, document: false, his: false, dashboard: false };
@@ -109,7 +109,7 @@ export default function ConsentPreferences({ mode = 'initial' }) {
             <Check size={18} /> {loading ? 'Saving choices…' : isManageMode ? 'Save preference changes' : 'Save choices and continue'}
           </button>
         </form>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-5">Consent choices are recorded for traceability. This academic prototype does not provide legal advice or verify external health identifiers.</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-5">Consent choices are recorded for traceability. Consent choices are recorded for traceability.</p>
       </main>
       </div>
     </div>

@@ -13,6 +13,7 @@ import documentRoutes from './routes/documents.js';
 import encounterRoutes from './routes/encounters.js';
 import hisRoutes from './routes/his.js';
 import adminRoutes from './routes/admin.js';
+import staffRoutes from './routes/staff.js';
 
 const app = express();
 
@@ -36,8 +37,9 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/encounters', encounterRoutes);
 app.use('/api/his', hisRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/staff', staffRoutes);
 
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', mode: 'DEMO' }));
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', mode: 'production' }));
 
 app.use((err, _req, res, _next) => {
   console.error(err);

@@ -127,7 +127,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t('key_features')}</h2>
-            <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">Prototype workflows designed to support a clear pre-consultation demonstration</p>
+            <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">Workflows designed to support efficient pre-consultation data collection</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {FEATURES.map((f, i) => (

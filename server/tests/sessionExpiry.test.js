@@ -26,7 +26,7 @@ test(
       'DB_NAME must exactly match MEDIKIOSK_TEST_DB'
     );
 
-    const [dbRows] = await pool.query('SELECT DATABASE() AS db');
+    const [dbRows] = await pool.query('SELECT current_database() AS db');
     assert.equal(
       dbRows[0].db,
       expectedTestDb,
@@ -53,7 +53,7 @@ test(
         `INSERT INTO sessions
          (id, language, status, expires_at,
           voice_consent, document_consent, share_his_consent, save_dashboard_consent)
-         VALUES (?, 'en', 'active', DATE_SUB(NOW(), INTERVAL 1 MINUTE), 1, 1, 1, 1)`,
+         VALUES (?, 'en', 'active', NOW() - INTERVAL '1 minute', true, true, true, true)`,
         [sessionId]
       );
 
@@ -77,7 +77,7 @@ test(
 
       await pool.query(
         `INSERT INTO consents (session_id, purpose_key, granted, action)
-         VALUES (?, 'his', 1, 'grant')`,
+         VALUES (?, 'his', true, 'grant')`,
         [sessionId]
       );
 

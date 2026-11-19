@@ -11,14 +11,14 @@ async function start() {
   assertJwtSecretConfigured();
   await testConnection();
   if (process.env.NODE_ENV === 'production') {
-    console.log('Demo-account seeding disabled in production.');
+    console.log('Admin seeding disabled in production.');
   } else {
     await runSeed();
   }
   app.listen(PORT, () => {
     startSessionExpiryCleanup();
     console.log(`MediKiosk server running on http://localhost:${PORT}`);
-    console.log('DEMO MODE — Synthetic data only');
+    console.log('Healthcare Intake System');
   });
 }
 

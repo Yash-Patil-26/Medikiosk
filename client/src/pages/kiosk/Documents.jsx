@@ -173,7 +173,7 @@ export default function Documents() {
               <span className="text-xs text-gray-400 dark:text-gray-500">
                 {Number(ext.confidence) > 0
                   ? 'Confidence: ' + Math.round(Number(ext.confidence) * 100) + '%'
-                  : 'OCR confidence unavailable (mock mode)'}
+                  : 'OCR confidence unavailable'}
               </span>
               {ext.verified
                 ? <span className="flex items-center gap-2 text-success-600 dark:text-success-400 text-sm font-medium"><CheckCircle size={16} /> Verified by patient</span>

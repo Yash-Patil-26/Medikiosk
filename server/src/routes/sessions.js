@@ -363,10 +363,10 @@ router.delete('/:id', requireKioskSessionToken(req => req.params.id), async (req
     const [updateResult] = await connection.query(
       `UPDATE sessions
        SET status = 'purged',
-           voice_consent = 0,
-           document_consent = 0,
-           share_his_consent = 0,
-           save_dashboard_consent = 0,
+           voice_consent = false,
+           document_consent = false,
+           share_his_consent = false,
+           save_dashboard_consent = false,
            current_node_id = NULL
        WHERE id = ?`,
       [req.params.id]

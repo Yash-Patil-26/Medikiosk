@@ -17,7 +17,7 @@ test('patient registration, persistent consent, repeat login and session start',
   assert.ok(expectedTestDb, 'Set MEDIKIOSK_TEST_DB explicitly to a dedicated test database.');
   assert.match(expectedTestDb, /^[A-Za-z0-9_]+_test$/i, 'MEDIKIOSK_TEST_DB must end in _test.');
   assert.equal(process.env.DB_NAME?.trim(), expectedTestDb, 'DB_NAME must exactly match MEDIKIOSK_TEST_DB.');
-  const [selectedRows] = await pool.query('SELECT DATABASE() AS db');
+  const [selectedRows] = await pool.query('SELECT current_database() AS db');
   assert.equal(selectedRows[0]?.db, expectedTestDb, 'Refusing to test against an unapproved database.');
 
   const email = `mk-${randomUUID()}@example.test`;

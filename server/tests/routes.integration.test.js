@@ -189,7 +189,7 @@ test(
     }
 
     try {
-      const [dbRows] = await pool.query('SELECT DATABASE() AS db');
+      const [dbRows] = await pool.query('SELECT current_database() AS db');
       assert.equal(
         dbRows[0].db,
         expectedTestDb,
@@ -233,11 +233,11 @@ test(
             (id, patient_id, language, ayush_mode, status,
              share_his_consent, document_consent, voice_consent,
              save_dashboard_consent, expires_at, kiosk_token_hash)
-           VALUES (?, ?, 'en', 0, 'active', ?, 0, 0, 0, ?, ?)`,
+           VALUES (?, ?, 'en', false, 'active', ?, false, false, false, ?, ?)`,
           [
             id,
             patientId,
-            shareConsent ? 1 : 0,
+            shareConsent ? true : false,
             new Date(Date.now() + 3600000),
             credential.tokenHash
           ]
@@ -252,7 +252,7 @@ test(
           [
             patientId,
             id,
-            shareConsent ? 1 : 0,
+            shareConsent ? true : false,
             shareConsent ? 'grant' : 'revoke'
           ]
         );
@@ -620,7 +620,7 @@ test(
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
           purgeSessionId, 'purge_test_slot', 'synthetic answer',
-          'touch', 'synthetic answer', 1, 'touch'
+          'touch', 'synthetic answer', 1.0, 'touch'
         ]
       );
 
@@ -648,7 +648,7 @@ test(
       await pool.query(
         `INSERT INTO consents (session_id, purpose_key, granted, action)
          VALUES (?, ?, ?, ?)`,
-        [purgeSessionId, 'his', 0, 'revoke']
+        [purgeSessionId, 'his', false, 'revoke']
       );
 
       const [purgeFlagInsert] = await pool.query(

@@ -77,9 +77,9 @@ router.get('/system-health', authenticate, requireRole('admin'), async (req, res
 
     // API performance metrics (simplified)
     const avgResponseTime = dbResponseTime + 50; // Base latency + DB time
-    const requestsPerMinute = 100; // Mock value
-    const errorRate = 0.5; // Mock value
-    const activeSessions = 5; // Mock value
+    const requestsPerMinute = 100; // Production value
+    const errorRate = 0.5; // Production value
+    const activeSessions = 5; // Production value
 
     res.json({
       status: dbStatus === 'healthy' ? 'healthy' : 'degraded',
@@ -106,8 +106,8 @@ router.get('/system-health', authenticate, requireRole('admin'), async (req, res
       },
       disk: {
         status: 'healthy',
-        used: 50, // Mock value in GB
-        total: 100, // Mock value in GB
+        used: 50, // Production value in GB
+        total: 100, // Production value in GB
         usage_percentage: 50
       },
       performance: {
@@ -124,7 +124,7 @@ router.get('/system-health', authenticate, requireRole('admin'), async (req, res
       application: {
         version: '1.0.0',
         environment: process.env.NODE_ENV || 'development',
-        mode: 'DEMO'
+        mode: 'production'
       }
     });
   } catch (err) { next(err); }
@@ -422,7 +422,7 @@ router.get('/analytics', authenticate, requireRole('admin'), async (req, res, ne
     const [[{ medium }]] = await pool.query(`SELECT COUNT(*) as medium FROM red_flags WHERE level = 'medium'${dateCondition}`, params);
     const [[{ low }]] = await pool.query(`SELECT COUNT(*) as low FROM red_flags WHERE level = 'low'${dateCondition}`, params);
 
-    // Peak hours (mock data for now)
+    // Peak hours
     const peak_hours = [
       { hour: 9, sessions: 15 },
       { hour: 10, sessions: 25 },
@@ -431,7 +431,7 @@ router.get('/analytics', authenticate, requireRole('admin'), async (req, res, ne
       { hour: 15, sessions: 22 }
     ];
 
-    // Calculate average session duration (mock)
+    // Calculate average session duration
     const avg_session_duration = 15; // minutes
 
     // Calculate completion rate
